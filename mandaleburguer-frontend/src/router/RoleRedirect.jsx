@@ -9,7 +9,7 @@ const RoleRedirect = () => {
   const role = user.groups?.[0];
 
   switch(role) {
-    case 'AdminApp': return <Navigate to="/admin" replace />;
+    case 'AppAdmin': return <Navigate to="/admin" replace />;
     case 'Cook': return <Navigate to="/cook" replace />;
     case 'Client': return <Navigate to="/client" replace />;
     default: return <Navigate to="/login" replace />;

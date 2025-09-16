@@ -17,7 +17,7 @@ function AppRouter() {
       <Route path="/redirect" element={<RoleRedirect />} />
 
       {/* Rutas privadas por rol */}
-      <Route element={<PrivateRoutes allowedRoles={['AdminApp']} />}>
+      <Route element={<PrivateRoutes allowedRoles={['AppAdmin']} />}>
         <Route path="/admin" element={<AdminDashboard />} />
       </Route>
 
