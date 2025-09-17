@@ -3,7 +3,7 @@ const Button = ({ onClick, children, className = "", type = "button" }) => {
     <button
       type={type}
       onClick={type === "button" ? onClick : undefined} 
-      className={`cursor-pointer w-full py-2  text-white rounded-lg  transition duration-300 ${className}`}
+      className={`font-medium cursor-pointer w-full py-3  text-white rounded-md  transition duration-300 ${className}`}
     >
       {children}
     </button>

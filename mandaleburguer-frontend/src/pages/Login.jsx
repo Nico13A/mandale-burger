@@ -1,66 +1,67 @@
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { Navigate, Link } from "react-router-dom";
 import Input from "../components/Input/Input";
 import Button from "../components/Button/Button";
+import Spinner from "../components/Spinner/Spinner";
+import { useAuth } from "../hooks/useAuth";
+import { useLogin } from "../hooks/useLogin";
 
 const Login = () => {
+  const { user } = useAuth();
+  const { handleLogin, error, loading } = useLogin();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const {user, login } = useAuth();
 
   if (user) return <Navigate to="/redirect" replace />;
 
-  const handleLogin = async () => {
-    setError("");
-    try {
-      await login(username, password);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+      <div className="w-full max-w-md">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          Iniciar sesión
+        </h2>
+      </div>
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleLogin();
+          handleLogin(username, password);
         }}
-        className="w-full max-w-sm bg-white rounded-2xl shadow-lg p-8"
+        className="w-full max-w-md flex flex-col gap-4"
       >
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-          Iniciar Sesión
-        </h2>
-
-        {error && (
-          <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
-        )}
-
         <Input
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          placeholder="Usuario"
+          placeholder="Ingrese su usuario"
         />
 
         <Input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Contraseña"
-          className="mb-6"
+          placeholder="Ingrese su contraseña"
         />
 
+        {error && <p className="text-red-500 text-center text-sm mb-2">{error}</p>}
+
         <Button
-          className="bg-naranja-boton hover:bg-naranja-boton-hover"
           type="submit"
+          className="bg-naranja-boton hover:bg-naranja-boton-hover shadow-md flex items-center justify-center"
+          disabled={loading}
         >
-          Entrar
+          {loading ? <Spinner /> : "Ingresar"}
         </Button>
+
+        <div className="mt-4 text-center text-sm text-gray-600">
+          ¿No tienes una cuenta?{" "}
+          <Link to="/register" className="text-orange-400 hover:underline font-medium">
+            Regístrate aquí
+          </Link>
+        </div>
       </form>
     </div>
   );
 };
 
 export default Login;
+

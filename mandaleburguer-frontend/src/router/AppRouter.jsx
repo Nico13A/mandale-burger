@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoutes from "./PrivateRoutes";
 import RoleRedirect from "./RoleRedirect";
 
@@ -6,15 +6,17 @@ import AdminDashboard from "../pages/Admin/AdminDashboard";
 import CookDashboard from "../pages/Cook/CookDashboard";
 import ClientDashboard from "../pages/Client/ClientDashboard";
 import Login from "../pages/Login";
+import Register from "../pages/Register";
 
 function AppRouter() {
   return (
     <Routes>
-      {/* Ruta pública */}
-      <Route path="/login" element={<Login />} />
+      {/* Redirige la raíz según si el usuario está logueado */}
+      <Route path="/" element={<RoleRedirect />} />
 
-      {/* Ruta para redirigir al dashboard según rol */}
-      <Route path="/redirect" element={<RoleRedirect />} />
+      {/* Rutas públicas */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
       {/* Rutas privadas por rol */}
       <Route element={<PrivateRoutes allowedRoles={['AppAdmin']} />}>
@@ -28,8 +30,12 @@ function AppRouter() {
       <Route element={<PrivateRoutes allowedRoles={['Client']} />}>
         <Route path="/client" element={<ClientDashboard />} />
       </Route>
+
+      {/* Redirección por defecto si no existe la ruta */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
 
 export default AppRouter;
+

@@ -18,6 +18,11 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         client_group = Group.objects.get(name='Client')
         user.groups.add(client_group)
         return user
+    
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Este email ya está en uso.")
+        return value
 
 
 class CurrentUserSerializer(serializers.ModelSerializer):

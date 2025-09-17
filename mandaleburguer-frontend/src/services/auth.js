@@ -5,7 +5,7 @@ export const login = async (username, password) => {
     const res = await api.post('/api/token/', { username, password });
     localStorage.setItem('access_token', res.data.access);
     localStorage.setItem('refresh_token', res.data.refresh);
-    return res.data; 
+    return res.data;
   } catch (err) {
     const mensaje = err.response?.data?.detail || 'Error en el login';
     throw new Error(mensaje);
@@ -14,7 +14,7 @@ export const login = async (username, password) => {
 
 export const getCurrentUser = async () => {
   try {
-    const res = await api.get('/api/user/'); 
+    const res = await api.get('/api/user/');
     return res.data;
   } catch (err) {
     const mensaje = err.response?.data?.detail || 'No se pudo obtener el usuario';
@@ -30,7 +30,7 @@ export const logout = () => {
 export const refreshToken = async () => {
   const refresh = localStorage.getItem('refresh_token');
   if (!refresh) throw new Error('No hay refresh token disponible');
-  
+
   try {
     const res = await api.post('/api/token/refresh/', { refresh });
     localStorage.setItem('access_token', res.data.access);
@@ -38,6 +38,22 @@ export const refreshToken = async () => {
   } catch (err) {
     const mensaje = err.response?.data?.detail || 'No se pudo refrescar la sesión';
     logout();
+    throw new Error(mensaje);
+  }
+};
+
+export const register = async (userData) => {
+  try {
+    const res = await api.post('/api/register/', userData);
+    return res.data;
+  } catch (err) {
+    if (err.response?.data?.username) {
+      throw new Error(err.response.data.username[0]);
+    }
+    if (err.response?.data?.email) {
+      throw new Error(err.response.data.email[0]);
+    }
+    const mensaje = err.response?.data?.detail || 'Error en el registro';
     throw new Error(mensaje);
   }
 };
