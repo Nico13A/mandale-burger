@@ -1,6 +1,6 @@
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-
+import Navar from "../../components/Navbar/Navbar";
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -20,6 +20,7 @@ export default function AdminDashboard() {
       >
         Cerrar sesión
       </button>
+      <Navar />
     </div>
   );
 }

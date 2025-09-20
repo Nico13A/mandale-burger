@@ -12,7 +12,7 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  if (user) return <Navigate to="/redirect" replace />;
+  if (user) return <Navigate to="/" replace />;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
