@@ -1,6 +1,6 @@
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import Navar from "../../components/Navbar/Navbar";
+
 
 export default function CookDashboard() {
   const { user, logout } = useAuth();
@@ -22,7 +22,7 @@ export default function CookDashboard() {
       >
         Cerrar sesión
       </button>
-      <Navar />
+
     </div>
   );
 }

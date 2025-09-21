@@ -1,0 +1,40 @@
+import Button from "../Button/Button.jsx";
+import CartButton from "../CartButton/CartButton.jsx";
+import { getMenuItems } from "./menu.config.js";
+
+export default function NavbarDesktop({ role, cartCount = 0 }) {
+    const allItems = getMenuItems(role);
+
+    const textItems = allItems.filter(item => item.key !== "Carrito");
+    const cartItem = allItems.find(item => item.key === "Carrito");
+
+    return (
+        <nav className="hidden md:flex items-center justify-between w-full bg-white shadow-xs px-6 py-3 fixed top-0 left-0 z-50">
+            <div className="text-xl font-bold">
+                <img src="./public/assets/Logo.png" alt="Logo Mandale Burger" className="w-30" />
+            </div>
+
+            <div className="flex items-center space-x-6">
+                {textItems.map(({ key, label }) => (
+                    <Button
+                        key={key}
+                        onClick={() => console.log("Navegar a", key)}
+                        aria-label={label}
+                    >
+                        <span className="text-gris-boton hover:text-naranja-boton-hover transition-colors duration-200">
+                            {label}
+                        </span>
+                    </Button>
+                ))}
+
+                {cartItem && (
+                    <CartButton
+                        key={cartItem.key}
+                        count={cartCount}
+                        onClick={() => console.log("Navegar a", cartItem.key)}
+                    />
+                )}
+            </div>
+        </nav>
+    );
+}

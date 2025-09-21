@@ -6,6 +6,8 @@ import Spinner from "../components/Spinner/Spinner";
 import { useAuth } from "../hooks/useAuth";
 import { useLogin } from "../hooks/useLogin";
 
+const logoUrl = "/assets/Logo.png";
+
 const Login = () => {
   const { user } = useAuth();
   const { handleLogin, error, loading } = useLogin();
@@ -16,6 +18,12 @@ const Login = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+      <img
+        src={logoUrl}
+        alt="Logo de la aplicación"
+        className="absolute top-6 left-1/2 transform -translate-x-1/2 w-26 h-auto md:w-50"
+      />
+
       <div className="w-full max-w-md">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Iniciar sesión
@@ -64,4 +72,3 @@ const Login = () => {
 };
 
 export default Login;
-
