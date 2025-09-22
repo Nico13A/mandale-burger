@@ -38,9 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'corsheaders',
     'rest_framework',
+    'djoser',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -147,3 +151,13 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  
 ]
+
+#DJOSER = {
+#    'PASSWORD_RESET_CONFIRM_URL': 'http://localhost:5173/password/reset/confirm/{uid}/{token}',
+#}
+
+DJOSER = {
+    'DOMAIN': 'localhost:5173',  # tu frontend
+    'SITE_NAME': 'Mandaleburguer',
+    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+}

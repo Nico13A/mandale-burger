@@ -7,6 +7,8 @@ import CookDashboard from "../pages/Cook/CookDashboard";
 import ClientDashboard from "../pages/Client/ClientDashboard";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import ForgotPassword from "../pages/ForgotPassword";
+import ResetPasswordConfirm from "../pages/ResetPasswordConfirm";
 
 function AppRouter() {
   return (
@@ -17,6 +19,8 @@ function AppRouter() {
       {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/password/reset" element={<ForgotPassword />} />
+      <Route path="/password/reset/confirm/:uid/:token" element={<ResetPasswordConfirm />} />
 
       {/* Rutas privadas por rol */}
       <Route element={<PrivateRoutes allowedRoles={['AppAdmin']} />}>

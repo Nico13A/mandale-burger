@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User, Group
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework.exceptions import AuthenticationFailed
+#from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+#from rest_framework.exceptions import AuthenticationFailed
 
 class RegisterUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -36,10 +36,10 @@ class CurrentUserSerializer(serializers.ModelSerializer):
         return list(obj.groups.values_list('name', flat=True))
     
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        try:
-            data = super().validate(attrs)
-        except AuthenticationFailed:
-            raise AuthenticationFailed('Usuario o contraseña incorrectos')
-        return data
+#class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+#    def validate(self, attrs):
+#        try:
+#            data = super().validate(attrs)
+#        except AuthenticationFailed:
+#            raise AuthenticationFailed('Usuario o contraseña incorrectos')
+#        return data
