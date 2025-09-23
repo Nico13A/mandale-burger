@@ -1,54 +1,60 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { resetPasswordConfirm } from "../services/auth";
+import { useParams } from "react-router-dom";
+import Button from "../components/Button/Button";
+import Spinner from "../components/Spinner/Spinner";
+import Input from "../components/Input/Input";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useResetPasswordConfirm } from "../hooks/useResetPasswordConfirm";
 
 const ResetPasswordConfirm = () => {
-  const { uid, token } = useParams(); // vienen desde la URL: /password/reset/confirm/:uid/:token
-  const navigate = useNavigate();
+  const { uid, token } = useParams();
   const [newPassword, setNewPassword] = useState("");
-  const [error, setError] = useState("");
-  const [mensaje, setMensaje] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const { handleReset, loading, errors } = useResetPasswordConfirm(uid, token);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError("");
-    setMensaje("");
-    setLoading(true);
-    try {
-      await resetPasswordConfirm(uid, token, newPassword);
-      setMensaje("Contraseña cambiada correctamente. Puedes iniciar sesión ahora.");
-      setTimeout(() => navigate("/login"), 3000); // redirige al login después de 3s
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    handleReset(newPassword);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Nueva contraseña</h2>
+      <h2 className="text-2xl md:text-3xl font-bold text-gris-boton mb-6">Nueva contraseña</h2>
       <form onSubmit={handleSubmit} className="w-full max-w-md flex flex-col gap-4">
-        <input
+        <Input
           type="password"
+          name="newPassword"
           placeholder="Ingrese nueva contraseña"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="border rounded px-3 py-2 w-full"
+          disabled={loading}
         />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {mensaje && <p className="text-green-500 text-sm">{mensaje}</p>}
-        <button
+
+        {errors && errors.length > 1 ? (
+          <ul className="text-red-500 text-sm list-disc list-inside">
+            {errors.map((msg, index) => (
+              <li key={index}>{msg}</li>
+            ))}
+          </ul>
+        ) : errors && (
+          <p className="text-red-500 text-sm">{errors[0]}</p>
+        )}
+
+        <Button
           type="submit"
-          className="bg-naranja-boton hover:bg-naranja-boton-hover text-white py-2 rounded shadow"
+          className="bg-naranja-boton hover:bg-naranja-boton-hover shadow-md flex items-center justify-center disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? "Cambiando..." : "Cambiar contraseña"}
-        </button>
+          {loading ? <Spinner /> : "Cambiar contraseña"}
+        </Button>
       </form>
+
+      <ToastContainer />
     </div>
   );
 };
 
 export default ResetPasswordConfirm;
+
+

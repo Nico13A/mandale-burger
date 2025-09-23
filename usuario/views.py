@@ -5,13 +5,13 @@ from rest_framework import generics
 from .serializers import RegisterUserSerializer, CurrentUserSerializer#, CustomTokenObtainPairSerializer
 #from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
+from .permissions import IsInGroup
 
 # =========================
 # Vista para traer usuario actual
 # =========================
-
 class CurrentUserView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsInGroup]
     def get(self, request):
         serializer = CurrentUserSerializer(request.user)
         return Response(serializer.data)

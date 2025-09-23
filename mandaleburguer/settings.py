@@ -52,6 +52,9 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+
+    'django.middleware.locale.LocaleMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -157,7 +160,12 @@ CORS_ALLOWED_ORIGINS = [
 #}
 
 DJOSER = {
-    'DOMAIN': 'localhost:5173',  # tu frontend
-    'SITE_NAME': 'Mandaleburguer',
+    'DOMAIN': 'localhost:5173',  
+    'SITE_NAME': 'Mandale Burger',
+
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+
+    "SEND_ACTIVATION_EMAIL": False,
+    "SEND_CONFIRMATION_EMAIL": False,
 }
+
