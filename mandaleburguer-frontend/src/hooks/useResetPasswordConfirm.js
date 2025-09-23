@@ -9,17 +9,19 @@ export const useResetPasswordConfirm = (uid, token) => {
   const [errors, setErrors] = useState(null);
 
   const handleReset = async (newPassword) => {
-    setLoading(true);
     setErrors(null);
-
+    setLoading(true);
     try {
       await resetPasswordConfirm(uid, token, newPassword);
 
-      toast.success("Contraseña cambiada correctamente. Puedes iniciar sesión ahora.", {
-        position: "top-right",
-        autoClose: 3000,
-        onClose: () => navigate("/login"),
-      });
+      toast.success(
+        "Contraseña cambiada correctamente. Puedes iniciar sesión ahora.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          onClose: () => navigate("/login"),
+        }
+      );
     } catch (err) {
       if (err.new_password) {
         const mensajesTraducidos = err.new_password.map((msg) =>

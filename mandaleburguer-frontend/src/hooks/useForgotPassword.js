@@ -7,10 +7,11 @@ export const useForgotPassword = () => {
   const [error, setError] = useState(null);
 
   const handleForgotPassword = async (email) => {
-    setLoading(true);
     setError(null);
+    setLoading(true);
     try {
       await forgotPassword(email);
+
       toast.success(
         "Se envió un email con las instrucciones para resetear tu contraseña.",
         { position: "top-right", autoClose: 3000 }

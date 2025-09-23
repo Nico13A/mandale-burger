@@ -2,8 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
-from .serializers import RegisterUserSerializer, CurrentUserSerializer#, CustomTokenObtainPairSerializer
-#from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import RegisterUserSerializer, CurrentUserSerializer
 from rest_framework.permissions import AllowAny
 from .permissions import IsInGroup
 
@@ -11,6 +10,7 @@ from .permissions import IsInGroup
 # Vista para traer usuario actual
 # =========================
 class CurrentUserView(APIView):
+    allowed_groups = ['Client', 'Cook', 'AppAdmin']
     permission_classes = [IsAuthenticated, IsInGroup]
     def get(self, request):
         serializer = CurrentUserSerializer(request.user)
@@ -23,7 +23,3 @@ class CurrentUserView(APIView):
 class RegisterUserView(generics.CreateAPIView):
     serializer_class = RegisterUserSerializer
     permission_classes = [AllowAny]
-
-
-#class CustomTokenObtainPairView(TokenObtainPairView):
-#    serializer_class = CustomTokenObtainPairSerializer

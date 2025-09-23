@@ -3,20 +3,20 @@ import { useAuth } from "./useAuth";
 
 export const useLogin = () => {
   const { login } = useAuth();
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleLogin = async (username, password) => {
-    setError("");
+    setError(null);
     setLoading(true);
     try {
       await login(username, password);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
   };
-  
-  return { handleLogin, error, loading };
+
+  return { handleLogin, loading, error };
 };
