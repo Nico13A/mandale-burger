@@ -1,10 +1,21 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Poppins';
+  src: url('./assets/fonts/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
 @theme {
   --color-naranja-boton: #FA9A34;
   --color-naranja-boton-hover: #E5882B;
   --color-gris-boton: #212121;
   --color-gris-boton-hover: #191919;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
 }
 
 
