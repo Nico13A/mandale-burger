@@ -5,6 +5,7 @@ const ENDPOINTS = {
   REFRESH: "/api/auth/jwt/refresh/",
   REGISTER: "/api/register/",
   USER: "/api/user/",
+  COCINEROS: "api/cocineros/",
   RESET_PASSWORD: "/api/auth/users/reset_password/",
   RESET_PASSWORD_CONFIRM: "/api/auth/users/reset_password_confirm/",
 };
@@ -104,5 +105,18 @@ export const resetPasswordConfirm = async (uid, token, new_password) => {
       throw err.response.data;
     }
     throw { detail: ["Error al cambiar la contraseña."] };
+  }
+};
+
+// ------------------ OBTENER COCINEROS ------------------
+export const getCocineros = async () => {
+  try {
+    const res = await api.get(ENDPOINTS.COCINEROS);
+    return res.data;
+  } catch (error) { 
+    console.log(error);
+    
+    const mensaje = error.response?.data?.detail || "No se pudo obtener la lista de cocineros.";
+    throw new Error(mensaje);
   }
 };

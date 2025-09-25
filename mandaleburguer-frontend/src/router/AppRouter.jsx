@@ -2,9 +2,14 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoutes from "./PrivateRoutes";
 import RoleRedirect from "./RoleRedirect";
 
+import AdminLayout from "../layouts/AdminLayout";
 import AdminDashboard from "../pages/Admin/AdminDashboard";
+import CocinerosList from "../pages/Admin/CocinerosList";
+
 import CookDashboard from "../pages/Cook/CookDashboard";
+
 import ClientDashboard from "../pages/Client/ClientDashboard";
+
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
@@ -23,8 +28,11 @@ function AppRouter() {
       <Route path="/password/reset/confirm/:uid/:token" element={<ResetPasswordConfirm />} />
 
       {/* Rutas privadas por rol */}
-      <Route element={<PrivateRoutes allowedRoles={['AppAdmin']} />}>
-        <Route path="/admin" element={<AdminDashboard />} />
+      <Route element={<PrivateRoutes allowedRoles={["AppAdmin"]} />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/cocineros" element={<CocinerosList />} />
+        </Route>
       </Route>
 
       <Route element={<PrivateRoutes allowedRoles={['Cook']} />}>
