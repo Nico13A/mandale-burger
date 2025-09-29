@@ -23,7 +23,7 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: "" }); 
+    setErrors({ ...errors, [name]: "" });
   };
 
   const validate = () => {
@@ -38,113 +38,54 @@ const Register = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const onSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
     try {
       await handleRegister(formData);
     } catch (err) {
+      if (err.password) {
+        err.password = err.password.map((msg) =>
+          msg.includes("This password is too short")
+            ? "Esta contraseña es demasiado corta. Debe contener al menos 8 caracteres."
+            : msg
+        );
+      }
       setErrors(err);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6 text-gris-boton">
       <div className="w-full max-w-md">
         <h2 className="text-2xl md:text-3xl font-bold text-gris-boton mb-6">Crear cuenta</h2>
       </div>
 
-      <form onSubmit={onSubmit} className="w-full max-w-md flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-md flex flex-col gap-4">
+        <Input name="username" value={formData.username} onChange={handleChange} placeholder="Usuario" disabled={loading} />
+        {errors.username && <p className="text-red-500 text-sm">{Array.isArray(errors.username) ? errors.username[0] : errors.username}</p>}
 
-        <div className="flex flex-col gap-2">
-          <Input
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            placeholder="Usuario"
-            disabled={loading}
-          />
-          {errors.username && (
-            <p className="text-red-500 text-sm">
-              {Array.isArray(errors.username) ? errors.username[0] : errors.username}
-            </p>
-          )}
-        </div>
+        <Input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="Email" disabled={loading} />
+        {errors.email && <p className="text-red-500 text-sm">{Array.isArray(errors.email) ? errors.email[0] : errors.email}</p>}
 
-        <div className="flex flex-col gap-2">
-          <Input
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Email"
-            disabled={loading}
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm">
-              {Array.isArray(errors.email) ? errors.email[0] : errors.email}
-            </p>
-          )}
-        </div>
+        <Input name="password" type="password" value={formData.password} onChange={handleChange} placeholder="Contraseña" disabled={loading} />
+        {errors.password && (
+          Array.isArray(errors.password) ? (
+            <ul className="text-red-500 text-sm list-disc ml-5">
+              {errors.password.map((msg, i) => (
+                <li key={i}>{msg}</li>
+              ))}
+            </ul>
+          ) : <p className="text-red-500 text-sm">{errors.password}</p>
+        )}
 
-        <div className="flex flex-col gap-2">
-          <Input
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Contraseña"
-            disabled={loading}
-          />
-          {errors.password && (
-            Array.isArray(errors.password) && errors.password.length > 1 ? (
-              <ul className="text-red-500 text-sm list-disc ml-5">
-                {errors.password.map((msg, i) => {
-                  if (msg.includes("This password is too short")) {
-                    msg = "Esta contraseña es demasiado corta. Debe contener al menos 8 caracteres.";
-                  }
-                  return <li key={i}>{msg}</li>;
-                })}
-              </ul>
-            ) : (
-              <p className="text-red-500 text-sm">
-                {Array.isArray(errors.password)
-                  ? errors.password[0].includes("This password is too short")
-                    ? "Esta contraseña es demasiado corta. Debe contener al menos 8 caracteres."
-                    : errors.password[0]
-                  : errors.password}
-              </p>
-            )
-          )}
-        </div>
+        <Input name="first_name" value={formData.first_name} onChange={handleChange} placeholder="Nombre" disabled={loading} />
+        {errors.first_name && <p className="text-red-500 text-sm">{errors.first_name}</p>}
 
-        <div className="flex flex-col gap-2">
-          <Input
-            name="first_name"
-            value={formData.first_name}
-            onChange={handleChange}
-            placeholder="Nombre"
-            disabled={loading}
-          />
-          {errors.first_name && <p className="text-red-500 text-sm">{errors.first_name}</p>}
-        </div>
+        <Input name="last_name" value={formData.last_name} onChange={handleChange} placeholder="Apellido" disabled={loading} />
+        {errors.last_name && <p className="text-red-500 text-sm">{errors.last_name}</p>}
 
-        <div className="flex flex-col gap-2">
-          <Input
-            name="last_name"
-            value={formData.last_name}
-            onChange={handleChange}
-            placeholder="Apellido"
-            disabled={loading}
-          />
-          {errors.last_name && <p className="text-red-500 text-sm">{errors.last_name}</p>}
-        </div>
-
-        <Button
-          type="submit"
-          className="bg-gris-boton hover:bg-gris-boton-hover shadow-md flex items-center justify-center disabled:opacity-50"
-          disabled={loading}
-        >
+        <Button type="submit" className="bg-gris-boton hover:bg-gris-boton-hover shadow-md flex items-center justify-center disabled:opacity-50" disabled={loading}>
           {loading ? <Spinner /> : "Registrarse"}
         </Button>
 
@@ -162,3 +103,6 @@ const Register = () => {
 };
 
 export default Register;
+
+
+

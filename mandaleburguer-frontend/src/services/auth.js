@@ -5,10 +5,12 @@ const ENDPOINTS = {
   REFRESH: "/api/auth/jwt/refresh/",
   REGISTER: "/api/register/",
   USER: "/api/user/",
+  PROFILE_IMAGE: "/api/user/profile/image/",
   COCINEROS: "api/cocineros/",
   RESET_PASSWORD: "/api/auth/users/reset_password/",
   RESET_PASSWORD_CONFIRM: "/api/auth/users/reset_password_confirm/",
 };
+
 
 // ------------------ LOGIN ------------------
 export const login = async (username, password) => {
@@ -38,22 +40,13 @@ export const login = async (username, password) => {
   }
 };
 
+
 // ------------------ LOGOUT ------------------
 export const logout = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
 };
 
-// ------------------ CURRENT USER ------------------
-export const getCurrentUser = async () => {
-  try {
-    const res = await api.get(ENDPOINTS.USER);
-    return res.data;
-  } catch (err) {
-    const mensaje = err.response?.data?.detail || "No se pudo obtener el usuario";
-    throw new Error(mensaje);
-  }
-};
 
 // ------------------ REFRESH TOKEN ------------------
 export const refreshToken = async () => {
@@ -71,6 +64,7 @@ export const refreshToken = async () => {
   }
 };
 
+
 // ------------------ REGISTER ------------------
 export const register = async (userData) => {
   try {
@@ -84,6 +78,7 @@ export const register = async (userData) => {
   }
 };
 
+
 // ------------------ FORGOT PASSWORD ------------------
 export const forgotPassword = async (email) => {
   try {
@@ -95,6 +90,7 @@ export const forgotPassword = async (email) => {
   }
 };
 
+
 // ------------------ RESET PASSWORD CONFIRM ------------------
 export const resetPasswordConfirm = async (uid, token, new_password) => {
   try {
@@ -105,18 +101,5 @@ export const resetPasswordConfirm = async (uid, token, new_password) => {
       throw err.response.data;
     }
     throw { detail: ["Error al cambiar la contraseña."] };
-  }
-};
-
-// ------------------ OBTENER COCINEROS ------------------
-export const getCocineros = async () => {
-  try {
-    const res = await api.get(ENDPOINTS.COCINEROS);
-    return res.data;
-  } catch (error) { 
-    console.log(error);
-    
-    const mensaje = error.response?.data?.detail || "No se pudo obtener la lista de cocineros.";
-    throw new Error(mensaje);
   }
 };

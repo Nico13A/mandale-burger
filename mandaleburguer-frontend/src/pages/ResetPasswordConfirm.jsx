@@ -19,7 +19,7 @@ const ResetPasswordConfirm = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6 text-gris-boton">
       <h2 className="text-2xl md:text-3xl font-bold text-gris-boton mb-6">Nueva contraseña</h2>
       <form onSubmit={handleSubmit} className="w-full max-w-md flex flex-col gap-4">
         <Input

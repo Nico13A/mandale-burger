@@ -1,8 +1,0 @@
-{% extends "base.html" %}
-
-{% block title %}Registro completado{% endblock %}
-
-{% block content %}
-    <h1>Bienvenido {{ new_user.first_name }}</h1>
-    <p>Tu cuenta ha sido creada correctamente. Ahora podés <a href="{% url 'login' %}">iniciar sesión</a> con tu usuario y contraseña.</p>
-{% endblock %}

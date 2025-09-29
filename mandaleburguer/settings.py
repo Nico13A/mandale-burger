@@ -181,3 +181,7 @@ DJOSER = {
     "SEND_CONFIRMATION_EMAIL": False,
 }
 
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+

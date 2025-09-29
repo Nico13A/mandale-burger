@@ -17,7 +17,7 @@ const Login = () => {
   if (user) return <Navigate to="/" replace />;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6 text-gris-boton">
       <img
         src={logoUrl}
         alt="Logo de la aplicación"

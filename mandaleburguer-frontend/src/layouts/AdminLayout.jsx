@@ -3,7 +3,7 @@ import NavbarDesktop from "../components/Navbar/NavbarDesktop";
 import NavbarMobile from "../components/Navbar/NavbarMobile";
 import { useAuth } from "../hooks/useAuth";
 
-export default function AdminLayout() {
+const AdminLayout = () => {
     const { user } = useAuth();
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
@@ -15,3 +15,5 @@ export default function AdminLayout() {
         </div>
     );
 }
+
+export default AdminLayout;

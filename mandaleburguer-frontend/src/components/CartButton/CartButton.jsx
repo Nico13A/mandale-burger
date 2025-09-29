@@ -1,12 +1,12 @@
 import Button from "../Button/Button.jsx";
 import { ShoppingCartIcon } from "@heroicons/react/24/solid";
 
-export default function CartButton({ count = 0, onClick, isMobile = false }) {
+const CartButton = ({ count = 0, onClick, isMobile = false }) => {
   return (
     <Button
       onClick={onClick}
       aria-label="Ir al carrito"
-      className="flex-1 flex flex-col items-center px-2 py-2"
+      className="flex-1 flex flex-col items-center"
     >
       <div className="relative flex items-center justify-center">
         <ShoppingCartIcon className="w-6 h-6 text-gris-boton hover:text-naranja-boton-hover transition-colors duration-200" />
@@ -20,3 +20,5 @@ export default function CartButton({ count = 0, onClick, isMobile = false }) {
     </Button>
   );
 }
+
+export default CartButton;

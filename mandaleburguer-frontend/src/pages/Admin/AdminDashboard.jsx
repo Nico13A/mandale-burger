@@ -1,15 +1,15 @@
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
-export default function AdminDashboard() {
+const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
+  
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
-
+  
   return (
     <>
       <h1 className="text-3xl font-bold mb-4">Panel de Administrador</h1>
@@ -25,3 +25,5 @@ export default function AdminDashboard() {
     </>
   );
 }
+
+export default AdminDashboard;

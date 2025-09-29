@@ -3,10 +3,9 @@ import Button from "../Button/Button.jsx";
 import CartButton from "../CartButton/CartButton.jsx";
 import { getMenuItems } from "./menu.config.js";
 
-export default function NavbarMobile({ role = "Client", cartCount = 0 }) {
+const NavbarMobile = ({ role = "Client", cartCount = 0 }) => {
   const navigate = useNavigate();
   const items = getMenuItems(role);
-
   return (
     <nav
       role="navigation"
@@ -43,4 +42,6 @@ export default function NavbarMobile({ role = "Client", cartCount = 0 }) {
     </nav>
   );
 }
+
+export default NavbarMobile;
 
