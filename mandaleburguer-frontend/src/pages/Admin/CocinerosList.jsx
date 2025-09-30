@@ -97,7 +97,7 @@ const CocinerosList = () => {
   const renderCocineroCard = (c, isActive = true) => (
     <div
       key={c.id}
-      className={`bg-white p-4 rounded shadow hover:shadow-md transition-shadow duration-200 ${
+      className={`bg-white p-4 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-200 space-y-2 ${
         cocineroDelDiaId === c.id ? "bg-yellow-100" : ""
       }`}
     >
@@ -105,7 +105,7 @@ const CocinerosList = () => {
         <img
           src={c.profile.image}
           alt={`${c.first_name} ${c.last_name}`}
-          className="w-16 h-16 rounded-full object-cover mb-2"
+          className="w-16 h-16 rounded-full object-cover"
         />
       ) : (
         <div className="w-16 h-16 rounded-full bg-gray-200 mb-2" />
@@ -142,7 +142,7 @@ const CocinerosList = () => {
         <h2 className="text-2xl font-bold">Cocineros</h2>
         <button
           onClick={() => navigate("/admin/cocineros/nuevo")}
-          className="flex items-center px-4 py-2 text-white rounded bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer"
+          className="flex items-center px-4 py-2 text-white rounded-2xl bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer"
         >
           <PlusIcon className="w-5 h-5 mr-2" />
           Agregar
@@ -154,7 +154,7 @@ const CocinerosList = () => {
 
       {!loadingList && cocinerosActivos.length > 0 && (
         <>
-          <h3 className="font-semibold mb-2">Activos</h3>
+          <h3 className="font-semibold mt-6 mb-2">Activos</h3>
           <div className="hidden overflow-x-auto md:block md:rounded-lg md:shadow-md">
             <table className="min-w-full bg-white table-auto">
               <thead className="bg-gris-boton text-white text-sm tracking-wider">
