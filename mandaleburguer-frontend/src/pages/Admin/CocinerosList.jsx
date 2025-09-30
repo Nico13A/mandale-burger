@@ -3,7 +3,7 @@ import { useCocineros } from "../../hooks/useCocineros";
 import { useCocineroDelDia } from "../../hooks/useCocineroDelDia";
 import { getCocineroDelDiaActual } from "../../services/cocineroDia";
 import { useNavigate } from "react-router-dom";
-import { PlusIcon } from "@heroicons/react/24/solid";
+import { PlusIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
 import Loading from "../../components/Loading/Loading";
 import CocineroActions from "../../components/CocineroActions/CocineroActions";
 
@@ -69,6 +69,7 @@ const CocinerosList = () => {
       key={c.id}
       className={`border-b last:border-b-0 hover:bg-orange-100 odd:bg-white even:bg-orange-50 transition-colors duration-200`}
     >
+      <td className="py-2 px-4 bg-gris-boton text-white">{c.id}</td>
       <td className="py-2 px-4 flex items-center space-x-2">
         <span>{c.first_name}</span>
         {cocineroDelDiaId === c.id && (
@@ -139,7 +140,7 @@ const CocinerosList = () => {
   return (
     <div className="w-full max-w-4xl mx-auto mt-6 pb-25 md:pb-0">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Cocineros</h2>
+        <h1 className="text-2xl md:text-3xl font-bold">Cocineros</h1>
         <button
           onClick={() => navigate("/admin/cocineros/nuevo")}
           className="flex items-center px-4 py-2 text-white rounded-2xl bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer"
@@ -153,12 +154,16 @@ const CocinerosList = () => {
       {error && <p className="text-red-500">{error}</p>}
 
       {!loadingList && cocinerosActivos.length > 0 && (
-        <>
-          <h3 className="font-semibold mt-6 mb-2">Activos</h3>
+        <section className="w-full">
+          <h2 className="font-medium text-lg md:text-2xl mt-6 mb-2 text-orange-400 flex items-center space-x-2">
+              <CheckCircleIcon className="w-5 h-5 text-orange-400" />
+              <span>Lista de activos</span>
+          </h2>
           <div className="hidden overflow-x-auto md:block md:rounded-lg md:shadow-md">
             <table className="min-w-full bg-white table-auto">
               <thead className="bg-gris-boton text-white text-sm tracking-wider">
                 <tr>
+                  <th className="py-3 px-4 text-left">ID</th>
                   <th className="py-3 px-4 text-left">Nombre</th>
                   <th className="py-3 px-4 text-left">Apellido</th>
                   <th className="py-3 px-4 text-left">Usuario</th>
@@ -174,16 +179,20 @@ const CocinerosList = () => {
           <div className="md:hidden flex flex-col space-y-3">
             {cocinerosActivos.map((c) => renderCocineroCard(c))}
           </div>
-        </>
+        </section>
       )}
 
       {!loadingList && cocinerosInactivos.length > 0 && (
-        <>
-          <h3 className="font-semibold mt-6 mb-2">Inactivos</h3>
+        <section className="w-full">
+          <h2 className="font-medium text-lg md:text-2xl mt-6 mb-2 text-red-400 flex items-center space-x-2">
+            <XCircleIcon className="w-5 h-5 text-red-400" />
+            <span>Lista de inactivos</span>
+          </h2>
           <div className="hidden overflow-x-auto md:block md:rounded-lg md:shadow-md">
             <table className="min-w-full bg-white table-auto">
               <thead className="bg-gris-boton text-white text-sm tracking-wider">
                 <tr>
+                  <th className="py-3 px-4 text-left">ID</th>
                   <th className="py-3 px-4 text-left">Nombre</th>
                   <th className="py-3 px-4 text-left">Apellido</th>
                   <th className="py-3 px-4 text-left">Usuario</th>
@@ -199,7 +208,7 @@ const CocinerosList = () => {
           <div className="md:hidden flex flex-col space-y-3">
             {cocinerosInactivos.map((c) => renderCocineroCard(c, false))}
           </div>
-        </>
+        </section>
       )}
 
       {!loadingList && cocinerosActivos.length === 0 && cocinerosInactivos.length === 0 && (
