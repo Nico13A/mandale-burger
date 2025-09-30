@@ -14,7 +14,7 @@ const CocineroActions = ({
     {/* Botón Editar */}
     <button
       onClick={() => navigate(`/admin/cocineros/editar/${cocinero.id}`)}
-      className="text-blue-500 hover:text-blue-700 flex items-center"
+      className="text-gris-boton hover:text-gris-boton-hover flex items-center cursor-pointer"
     >
       <PencilIcon className="w-5 h-5 mr-1" /> Editar
     </button>
@@ -24,7 +24,7 @@ const CocineroActions = ({
         {/* Botón Eliminar */}
         <button
           onClick={() => handleDeactivate(cocinero.id)}
-          className="text-red-500 hover:text-red-700 flex items-center"
+          className="text-red-400 hover:text-red-500 flex items-center cursor-pointer"
           disabled={loadingId.id === cocinero.id && loadingId.action === "eliminar"}
         >
           {loadingId.id === cocinero.id && loadingId.action === "eliminar" ? (
@@ -39,7 +39,7 @@ const CocineroActions = ({
         {cocinero.id !== cocineroDelDiaId && (
           <button
             onClick={() => handleAsignar(cocinero.id)}
-            className="text-orange-500 hover:text-orange-700 flex items-center"
+            className="text-yellow-500 hover:text-yellow-600 flex items-center cursor-pointer"
             disabled={loadingId.id === cocinero.id && loadingId.action === "asignar"}
           >
             {loadingId.id === cocinero.id && loadingId.action === "asignar" ? (
@@ -54,7 +54,7 @@ const CocineroActions = ({
       // Botón Activar para inactivos
       <button
         onClick={() => handleActivate(cocinero.id)}
-        className="text-green-500 hover:text-green-700 flex items-center"
+        className="text-green-600 hover:text-green-700 flex items-center cursor-pointer"
         disabled={loadingId.id === cocinero.id && loadingId.action === "activar"}
       >
         {loadingId.id === cocinero.id && loadingId.action === "activar" ? (

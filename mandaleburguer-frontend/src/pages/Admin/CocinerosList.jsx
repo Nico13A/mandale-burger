@@ -67,9 +67,7 @@ const CocinerosList = () => {
   const renderCocineroRow = (c, isActive = true) => (
     <tr
       key={c.id}
-      className={`border-b hover:bg-gray-50 transition-colors duration-200 ${
-        cocineroDelDiaId === c.id ? "bg-yellow-100" : ""
-      }`}
+      className={`border-b last:border-b-0 hover:bg-orange-100 odd:bg-white even:bg-orange-50 transition-colors duration-200`}
     >
       <td className="py-2 px-4 flex items-center space-x-2">
         <span>{c.first_name}</span>
@@ -157,14 +155,14 @@ const CocinerosList = () => {
       {!loadingList && cocinerosActivos.length > 0 && (
         <>
           <h3 className="font-semibold mb-2">Activos</h3>
-          <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full bg-white rounded shadow">
-              <thead className="bg-gray-100">
+          <div className="hidden overflow-x-auto md:block md:rounded-lg md:shadow-md">
+            <table className="min-w-full bg-white table-auto">
+              <thead className="bg-gris-boton text-white text-sm tracking-wider">
                 <tr>
-                  <th className="py-2 px-4 text-left">Nombre</th>
-                  <th className="py-2 px-4 text-left">Apellido</th>
-                  <th className="py-2 px-4 text-left">Usuario</th>
-                  <th className="py-2 px-4 text-center">Acciones</th>
+                  <th className="py-3 px-4 text-left">Nombre</th>
+                  <th className="py-3 px-4 text-left">Apellido</th>
+                  <th className="py-3 px-4 text-left">Usuario</th>
+                  <th className="py-3 px-4 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -182,14 +180,14 @@ const CocinerosList = () => {
       {!loadingList && cocinerosInactivos.length > 0 && (
         <>
           <h3 className="font-semibold mt-6 mb-2">Inactivos</h3>
-          <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full bg-white rounded shadow">
-              <thead className="bg-gray-100">
+          <div className="hidden overflow-x-auto md:block md:rounded-lg md:shadow-md">
+            <table className="min-w-full bg-white table-auto">
+              <thead className="bg-gris-boton text-white text-sm tracking-wider">
                 <tr>
-                  <th className="py-2 px-4 text-left">Nombre</th>
-                  <th className="py-2 px-4 text-left">Apellido</th>
-                  <th className="py-2 px-4 text-left">Usuario</th>
-                  <th className="py-2 px-4 text-center">Acciones</th>
+                  <th className="py-3 px-4 text-left">Nombre</th>
+                  <th className="py-3 px-4 text-left">Apellido</th>
+                  <th className="py-3 px-4 text-left">Usuario</th>
+                  <th className="py-3 px-4 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
