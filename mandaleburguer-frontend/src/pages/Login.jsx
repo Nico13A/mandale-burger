@@ -17,25 +17,28 @@ const Login = () => {
   if (user) return <Navigate to="/" replace />;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6 text-gris-boton">
+    <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6 text-gris-boton">
+      <div>
       <img
         src={logoUrl}
         alt="Logo de la aplicación"
-        className="absolute top-6 left-1/2 transform -translate-x-1/2 w-26 h-auto md:w-50"
+        className="w-32 h-auto md:w-48"
       />
+      </div>
 
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md flex flex-col grow-2 justify-center">
+
         <h2 className="text-2xl md:text-3xl font-bold text-gris-boton mb-6">
           Iniciar sesión
         </h2>
-      </div>
+
 
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleLogin(username, password);
         }}
-        className="w-full max-w-md flex flex-col gap-4"
+        className="flex flex-col gap-4"
       >
         <Input
           value={username}
@@ -76,6 +79,10 @@ const Login = () => {
           </Link>
         </div>
       </form>
+
+      </div>
+      <div className="flex-1"></div>
+
     </div>
   );
 };
