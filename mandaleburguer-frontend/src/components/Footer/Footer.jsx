@@ -45,7 +45,7 @@ const Footer = ({ role = "Client", cartCount = 0 }) => {
               aria-label={`Ir a ${label}`}
               className="w-48 text-left"
             >
-              <span className="  relative inline-block text-gray-300 hover:text-naranja-boton-hover text-sm after:content-[''] after:block after:w-0 after:h-[2px] after:bg-naranja-boton-hover after:transition-all after:duration-300 hover:after:w-full">
+              <span className="relative inline-block text-sm text-gray-300 hover:text-naranja-boton-hover after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:h-[2px] after:w-0 after:bg-naranja-boton-hover after:transition-all after:duration-300 hover:after:w-full">
                 {label}
               </span>
             </Button>

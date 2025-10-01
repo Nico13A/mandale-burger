@@ -26,7 +26,7 @@ const NavbarDesktop = ({ role = "Client", cartCount = 0 }) => {
                         }}
                         aria-label={`Ir a ${label}`}
                     >
-                        <span className="text-gris-boton hover:text-naranja-boton-hover transition-colors duration-200">
+                        <span className="relative inline-block text-gris-boton hover:text-naranja-boton-hover after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:h-[2px] after:w-0 after:bg-naranja-boton-hover after:transition-all after:duration-300 hover:after:w-full">
                             {label}
                         </span>
                     </Button>
