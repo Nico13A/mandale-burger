@@ -121,9 +121,9 @@ const AdminCocineroForm = ({isEdit = false}) => {
         Volver
       </button>
   
-      <h2 className="text-2xl md:text-3xl font-bold text-gris-boton mb-6">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">
         {isEdit ? "Editar cocinero" : "Registrar cocinero"}
-      </h2>
+      </h1>
   
       <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
         <div>
