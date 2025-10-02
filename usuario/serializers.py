@@ -7,7 +7,22 @@ from datetime import date
 
 
 # ======================
-# Base para creación de usuarios
+# 1. Serializers de Perfil (Profile)
+# ======================
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['image', 'formacion']
+
+
+class ProfileImageUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['image']
+
+
+# ======================
+# 2. Serializers Base de Usuario
 # ======================
 class BaseUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -46,26 +61,23 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
 
 # ======================
-# Registro normal (Clientes)
+# 3. Serializers de Registro
 # ======================
-class RegisterUserSerializer(BaseUserSerializer):
+class RegisterUserSerializer(BaseUserSerializer):  # Clientes
     def create(self, validated_data):
         return self.create_user_with_group(validated_data, "Client")
 
 
-# ======================
-# Registro de cocineros (solo Admin)
-# ======================
-class CreateCocineroSerializer(BaseUserSerializer):
+class CreateCocineroSerializer(BaseUserSerializer):  # Cocineros (solo Admin)
     image = serializers.ImageField(write_only=True, required=False)
-    formacion = serializers.CharField(write_only=True, required=False) 
+    formacion = serializers.CharField(write_only=True, required=False)
 
     class Meta(BaseUserSerializer.Meta):
         fields = BaseUserSerializer.Meta.fields + ['image', 'formacion']
 
     def create(self, validated_data):
         image = validated_data.pop('image', None)
-        formacion = validated_data.pop('formacion', None)  
+        formacion = validated_data.pop('formacion', None)
         user = self.create_user_with_group(validated_data, "Cook", image=image)
         if formacion:
             user.profile.formacion = formacion
@@ -74,20 +86,11 @@ class CreateCocineroSerializer(BaseUserSerializer):
 
 
 # ======================
-# Visualización del perfil
-# ======================
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ['image', 'formacion']
-
-
-# ======================
-# Usuario actual
+# 4. Serializers de Visualización
 # ======================
 class CurrentUserSerializer(serializers.ModelSerializer):
     groups = serializers.SerializerMethodField()
-    profile = ProfileSerializer(read_only=True)  
+    profile = ProfileSerializer(read_only=True)
 
     class Meta:
         model = User
@@ -97,9 +100,12 @@ class CurrentUserSerializer(serializers.ModelSerializer):
         return list(obj.groups.values_list('name', flat=True))
 
 
-# ======================
-# Cocinero (para listados)
-# ======================
+class ClienteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+
+
 class CocineroSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)
 
@@ -109,16 +115,7 @@ class CocineroSerializer(serializers.ModelSerializer):
 
 
 # ======================
-# Actualizar solo la foto de perfil
-# ======================
-class ProfileImageUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ['image']
-
-
-# ======================
-# Actualización de usuario (solo admin)
+# 5. Serializers de Actualización
 # ======================
 class AdminUserUpdateSerializer(serializers.ModelSerializer):
     formacion = serializers.CharField(source="profile.formacion", required=False)
@@ -146,7 +143,7 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
 
 
 # ======================
-# Crea el cocinero del día
+# 6. Serializers de Cocinero del Día
 # ======================
 class CocineroDelDiaCreateSerializer(serializers.ModelSerializer):
     cocinero_id = serializers.PrimaryKeyRelatedField(
@@ -159,17 +156,14 @@ class CocineroDelDiaCreateSerializer(serializers.ModelSerializer):
         fields = ['cocinero_id']
 
     def create(self, validated_data):
-        hoy = date.today()  
+        hoy = date.today()
         # Desactivar cualquier cocinero activo del día
         CocineroDelDia.objects.filter(fecha=hoy, activo=True).update(activo=False)
-
         # Crear el nuevo cocinero del día
         cocinero = validated_data['cocinero_id']
         return CocineroDelDia.objects.create(cocinero=cocinero, activo=True, fecha=hoy)
 
-# ======================
-# Obtiene el cocinero del día
-# ======================
+
 class CocineroDelDiaSerializer(serializers.ModelSerializer):
     cocinero = CocineroSerializer(read_only=True)
 

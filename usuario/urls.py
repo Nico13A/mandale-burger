@@ -31,6 +31,11 @@ urlpatterns = [
     path('cocinero-dia/create/', views.CocineroDelDiaCreateView.as_view(), name='cocinero_dia_create'),
     # Obtener cocinero del día actual
     path('cocinero-dia/actual/', views.CocineroDelDiaActualView.as_view(), name='cocinero_dia_actual'),
+
+    # ------------------------------------
+    # ENDPOINTS DE GESTIÓN DE CLIENTES (ADMIN)
+    # ------------------------------------
+    path('clientes/', views.ClienteListView.as_view(), name='clientes_list'),
 ]
 
 

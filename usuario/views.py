@@ -13,9 +13,19 @@ from .serializers import (
     AdminUserUpdateSerializer,
     CocineroDelDiaCreateSerializer,
     CocineroDelDiaSerializer,
+    ClienteSerializer,
 )
 from .permissions import IsInGroup
 from .models import Profile, CocineroDelDia
+
+
+# =========================
+# Registro de usuario (Client)
+# =========================
+class RegisterUserView(generics.CreateAPIView):
+    serializer_class = RegisterUserSerializer
+    permission_classes = [AllowAny]
+
 
 # =========================
 # Usuario actual
@@ -30,11 +40,15 @@ class CurrentUserView(APIView):
 
 
 # =========================
-# Registro de usuario (Client)
+# Actualizar foto de perfil
 # =========================
-class RegisterUserView(generics.CreateAPIView):
-    serializer_class = RegisterUserSerializer
-    permission_classes = [AllowAny]
+class ProfileImageUpdateView(generics.UpdateAPIView):
+    serializer_class = ProfileImageUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        profile, _ = Profile.objects.get_or_create(user=self.request.user)
+        return profile
 
 
 # =========================
@@ -68,18 +82,6 @@ class CocineroInactiveListView(generics.ListAPIView):
 
     def get_queryset(self):
         return User.objects.filter(groups__name='Cook', is_active=False)
-
-
-# =========================
-# Actualizar foto de perfil
-# =========================
-class ProfileImageUpdateView(generics.UpdateAPIView):
-    serializer_class = ProfileImageUpdateSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        profile, _ = Profile.objects.get_or_create(user=self.request.user)
-        return profile
 
 
 # =========================
@@ -157,4 +159,15 @@ class CocineroDelDiaActualView(APIView):
         return Response(serializer.data if serializer else None, status=200)
 
 
+# =========================
+# Gestión de clientes (solo Admin)
+# =========================
+class ClienteListView(generics.ListAPIView):
+    serializer_class = ClienteSerializer
+    permission_classes = [IsAuthenticated, IsInGroup]
+    allowed_groups = ['AppAdmin']
+
+    def get_queryset(self):
+        activos = self.request.query_params.get('activos', 'true').lower() == 'true'
+        return User.objects.filter(groups__name="Client", is_active=activos)
 
