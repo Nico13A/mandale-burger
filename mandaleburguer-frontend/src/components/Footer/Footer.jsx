@@ -21,13 +21,13 @@ const Footer = ({ role = "Client", cartCount = 0 }) => {
 
   return (
     <footer className="hidden md:flex w-full bg-gris-boton text-white py-12 px-12 mt-17 flex-col items-center">
-      <div className="w-full max-w-4xl flex items-start justify-between space-x-12">
+      <div className="w-full max-w-4xl flex items-center justify-between space-x-12">
         <div
           className="cursor-pointer flex flex-col items-center md:items-start"
           onClick={() => navigate("/")}
         >
           <img
-            src="/assets/Logo.png"
+            src="/assets/LogoBlanco.png"
             alt="Logo Mandale Burger"
             className="w-32 mb-4"
           />
