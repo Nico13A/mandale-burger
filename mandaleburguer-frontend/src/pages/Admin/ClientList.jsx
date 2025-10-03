@@ -5,6 +5,8 @@ import ListSection from "../../components/ListSection/ListSection";
 import RowActions from "../../components/RowActions/RowActions";
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
 import Loading from "../../components/Loading/Loading";
+import DropdownLista from "../../components/DropdownLista/DropdownLista";
+import Pagination from "../../components/Pagination/Pagination";
 
 const ClientList = () => {
   const {
@@ -14,13 +16,58 @@ const ClientList = () => {
     loadingAction,
     error,
     handleActivate,
-    handleDeactivate
+    handleDeactivate,
+    pageActivos,
+    totalPagesActivos,
+    pageInactivos,
+    totalPagesInactivos,
+    handlePageChangeActivos,
+    handlePageChangeInactivos,
+    setSearchTerm,
+    searchTerm,
+    fetchClientes,
   } = useClientes();
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [tipoLista, setTipoLista] = useState("activos");
+  const [inputValue, setInputValue] = useState(searchTerm);
   const navigate = useNavigate();
 
-  // ---------------- Render filas ----------------
+  const opciones = [
+    { value: "activos", label: "Activos" },
+    { value: "inactivos", label: "Inactivos" }
+  ];
+
+  // ---------------- INPUT BÚSQUEDA ----------------
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+    if (value.trim() === "") {
+      setSearchTerm("");
+      if (tipoLista === "activos") handlePageChangeActivos(1);
+      else handlePageChangeInactivos(1);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      setSearchTerm(inputValue.trim());
+      if (tipoLista === "activos") handlePageChangeActivos(1);
+      else handlePageChangeInactivos(1);
+    }
+  };
+
+  // ---------------- CAMBIO DE TIPO DE LISTA ----------------
+  const handleTipoListaChange = (value) => {
+    setTipoLista(value);
+    if (value === "activos") {
+      handlePageChangeActivos(1);
+    } else {
+      handlePageChangeInactivos(1);
+    }
+    fetchClientes();
+  };
+
+  // ---------------- RENDER FILA / CARD ----------------
   const renderRowCliente = (c) => (
     <tr
       key={c.id}
@@ -44,7 +91,6 @@ const ClientList = () => {
     </tr>
   );
 
-  // ---------------- Render cards (mobile) ----------------
   const renderCardCliente = (c) => (
     <div
       key={c.id}
@@ -66,17 +112,44 @@ const ClientList = () => {
     </div>
   );
 
+  const listaClientes = tipoLista === "activos" ? clientesActivos : clientesInactivos;
+  const listaTitulo = tipoLista === "activos" ? "Lista de activos" : "Lista de inactivos";
+  const listaIcon = tipoLista === "activos" ? CheckCircleIcon : XCircleIcon;
+  const listaIconColor = tipoLista === "activos" ? "text-orange-400" : "text-red-500";
+
   return (
     <div className="w-full max-w-4xl mx-auto mt-6 pb-25 md:pb-0">
       <div className="flex justify-between items-center space-x-2 mb-4 md:mb-6">
         <h1 className="text-2xl md:text-3xl font-bold">Clientes</h1>
+
         <div className="flex space-x-2 items-center">
+          {/* Input desktop */}
           <input
             type="text"
             placeholder="Buscar por nombre o apellido"
             className="hidden md:block px-4 py-2 w-64 md:w-72 border border-gray-300 rounded-2xl focus:outline-none focus:ring-1 focus:ring-botoborder-gris-boton focus:border-gris-boton transition-all duration-200"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+          />
+
+          <button
+            onClick={() => {
+              setSearchTerm(inputValue.trim());
+              if (tipoLista === "activos") handlePageChangeActivos(1);
+              else handlePageChangeInactivos(1);
+            }}
+            className="hidden md:block cursor-pointer bg-naranja-boton hover:bg-naranja-boton-hover text-white font-medium rounded-2xl px-4 py-2 transition duration-300"
+          >
+            Buscar
+          </button>
+
+          {/* Dropdown para elegir activos o inactivos */}
+          <DropdownLista
+            options={opciones}
+            value={tipoLista}
+            onChange={handleTipoListaChange}
+            className="w-40 md:w-48"
           />
         </div>
       </div>
@@ -85,9 +158,10 @@ const ClientList = () => {
       <input
         type="text"
         placeholder="Buscar por nombre o apellido"
-        className="md:hidden px-4 py-2 w-full border border-gray-300 rounded-2xl focus:outline-none focus:ring-1 focus:ring-botoborder-gris-boton focus:border-gris-boton transition-all duration-200"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        className="md:hidden px-4 py-2 w-full border border-gray-300 rounded-2xl focus:outline-none focus:ring-1 focus:ring-botoborder-gris-boton focus:border-gris-boton transition-all duration-200 mb-4"
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
       />
 
       {loadingList && <Loading />}
@@ -95,32 +169,39 @@ const ClientList = () => {
 
       {!loadingList && (
         <>
-          {clientesActivos.length>0 && (
-            <ListSection
-              title="Lista de activos"
-              colorTitle="text-naranja-boton"
-              items={clientesActivos}
-              renderRow={renderRowCliente}
-              renderCard={renderCardCliente}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              Icon={CheckCircleIcon}
-              iconColor="text-orange-400"
-            />
-          )}
+          {listaClientes.length > 0 ? (
+            <>
+              <ListSection
+                title={listaTitulo}
+                colorTitle={tipoLista === "activos" ? "text-naranja-boton" : "text-red-400"}
+                items={listaClientes}
+                renderRow={renderRowCliente}
+                renderCard={renderCardCliente}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                Icon={listaIcon}
+                iconColor={listaIconColor}
+              />
 
-          {clientesInactivos.length>0 && (
-            <ListSection
-              title="Lista de inactivos"
-              colorTitle="text-red-400"
-              items={clientesInactivos}
-              renderRow={renderRowCliente}
-              renderCard={renderCardCliente}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              Icon={XCircleIcon}
-              iconColor="text-red-500"
-            />
+              {/* PAGINACIÓN */}
+              {tipoLista === "activos" ? (
+                <Pagination
+                  currentPage={pageActivos}
+                  totalPages={totalPagesActivos}
+                  onPageChange={handlePageChangeActivos}
+                />
+              ) : (
+                <Pagination
+                  currentPage={pageInactivos}
+                  totalPages={totalPagesInactivos}
+                  onPageChange={handlePageChangeInactivos}
+                />
+              )}
+            </>
+          ) : (
+            <p className="text-red-600 mt-6">
+              No hay clientes {tipoLista === "activos" ? "activos" : "inactivos"}.
+            </p>
           )}
         </>
       )}
@@ -129,6 +210,14 @@ const ClientList = () => {
 };
 
 export default ClientList;
+
+
+
+
+
+
+
+
 
 
 

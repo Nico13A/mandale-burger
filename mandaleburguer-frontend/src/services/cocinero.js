@@ -10,20 +10,20 @@ const ENDPOINTS = {
 };
 
 // ------------------ OBTENER COCINEROS ------------------
-export const getCocinerosActivos = async () => {
+export const getCocinerosActivos = async (page = 1) => {
   try {
-    const res = await api.get(ENDPOINTS.COCINEROS_ACTIVOS);
-    return res.data;
+    const res = await api.get(ENDPOINTS.COCINEROS_ACTIVOS, { params: { page } });
+    return res.data; 
   } catch (error) {
     const mensaje = error.response?.data?.detail || "No se pudo obtener la lista de cocineros activos.";
     throw new Error(mensaje);
   }
 };
 
-export const getCocinerosInactivos = async () => {
+export const getCocinerosInactivos = async (page = 1) => {
   try {
-    const res = await api.get(ENDPOINTS.COCINEROS_INACTIVOS);
-    return res.data;
+    const res = await api.get(ENDPOINTS.COCINEROS_INACTIVOS, { params: { page } });
+    return res.data; 
   } catch (error) {
     const mensaje = error.response?.data?.detail || "No se pudo obtener la lista de cocineros inactivos.";
     throw new Error(mensaje);

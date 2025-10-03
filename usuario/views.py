@@ -18,6 +18,8 @@ from .serializers import (
 )
 from .permissions import IsInGroup
 from .models import Profile, CocineroDelDia
+from .pagination import StandardResultsSetPagination
+from django.db.models import Q
 
 
 # =========================
@@ -68,6 +70,7 @@ class CocineroListView(generics.ListAPIView):
     serializer_class = CocineroSerializer
     allowed_groups = ['AppAdmin']
     permission_classes = [IsAuthenticated, IsInGroup]
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         return User.objects.filter(groups__name='Cook', is_active=True)
@@ -80,6 +83,7 @@ class CocineroInactiveListView(generics.ListAPIView):
     serializer_class = CocineroSerializer
     permission_classes = [IsAuthenticated, IsInGroup]
     allowed_groups = ['AppAdmin']
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         return User.objects.filter(groups__name='Cook', is_active=False)
@@ -167,10 +171,21 @@ class ClienteListView(generics.ListAPIView):
     serializer_class = ClienteSerializer
     permission_classes = [IsAuthenticated, IsInGroup]
     allowed_groups = ['AppAdmin']
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         activos = self.request.query_params.get('activos', 'true').lower() == 'true'
-        return User.objects.filter(groups__name="Client", is_active=activos)
+        queryset = User.objects.filter(groups__name="Client", is_active=activos)
+
+        search = self.request.query_params.get('search', '').strip()
+        if search:
+            terms = search.split()
+            for term in terms:
+                queryset = queryset.filter(
+                    Q(first_name__icontains=term) | Q(last_name__icontains=term)
+                )
+
+        return queryset
 
 
 # =========================

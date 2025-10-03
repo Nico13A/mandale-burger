@@ -15,21 +15,36 @@ export const useCocineros = () => {
   const [loadingAction, setLoadingAction] = useState(null);
   const [error, setError] = useState(null);
 
+  const [activePage, setActivePage] = useState(1);
+  const [inactivePage, setInactivePage] = useState(1);
+  const [activePagination, setActivePagination] = useState({ count: 0, next: null, previous: null });
+  const [inactivePagination, setInactivePagination] = useState({ count: 0, next: null, previous: null });
+
   // ------------------ OBTENER LISTAS ------------------
   const fetchCocineros = useCallback(async () => {
     setLoadingList(true);
     setError(null);
     try {
-      const activos = await getCocinerosActivos();
-      const inactivos = await getCocinerosInactivos();
-      setCocinerosActivos(activos);
-      setCocinerosInactivos(inactivos);
+      const activos = await getCocinerosActivos(activePage);
+      const inactivos = await getCocinerosInactivos(inactivePage);
+      setCocinerosActivos(activos.results);
+      setActivePagination({
+        count: activos.count,
+        next: activos.next,
+        previous: activos.previous,
+      });
+      setCocinerosInactivos(inactivos.results);
+      setInactivePagination({
+        count: inactivos.count,
+        next: inactivos.next,
+        previous: inactivos.previous,
+      });
     } catch (err) {
       setError(err.message || "Error al obtener cocineros");
     } finally {
       setLoadingList(false);
     }
-  }, []);
+  }, [activePage, inactivePage]);
 
   useEffect(() => {
     fetchCocineros();
@@ -101,6 +116,9 @@ export const useCocineros = () => {
     }
   };
 
+  // ------------------ PAGINACIÓN ------------------
+  const goToActivePage = (page) => setActivePage(page);
+  const goToInactivePage = (page) => setInactivePage(page);
 
   return {
     cocinerosActivos,
@@ -108,10 +126,14 @@ export const useCocineros = () => {
     loadingList,
     loadingAction,
     error,
+    activePagination,
+    inactivePagination,
     fetchCocineros,
     handleCreate,
     handleUpdate,
     handleDeactivate,
     handleActivate,
+    goToActivePage,
+    goToInactivePage,
   };
 };

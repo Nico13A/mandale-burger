@@ -5,9 +5,9 @@ const ENDPOINTS = {
 };
 
 // Listar activos
-export const getClientesActivos = async () => {
+export const getClientesActivos = async (page = 1, search = "") => {
   try {
-    const res = await api.get(`${ENDPOINTS.CLIENTES}?activos=true`);
+    const res = await api.get(`${ENDPOINTS.CLIENTES}?activos=true&search=${search}&page=${page}`);
     return res.data;
   } catch (err) {
     const mensaje = err.response?.data?.error || "No se pudo obtener los clientes activos.";
@@ -16,9 +16,9 @@ export const getClientesActivos = async () => {
 };
 
 // Listar inactivos
-export const getClientesInactivos = async () => {
+export const getClientesInactivos = async (page = 1, search = "") => {
   try {
-    const res = await api.get(`${ENDPOINTS.CLIENTES}?activos=false`);
+    const res = await api.get(`${ENDPOINTS.CLIENTES}?activos=false&search=${search}&page=${page}`);
     return res.data;
   } catch (err) {
     const mensaje = err.response?.data?.error || "No se pudo obtener los clientes inactivos.";
