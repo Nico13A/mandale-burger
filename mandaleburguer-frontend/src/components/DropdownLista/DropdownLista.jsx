@@ -9,7 +9,7 @@ const DropdownLista = ({ options, value, onChange, className = "w-48" }) => {
     <Listbox value={value} onChange={onChange}>
       {({ open }) => (
         <div className={`relative ${className}`}>
-          <ListboxButton className="relative w-full cursor-pointer rounded-2xl border border-gray-300 bg-white py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400">
+          <ListboxButton className="relative w-full cursor-pointer rounded-2xl border border-gray-300 bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-200">
             <span className="block truncate">{selectedLabel}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               {open ? (
