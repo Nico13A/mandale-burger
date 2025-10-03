@@ -10,7 +10,7 @@ const CocineroActions = ({
   handleAsignar,
   navigate,
 }) => (
-  <div className="flex justify-end space-x-3">
+  <div className="flex justify-end md:justify-center space-x-3">
     {/* Botón Editar */}
     <button
       onClick={() => navigate(`/admin/cocineros/editar/${cocinero.id}`)}

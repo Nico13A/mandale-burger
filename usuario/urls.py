@@ -36,6 +36,9 @@ urlpatterns = [
     # ENDPOINTS DE GESTIÓN DE CLIENTES (ADMIN)
     # ------------------------------------
     path('clientes/', views.ClienteListView.as_view(), name='clientes_list'),
+    path('clientes/<int:pk>/edit/', views.ClienteUpdateView.as_view(), name='cliente_update'),
+    path('clientes/<int:pk>/delete/', views.ClienteDeleteView.as_view(), name='cliente_logical_delete'),
+    path('clientes/<int:pk>/activate/', views.ClienteActivateView.as_view(), name='cliente_activate'),
 ]
 
 

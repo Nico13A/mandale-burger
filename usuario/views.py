@@ -14,6 +14,7 @@ from .serializers import (
     CocineroDelDiaCreateSerializer,
     CocineroDelDiaSerializer,
     ClienteSerializer,
+    ClienteUpdateSerializer,
 )
 from .permissions import IsInGroup
 from .models import Profile, CocineroDelDia
@@ -171,3 +172,47 @@ class ClienteListView(generics.ListAPIView):
         activos = self.request.query_params.get('activos', 'true').lower() == 'true'
         return User.objects.filter(groups__name="Client", is_active=activos)
 
+
+# =========================
+# Alta de cliente (solo Admin)
+# =========================
+class ClienteActivateView(APIView):
+    permission_classes = [IsAuthenticated, IsInGroup]
+    allowed_groups = ['AppAdmin']
+
+    def patch(self, request, pk):
+        try:
+            cliente = User.objects.get(pk=pk, groups__name="Client", is_active=False)
+        except User.DoesNotExist:
+            return Response({"error": "Cliente no encontrado o ya activo"}, status=status.HTTP_404_NOT_FOUND)
+        cliente.is_active = True
+        cliente.save()
+        return Response({"success": "Cliente dado de alta"}, status=status.HTTP_200_OK)
+    
+
+# =========================
+# Baja de cliente (solo Admin)
+# =========================
+class ClienteDeleteView(APIView):
+    permission_classes = [IsAuthenticated, IsInGroup]
+    allowed_groups = ['AppAdmin']
+
+    def delete(self, request, pk):
+        try:
+            cliente = User.objects.get(pk=pk, groups__name="Client", is_active=True)
+        except User.DoesNotExist:
+            return Response({"error": "Cliente no encontrado o ya inactivo"}, status=status.HTTP_404_NOT_FOUND)
+        cliente.is_active = False
+        cliente.save()
+
+        return Response({"success": "Cliente dado de baja"}, status=status.HTTP_200_OK)
+
+
+# =========================
+# Editar cliente (solo Admin)
+# =========================
+class ClienteUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.filter(groups__name="Client")
+    serializer_class = ClienteUpdateSerializer
+    permission_classes = [IsAuthenticated, IsInGroup]
+    allowed_groups = ['AppAdmin']

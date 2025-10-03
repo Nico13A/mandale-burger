@@ -93,7 +93,7 @@ const CocinerosList = () => {
       key={c.id}
       className={`border-b last:border-b-0 hover:bg-orange-100 odd:bg-white even:bg-orange-50 transition-colors duration-200`}
     >
-      <td className="py-2 px-4 bg-gris-boton text-white">{c.id}</td>
+      <td className="py-2 px-4 bg-gris-boton text-white text-center w-16 min-w-[64px]">{c.id}</td>
       <td className="py-2 px-4 flex items-center space-x-2">
         <span>{c.first_name}</span>
         {cocineroDelDiaId === c.id && (
@@ -204,7 +204,7 @@ const CocinerosList = () => {
             <table className="min-w-full bg-white table-auto">
               <thead className="bg-gris-boton text-white text-sm tracking-wider">
                 <tr>
-                  <th className="py-3 px-4 text-left">ID</th>
+                  <th className="py-3 px-4 text-center w-16 min-w-[64px]">ID</th>
                   <th className="py-3 px-4 text-left">Nombre</th>
                   <th className="py-3 px-4 text-left">Apellido</th>
                   <th className="py-3 px-4 text-left">Usuario</th>
@@ -233,7 +233,7 @@ const CocinerosList = () => {
             <table className="min-w-full bg-white table-auto">
               <thead className="bg-gris-boton text-white text-sm tracking-wider">
                 <tr>
-                  <th className="py-3 px-4 text-left">ID</th>
+                  <th className="py-3 px-4 text-center w-16 min-w-[64px]">ID</th>
                   <th className="py-3 px-4 text-left">Nombre</th>
                   <th className="py-3 px-4 text-left">Apellido</th>
                   <th className="py-3 px-4 text-left">Usuario</th>

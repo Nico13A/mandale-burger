@@ -7,7 +7,7 @@ from datetime import date
 
 
 # ======================
-# 1. Serializers de Perfil (Profile)
+# Serializers de Perfil (Profile)
 # ======================
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,7 +22,7 @@ class ProfileImageUpdateSerializer(serializers.ModelSerializer):
 
 
 # ======================
-# 2. Serializers Base de Usuario
+# Serializers Base de Usuario
 # ======================
 class BaseUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -61,7 +61,7 @@ class BaseUserSerializer(serializers.ModelSerializer):
 
 
 # ======================
-# 3. Serializers de Registro
+# Serializers de Registro
 # ======================
 class RegisterUserSerializer(BaseUserSerializer):  # Clientes
     def create(self, validated_data):
@@ -86,7 +86,7 @@ class CreateCocineroSerializer(BaseUserSerializer):  # Cocineros (solo Admin)
 
 
 # ======================
-# 4. Serializers de Visualización
+# Serializers de Visualización
 # ======================
 class CurrentUserSerializer(serializers.ModelSerializer):
     groups = serializers.SerializerMethodField()
@@ -103,7 +103,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_active']
 
 
 class CocineroSerializer(serializers.ModelSerializer):
@@ -115,7 +115,7 @@ class CocineroSerializer(serializers.ModelSerializer):
 
 
 # ======================
-# 5. Serializers de Actualización
+# Serializers de Actualización
 # ======================
 class AdminUserUpdateSerializer(serializers.ModelSerializer):
     formacion = serializers.CharField(source="profile.formacion", required=False)
@@ -142,8 +142,19 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
+class ClienteUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exclude(id=self.instance.id).exists():
+            raise serializers.ValidationError("Este email ya está en uso.")
+        return value
+
+
 # ======================
-# 6. Serializers de Cocinero del Día
+# Serializers de Cocinero del Día
 # ======================
 class CocineroDelDiaCreateSerializer(serializers.ModelSerializer):
     cocinero_id = serializers.PrimaryKeyRelatedField(
