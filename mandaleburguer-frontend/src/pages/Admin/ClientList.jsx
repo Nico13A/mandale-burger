@@ -85,7 +85,7 @@ const ClientList = () => {
       <input
         type="text"
         placeholder="Buscar por nombre o apellido"
-        className="md:hidden px-4 py-2 w-full border border-gray-300 rounded-2xl focus:outline-none focus:ring-1 focus:ring-botoborder-gris-boton focus:border-gris-boton transition-all duration-200 mb-4"
+        className="md:hidden px-4 py-2 w-full border border-gray-300 rounded-2xl focus:outline-none focus:ring-1 focus:ring-botoborder-gris-boton focus:border-gris-boton transition-all duration-200"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
