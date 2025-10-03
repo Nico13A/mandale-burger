@@ -4,7 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.exceptions import ValidationError
 from .models import Profile, CocineroDelDia
 from datetime import date
-
+import re
 
 # ======================
 # Serializers de Perfil (Profile)
@@ -22,31 +22,50 @@ class ProfileImageUpdateSerializer(serializers.ModelSerializer):
 
 
 # ======================
-# Serializers Base de Usuario
+# Serializer Base de Usuario
 # ======================
 class BaseUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
         fields = ['username', 'email', 'password', 'first_name', 'last_name']
 
+    # Validación de contraseña
     def validate_password(self, value):
-        try:
-            validate_password(value)
-        except ValidationError as e:
-            raise serializers.ValidationError(e.messages)
+        if value:  
+            try:
+                validate_password(value)
+            except ValidationError as e:
+                raise serializers.ValidationError(e.messages)
         return value
 
+    # Validación de email
     def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
+        qs = User.objects.filter(email=value)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
             raise serializers.ValidationError("Este email ya está en uso.")
         return value
 
+    # Validación de nombres (solo letras y espacios)
+    def validate_first_name(self, value):
+        if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$', value):
+            raise serializers.ValidationError("El nombre solo puede contener letras y espacios.")
+        return value
+
+    def validate_last_name(self, value):
+        if not re.match(r'^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$', value):
+            raise serializers.ValidationError("El apellido solo puede contener letras y espacios.")
+        return value
+
+    # Crear usuario con grupo
     def create_user_with_group(self, validated_data, group_name, image=None):
-        password = validated_data.pop('password')
+        password = validated_data.pop('password', None)
         user = User(**validated_data)
-        user.set_password(password)
+        if password:
+            user.set_password(password)
         user.save()
 
         group = Group.objects.get(name=group_name)
@@ -56,7 +75,6 @@ class BaseUserSerializer(serializers.ModelSerializer):
         if image:
             profile.image = image
             profile.save()
-
         return user
 
 
@@ -117,17 +135,11 @@ class CocineroSerializer(serializers.ModelSerializer):
 # ======================
 # Serializers de Actualización
 # ======================
-class AdminUserUpdateSerializer(serializers.ModelSerializer):
+class AdminUserUpdateSerializer(BaseUserSerializer):
     formacion = serializers.CharField(source="profile.formacion", required=False)
 
-    class Meta:
-        model = User
+    class Meta(BaseUserSerializer.Meta):
         fields = ['first_name', 'last_name', 'email', 'formacion']
-
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exclude(id=self.instance.id).exists():
-            raise serializers.ValidationError("Este email ya está en uso.")
-        return value
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', {})
@@ -142,15 +154,9 @@ class AdminUserUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
-class ClienteUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
+class ClienteUpdateSerializer(BaseUserSerializer):
+    class Meta(BaseUserSerializer.Meta):
         fields = ['first_name', 'last_name', 'email']
-
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exclude(id=self.instance.id).exists():
-            raise serializers.ValidationError("Este email ya está en uso.")
-        return value
 
 
 # ======================
@@ -168,9 +174,7 @@ class CocineroDelDiaCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         hoy = date.today()
-        # Desactivar cualquier cocinero activo del día
         CocineroDelDia.objects.filter(fecha=hoy, activo=True).update(activo=False)
-        # Crear el nuevo cocinero del día
         cocinero = validated_data['cocinero_id']
         return CocineroDelDia.objects.create(cocinero=cocinero, activo=True, fecha=hoy)
 
@@ -181,4 +185,5 @@ class CocineroDelDiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = CocineroDelDia
         fields = ['id', 'cocinero', 'fecha', 'activo']
+
 

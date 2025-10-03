@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useClientes } from "../../hooks/useClientes";
 import ListSection from "../../components/ListSection/ListSection";
 import RowActions from "../../components/RowActions/RowActions";
-import { PlusIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid";
 import Loading from "../../components/Loading/Loading";
 
 const ClientList = () => {
@@ -78,13 +78,6 @@ const ClientList = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button
-            onClick={() => navigate("/admin/clientes/nuevo")}
-            className="flex items-center px-4 py-2 text-white rounded-2xl bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer"
-          >
-            <PlusIcon className="w-5 h-5 mr-2" />
-            Agregar
-          </button>
         </div>
       </div>
 
@@ -102,29 +95,33 @@ const ClientList = () => {
 
       {!loadingList && (
         <>
-          <ListSection
-            title="Lista de activos"
-            colorTitle="text-naranja-boton"
-            items={clientesActivos}
-            renderRow={renderRowCliente}
-            renderCard={renderCardCliente}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            Icon={CheckCircleIcon}
-            iconColor="text-orange-400"
-          />
+          {clientesActivos.length>0 && (
+            <ListSection
+              title="Lista de activos"
+              colorTitle="text-naranja-boton"
+              items={clientesActivos}
+              renderRow={renderRowCliente}
+              renderCard={renderCardCliente}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              Icon={CheckCircleIcon}
+              iconColor="text-orange-400"
+            />
+          )}
 
-          <ListSection
-            title="Lista de inactivos"
-            colorTitle="text-red-400"
-            items={clientesInactivos}
-            renderRow={renderRowCliente}
-            renderCard={renderCardCliente}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            Icon={XCircleIcon}
-            iconColor="text-red-500"
-          />
+          {clientesInactivos.length>0 && (
+            <ListSection
+              title="Lista de inactivos"
+              colorTitle="text-red-400"
+              items={clientesInactivos}
+              renderRow={renderRowCliente}
+              renderCard={renderCardCliente}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              Icon={XCircleIcon}
+              iconColor="text-red-500"
+            />
+          )}
         </>
       )}
     </div>

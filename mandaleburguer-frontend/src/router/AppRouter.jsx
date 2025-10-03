@@ -7,6 +7,7 @@ import AdminDashboard from "../pages/Admin/AdminDashboard";
 import CocinerosList from "../pages/Admin/CocinerosList";
 import AdminCocineroForm from "../pages/Admin/AdminCocineroForm";
 import ClientList from "../pages/Admin/ClientList";
+import AdminClientForm from "../pages/Admin/AdminClientForm";
 
 import CookDashboard from "../pages/Cook/CookDashboard";
 
@@ -41,6 +42,7 @@ const AppRouter = () => {
           <Route path="/admin/cocineros/nuevo" element={<AdminCocineroForm isEdit={false} />} />
           <Route path="/admin/cocineros/editar/:id" element={<AdminCocineroForm isEdit={true} />} />
           <Route path="/admin/clientes" element={<ClientList />} />
+          <Route path="/admin/clientes/editar/:id" element={<AdminClientForm />} />
         </Route>
       </Route>
 

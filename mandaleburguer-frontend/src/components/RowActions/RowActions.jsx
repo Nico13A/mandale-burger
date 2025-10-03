@@ -12,7 +12,7 @@ const RowActions = ({
   <div className="flex justify-end md:justify-center space-x-3">
     {/* Botón Editar */}
     <button
-      onClick={() => navigate(`${editPath}/${item.id}`)}
+      onClick={() => navigate(`${editPath}/${item.id.toString()}`)} 
       className="text-gris-boton hover:text-gris-boton-hover flex items-center cursor-pointer"
     >
       <PencilIcon className="w-5 h-5 mr-1" /> Editar

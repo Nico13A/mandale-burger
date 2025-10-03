@@ -54,7 +54,9 @@ export const editarCliente = async (id, datos) => {
     const res = await api.put(`${ENDPOINTS.CLIENTES}${id}/edit/`, datos);
     return res.data;
   } catch (err) {
-    const mensaje = err.response?.data?.error || "No se pudo editar el cliente.";
-    throw new Error(mensaje);
+    if (err.response?.data) {
+      throw err.response.data;
+    }
+    throw { general: "No se pudo editar el cliente." };
   }
 };
