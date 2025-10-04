@@ -4,9 +4,6 @@ const ENDPOINTS = {
   LOGIN: "/api/auth/jwt/create/",
   REFRESH: "/api/auth/jwt/refresh/",
   REGISTER: "/api/register/",
-  USER: "/api/user/",
-  PROFILE_IMAGE: "/api/user/profile/image/",
-  COCINEROS: "api/cocineros/",
   RESET_PASSWORD: "/api/auth/users/reset_password/",
   RESET_PASSWORD_CONFIRM: "/api/auth/users/reset_password_confirm/",
 };

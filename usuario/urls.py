@@ -7,6 +7,7 @@ urlpatterns = [
     # ------------------------------------
     path('register/', views.RegisterUserView.as_view(), name='register_api'),
     path('user/', views.CurrentUserView.as_view(), name='current_user'),
+    path('user/profile/', views.UserProfileUpdateView.as_view(), name='user_profile_update'),
     path('user/profile/image/', views.ProfileImageUpdateView.as_view(), name='update_profile_image'),
 
     # ------------------------------------

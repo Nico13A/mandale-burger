@@ -18,6 +18,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPasswordConfirm from "../pages/ResetPasswordConfirm";
+import Profile from "../pages/Profile";
 
 const AppRouter = () => {
   return (
@@ -38,6 +39,7 @@ const AppRouter = () => {
       <Route element={<PrivateRoutes allowedRoles={["AppAdmin"]} />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/profile" element={<Profile />} />
           <Route path="/admin/cocineros" element={<CocinerosList />} />
           <Route path="/admin/cocineros/nuevo" element={<AdminCocineroForm isEdit={false} />} />
           <Route path="/admin/cocineros/editar/:id" element={<AdminCocineroForm isEdit={true} />} />

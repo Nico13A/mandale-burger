@@ -35,12 +35,17 @@ const AdminClientForm = () => {
       return;
     }
 
-    setFormData({
-      username: cliente.username,
-      email: cliente.email,
-      first_name: cliente.first_name,
-      last_name: cliente.last_name,
-    });
+  setFormData(prev => {
+    if (!prev.username || prev.username !== cliente.username) {
+      return {
+        username: cliente.username,
+        email: cliente.email,
+        first_name: cliente.first_name,
+        last_name: cliente.last_name,
+      };
+    }
+    return prev;
+  });
     setErrors({});
   }, [id, clientesActivos, clientesInactivos, navigate]);
 

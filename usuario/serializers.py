@@ -112,7 +112,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'groups', 'profile']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'groups', 'profile']
 
     def get_groups(self, obj):
         return list(obj.groups.values_list('name', flat=True))
@@ -187,3 +187,28 @@ class CocineroDelDiaSerializer(serializers.ModelSerializer):
         fields = ['id', 'cocinero', 'fecha', 'activo']
 
 
+# ======================
+# Serializer para editar mi propio perfil
+# ======================
+class UserProfileUpdateSerializer(BaseUserSerializer):
+    formacion = serializers.CharField(source="profile.formacion", required=False)
+
+    class Meta(BaseUserSerializer.Meta):
+        fields = ['username', 'first_name', 'last_name', 'email', 'formacion']
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', {})
+
+        # Actualiza username, first_name, last_name, email
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Solo si el usuario es cocinero, permite actualizar formacion
+        if instance.groups.filter(name="Cook").exists():
+            formacion = profile_data.get('formacion')
+            if formacion is not None:
+                instance.profile.formacion = formacion
+                instance.profile.save()
+
+        return instance
