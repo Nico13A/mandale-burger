@@ -70,7 +70,6 @@ class CocineroListView(generics.ListAPIView):
     serializer_class = CocineroSerializer
     allowed_groups = ['AppAdmin']
     permission_classes = [IsAuthenticated, IsInGroup]
-    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         return User.objects.filter(groups__name='Cook', is_active=True)
@@ -83,7 +82,6 @@ class CocineroInactiveListView(generics.ListAPIView):
     serializer_class = CocineroSerializer
     permission_classes = [IsAuthenticated, IsInGroup]
     allowed_groups = ['AppAdmin']
-    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         return User.objects.filter(groups__name='Cook', is_active=False)

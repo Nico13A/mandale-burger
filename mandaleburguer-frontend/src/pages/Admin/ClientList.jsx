@@ -199,8 +199,8 @@ const ClientList = () => {
               )}
             </>
           ) : (
-            <p className="text-red-600 mt-6">
-              No hay clientes {tipoLista === "activos" ? "activos" : "inactivos"}.
+            <p className="mt-6">
+              No hay clientes {tipoLista === "activos" ? "activos" : "inactivos"} registrados.
             </p>
           )}
         </>

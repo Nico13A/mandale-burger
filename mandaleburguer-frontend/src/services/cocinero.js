@@ -10,22 +10,24 @@ const ENDPOINTS = {
 };
 
 // ------------------ OBTENER COCINEROS ------------------
-export const getCocinerosActivos = async (page = 1) => {
+export const getCocinerosActivos = async () => {
   try {
-    const res = await api.get(ENDPOINTS.COCINEROS_ACTIVOS, { params: { page } });
+    const res = await api.get(ENDPOINTS.COCINEROS_ACTIVOS);
     return res.data; 
   } catch (error) {
-    const mensaje = error.response?.data?.detail || "No se pudo obtener la lista de cocineros activos.";
+    const mensaje =
+      error.response?.data?.detail || "No se pudo obtener la lista de cocineros activos.";
     throw new Error(mensaje);
   }
 };
 
-export const getCocinerosInactivos = async (page = 1) => {
+export const getCocinerosInactivos = async () => {
   try {
-    const res = await api.get(ENDPOINTS.COCINEROS_INACTIVOS, { params: { page } });
+    const res = await api.get(ENDPOINTS.COCINEROS_INACTIVOS);
     return res.data; 
   } catch (error) {
-    const mensaje = error.response?.data?.detail || "No se pudo obtener la lista de cocineros inactivos.";
+    const mensaje =
+      error.response?.data?.detail || "No se pudo obtener la lista de cocineros inactivos.";
     throw new Error(mensaje);
   }
 };
@@ -52,20 +54,20 @@ export const updateCocinero = async (id, cocineroData) => {
   }
 };
 
-// ------------------ BORRADO LÓGICO ------------------
+// ------------------ DESACTIVAR (BORRADO LÓGICO) ------------------
 export const deactivateCocinero = async (id) => {
   try {
     const res = await api.delete(ENDPOINTS.DELETE_COCINERO(id));
     return { success: true, data: res.data };
   } catch (err) {
-    return { 
-      success: false, 
-      error: err.response?.data?.error || "No se pudo dar de baja al cocinero" 
+    return {
+      success: false,
+      error: err.response?.data?.error || "No se pudo dar de baja al cocinero",
     };
   }
 };
 
-// ------------------ DAR DE ALTA ------------------
+// ------------------ ACTIVAR ------------------
 export const activateCocinero = async (id) => {
   try {
     const res = await api.patch(ENDPOINTS.ACTIVATE_COCINERO(id));
@@ -75,3 +77,4 @@ export const activateCocinero = async (id) => {
     throw { detail: ["No se pudo dar de alta al cocinero."] };
   }
 };
+

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   getCocinerosActivos,
   getCocinerosInactivos,
@@ -15,40 +15,25 @@ export const useCocineros = () => {
   const [loadingAction, setLoadingAction] = useState(null);
   const [error, setError] = useState(null);
 
-  const [activePage, setActivePage] = useState(1);
-  const [inactivePage, setInactivePage] = useState(1);
-  const [activePagination, setActivePagination] = useState({ count: 0, next: null, previous: null });
-  const [inactivePagination, setInactivePagination] = useState({ count: 0, next: null, previous: null });
-
   // ------------------ OBTENER LISTAS ------------------
-  const fetchCocineros = useCallback(async () => {
-    setLoadingList(true);
-    setError(null);
-    try {
-      const activos = await getCocinerosActivos(activePage);
-      const inactivos = await getCocinerosInactivos(inactivePage);
-      setCocinerosActivos(activos.results);
-      setActivePagination({
-        count: activos.count,
-        next: activos.next,
-        previous: activos.previous,
-      });
-      setCocinerosInactivos(inactivos.results);
-      setInactivePagination({
-        count: inactivos.count,
-        next: inactivos.next,
-        previous: inactivos.previous,
-      });
-    } catch (err) {
-      setError(err.message || "Error al obtener cocineros");
-    } finally {
-      setLoadingList(false);
-    }
-  }, [activePage, inactivePage]);
-
   useEffect(() => {
+    const fetchCocineros = async () => {
+      setLoadingList(true);
+      setError(null);
+      try {
+        const activos = await getCocinerosActivos();
+        const inactivos = await getCocinerosInactivos();
+        setCocinerosActivos(activos);
+        setCocinerosInactivos(inactivos);
+      } catch (err) {
+        setError(err.message || "Error al obtener cocineros");
+      } finally {
+        setLoadingList(false);
+      }
+    };
+
     fetchCocineros();
-  }, [fetchCocineros]);
+  }, []);
 
   // ------------------ CREAR ------------------
   const handleCreate = async (formData) => {
@@ -76,7 +61,7 @@ export const useCocineros = () => {
     }
   };
 
-  // ------------------ DESACTIVAR (BORRADO LÓGICO) ------------------
+  // ------------------ DESACTIVAR ------------------
   const handleDeactivate = async (id) => {
     setLoadingAction(id);
     setError(null);
@@ -84,10 +69,10 @@ export const useCocineros = () => {
     const result = await deactivateCocinero(id);
 
     if (result.success) {
-      const cocinero = cocinerosActivos.find(c => c.id === id);
+      const cocinero = cocinerosActivos.find((c) => c.id === id);
       if (cocinero) {
-        setCocinerosActivos(prev => prev.filter(c => c.id !== id));
-        setCocinerosInactivos(prev => [...prev, cocinero]);
+        setCocinerosActivos((prev) => prev.filter((c) => c.id !== id));
+        setCocinerosInactivos((prev) => [...prev, cocinero]);
       }
     } else {
       setError(result.error);
@@ -96,17 +81,16 @@ export const useCocineros = () => {
     setLoadingAction(null);
   };
 
-
   // ------------------ ACTIVAR ------------------
   const handleActivate = async (id) => {
     setLoadingAction(id);
     setError(null);
     try {
       await activateCocinero(id);
-      const cocinero = cocinerosInactivos.find(c => c.id === id);
+      const cocinero = cocinerosInactivos.find((c) => c.id === id);
       if (cocinero) {
-        setCocinerosInactivos(prev => prev.filter(c => c.id !== id));
-        setCocinerosActivos(prev => [...prev, cocinero]);
+        setCocinerosInactivos((prev) => prev.filter((c) => c.id !== id));
+        setCocinerosActivos((prev) => [...prev, cocinero]);
       }
     } catch (err) {
       setError(err.message || "Error al activar cocinero");
@@ -116,24 +100,15 @@ export const useCocineros = () => {
     }
   };
 
-  // ------------------ PAGINACIÓN ------------------
-  const goToActivePage = (page) => setActivePage(page);
-  const goToInactivePage = (page) => setInactivePage(page);
-
   return {
     cocinerosActivos,
     cocinerosInactivos,
     loadingList,
     loadingAction,
     error,
-    activePagination,
-    inactivePagination,
-    fetchCocineros,
     handleCreate,
     handleUpdate,
     handleDeactivate,
     handleActivate,
-    goToActivePage,
-    goToInactivePage,
   };
 };
