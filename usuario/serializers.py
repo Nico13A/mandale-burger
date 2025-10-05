@@ -212,3 +212,35 @@ class UserProfileUpdateSerializer(BaseUserSerializer):
                 instance.profile.save()
 
         return instance
+
+
+# ======================
+# Serializer para cambiar contraseña
+# ======================
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
+
+    def validate_new_password(self, value):
+        try:
+            validate_password(value)
+        except ValidationError as e:
+            raise serializers.ValidationError(e.messages)
+        return value
+
+    def validate(self, attrs):
+        user = self.context['request'].user
+        current_password = attrs.get('current_password')
+        new_password = attrs.get('new_password')
+        if not user.check_password(current_password):
+            raise serializers.ValidationError({'current_password': 'La contraseña actual es incorrecta.'})
+        if current_password == new_password:
+            raise serializers.ValidationError({'new_password': 'La nueva contraseña no puede ser igual a la actual.'})
+        return attrs
+
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        new_password = self.validated_data['new_password']
+        user.set_password(new_password)
+        user.save()
+        return user

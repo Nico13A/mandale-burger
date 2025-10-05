@@ -19,6 +19,7 @@ import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPasswordConfirm from "../pages/ResetPasswordConfirm";
 import Profile from "../pages/Profile";
+import ChangePassword from "../pages/ChangePassword";
 
 const AppRouter = () => {
   return (
@@ -59,6 +60,11 @@ const AppRouter = () => {
         <Route element={<ClientLayout />}>
           <Route path="/client" element={<ClientDashboard />} />
         </Route>
+      </Route>
+
+      {/* Ruta de cambio de contraseña accesible para cualquier usuario logueado */}
+      <Route element={<PrivateRoutes allowedRoles={['AppAdmin', 'Cook', 'Client']} />}>
+        <Route path="/profile/change-password" element={<ChangePassword />} />
       </Route>
 
 

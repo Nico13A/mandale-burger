@@ -16,6 +16,7 @@ from .serializers import (
     ClienteSerializer,
     ClienteUpdateSerializer,
     UserProfileUpdateSerializer,
+    ChangePasswordSerializer,
 )
 from .permissions import IsInGroup
 from .models import Profile, CocineroDelDia
@@ -48,6 +49,17 @@ class CurrentUserView(APIView):
 # =========================
 class UserProfileUpdateView(generics.UpdateAPIView):
     serializer_class = UserProfileUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+    
+
+# =========================
+# Cambio de contraseña
+# =========================
+class ChangePasswordView(generics.UpdateAPIView):
+    serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):

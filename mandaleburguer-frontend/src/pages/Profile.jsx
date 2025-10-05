@@ -6,7 +6,7 @@ import Button from "../components/Button/Button";
 import Spinner from "../components/Spinner/Spinner";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -144,6 +144,15 @@ const Profile = () => {
         >
           {loading || isSubmitting ? <Spinner /> : "Actualizar perfil"}
         </Button>
+
+          <div className="text-right">
+            <Link
+              to="/profile/change-password"
+              className="text-naranja-boton-hover hover:underline text-sm"
+            >
+              Cambiar contraseña
+            </Link>
+          </div>
       </form>
 
       <ToastContainer />

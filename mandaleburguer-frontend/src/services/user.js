@@ -4,6 +4,7 @@ const ENDPOINTS = {
   USER: "/api/user/",
   PROFILE_UPDATE: "/api/user/profile/",
   PROFILE_IMAGE: "/api/user/profile/image/",
+  CHANGE_PASSWORD: "/api/user/change-password/",
 };
 
 
@@ -47,3 +48,16 @@ export const updateProfileImage = async (file) => {
   }
 };
 
+
+// ------------------ CAMBIO DE CONTRASEÑA ------------------
+export const changeUserPassword = async (data) => {
+  try {
+    const res = await api.put(ENDPOINTS.CHANGE_PASSWORD, data);
+    return res.data;
+  } catch (err) {
+    if (err.response?.data) {
+      throw err.response.data;
+    }
+    throw { non_field_errors: ["No se pudo cambiar la contraseña."] };
+  }
+};
