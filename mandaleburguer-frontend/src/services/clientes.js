@@ -4,6 +4,19 @@ const ENDPOINTS = {
   CLIENTES: "/api/clientes/",
 };
 
+// Obtener un cliente por ID
+export const getClienteById = async (id) => {
+  try {
+    const res = await api.get(`${ENDPOINTS.CLIENTES}${id}/`);
+    return res.data;
+  } catch (err) {
+    console.log(err);
+    
+    const mensaje = err.response?.data?.error || "No se pudo obtener el cliente.";
+    throw new Error(mensaje);
+  }
+};
+
 // Listar activos
 export const getClientesActivos = async (page = 1, search = "") => {
   try {
@@ -60,3 +73,4 @@ export const editarCliente = async (id, datos) => {
     throw { general: "No se pudo editar el cliente." };
   }
 };
+

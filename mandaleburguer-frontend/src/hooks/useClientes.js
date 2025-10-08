@@ -1,16 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getClientesActivos,
   getClientesInactivos,
   activarCliente,
   bajaCliente,
-  editarCliente
+  editarCliente,
+  getClienteById
 } from "../services/clientes";
 
 export const useClientes = () => {
   // ------------------ ESTADOS ------------------
   const [clientesActivos, setClientesActivos] = useState([]);
   const [clientesInactivos, setClientesInactivos] = useState([]);
+  const [clienteActual, setClienteActual] = useState(null);
+
   const [loadingList, setLoadingList] = useState(false);
   const [loadingAction, setLoadingAction] = useState({ id: null, action: "" });
   const [error, setError] = useState(null);
@@ -24,8 +27,8 @@ export const useClientes = () => {
 
   const pageSize = 10;
 
-  // ------------------ FETCH CLIENTES ------------------
-  const fetchClientes = async () => {
+  // ------------------ FETCH LISTA CLIENTES ------------------
+  const fetchClientes = useCallback(async () => {
     setLoadingList(true);
     setError(null);
     try {
@@ -42,11 +45,26 @@ export const useClientes = () => {
     } finally {
       setLoadingList(false);
     }
-  };
+  }, [pageActivos, pageInactivos, searchTerm]);
 
   useEffect(() => {
     fetchClientes();
-  }, [pageActivos, pageInactivos, searchTerm]);
+  }, [fetchClientes]);
+
+  // ------------------ CARGAR CLIENTE POR ID ------------------
+  const loadCliente = useCallback(async (id) => {
+    setLoadingAction({ id, action: "cargar" });
+    setError(null);
+    try {
+      const data = await getClienteById(id);
+      setClienteActual(data);
+    } catch (err) {
+      setError(typeof err === "object" ? err : { general: "Error al cargar cliente" });
+      throw err;
+    } finally {
+      setLoadingAction({ id: null, action: "" });
+    }
+  }, []);
 
   // ------------------ ACCIONES ------------------
   const handleActivate = async (id) => {
@@ -60,16 +78,12 @@ export const useClientes = () => {
         setClientesInactivos(prev => prev.filter(c => c.id !== id));
         setClientesActivos(prev => [...prev, { ...cliente, is_active: true }]);
       }
-      // Ajuste de paginación
       if (clientesInactivos.length === 1 && pageInactivos > 1) {
         setPageInactivos(pageInactivos - 1);
-      } else if (clientesInactivos.length === 1 && pageInactivos === 1) {
-        fetchClientes();
       }
-
+      
     } catch (err) {
       setError(typeof err === "object" ? err : { general: "Error al activar cliente" });
-      throw err;
     } finally {
       setLoadingAction({ id: null, action: "" });
     }
@@ -87,16 +101,11 @@ export const useClientes = () => {
         setClientesInactivos(prev => [...prev, { ...cliente, is_active: false }]);
       }
 
-      // Ajuste de paginación
       if (clientesActivos.length === 1 && pageActivos > 1) {
         setPageActivos(pageActivos - 1);
-      } else if (clientesActivos.length === 1 && pageActivos === 1) {
-        fetchClientes();
       }
-
     } catch (err) {
       setError(typeof err === "object" ? err : { general: "Error al dar de baja cliente" });
-      throw err;
     } finally {
       setLoadingAction({ id: null, action: "" });
     }
@@ -107,8 +116,12 @@ export const useClientes = () => {
     setError(null);
     try {
       await editarCliente(id, data);
+
       setClientesActivos(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
       setClientesInactivos(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
+      if (clienteActual?.id === id) {
+        setClienteActual(prev => ({ ...prev, ...data }));
+      }
     } catch (err) {
       setError(typeof err === "object" && !Array.isArray(err) ? err : { general: "Error al editar cliente" });
       throw err;
@@ -124,6 +137,7 @@ export const useClientes = () => {
   return {
     clientesActivos,
     clientesInactivos,
+    clienteActual,
     loadingList,
     loadingAction,
     error,
@@ -134,14 +148,16 @@ export const useClientes = () => {
     pageInactivos,
     totalPagesInactivos,
     fetchClientes,
+    loadCliente,
     handleActivate,
     handleDeactivate,
     handleUpdate,
     handlePageChangeActivos,
-    handlePageChangeInactivos
+    handlePageChangeInactivos,
+    setPageActivos,
+    setPageInactivos,
   };
 };
-
 
 
 

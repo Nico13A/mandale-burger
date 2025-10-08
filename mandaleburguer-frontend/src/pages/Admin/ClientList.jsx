@@ -9,32 +9,32 @@ import DropdownLista from "../../components/DropdownLista/DropdownLista";
 import Pagination from "../../components/Pagination/Pagination";
 
 const ClientList = () => {
+  const navigate = useNavigate();
+  const [tipoLista, setTipoLista] = useState("activos");
+  const [inputValue, setInputValue] = useState("");
+
   const {
     clientesActivos,
     clientesInactivos,
     loadingList,
     loadingAction,
     error,
-    handleActivate,
-    handleDeactivate,
     pageActivos,
     totalPagesActivos,
     pageInactivos,
     totalPagesInactivos,
+    searchTerm,
+    setSearchTerm,
+    handleActivate,
+    handleDeactivate,
     handlePageChangeActivos,
     handlePageChangeInactivos,
-    setSearchTerm,
-    searchTerm,
-    fetchClientes,
+    fetchClientes, 
   } = useClientes();
-
-  const [tipoLista, setTipoLista] = useState("activos");
-  const [inputValue, setInputValue] = useState(searchTerm);
-  const navigate = useNavigate();
 
   const opciones = [
     { value: "activos", label: "Activos" },
-    { value: "inactivos", label: "Inactivos" }
+    { value: "inactivos", label: "Inactivos" },
   ];
 
   // ---------------- INPUT BÚSQUEDA ----------------
@@ -43,31 +43,33 @@ const ClientList = () => {
     setInputValue(value);
     if (value.trim() === "") {
       setSearchTerm("");
-      if (tipoLista === "activos") handlePageChangeActivos(1);
-      else handlePageChangeInactivos(1);
+      tipoLista === "activos" ? handlePageChangeActivos(1) : handlePageChangeInactivos(1);
     }
   };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       setSearchTerm(inputValue.trim());
-      if (tipoLista === "activos") handlePageChangeActivos(1);
-      else handlePageChangeInactivos(1);
+      tipoLista === "activos" ? handlePageChangeActivos(1) : handlePageChangeInactivos(1);
     }
   };
 
-  // ---------------- CAMBIO DE TIPO DE LISTA ----------------
-  const handleTipoListaChange = (value) => {
-    setTipoLista(value);
-    if (value === "activos") {
-      handlePageChangeActivos(1);
-    } else {
-      handlePageChangeInactivos(1);
-    }
-    fetchClientes();
-  };
+const handleTipoListaChange = (value) => {
+  setTipoLista(value);
+  if (value === "activos") {
+    handlePageChangeActivos(1);
+  } else {
+    handlePageChangeInactivos(1);
+  }
+  fetchClientes();
+};
 
-  // ---------------- RENDER FILA / CARD ----------------
+  const listaClientes = tipoLista === "activos" ? clientesActivos : clientesInactivos;
+  const listaTitulo = tipoLista === "activos" ? "Lista de activos" : "Lista de inactivos";
+  const listaIcon = tipoLista === "activos" ? CheckCircleIcon : XCircleIcon;
+  const listaIconColor = tipoLista === "activos" ? "text-orange-400" : "text-red-500";
+
+  // ---------------- RENDER FILA ----------------
   const renderRowCliente = (c) => (
     <tr
       key={c.id}
@@ -84,13 +86,14 @@ const ClientList = () => {
           loadingId={loadingAction}
           navigate={navigate}
           editPath="/admin/clientes/editar"
-          handleDelete={handleDeactivate}
-          handleActivate={handleActivate}
+          handleDelete={() => handleDeactivate(c.id)}
+          handleActivate={() => handleActivate(c.id)}
         />
       </td>
     </tr>
   );
 
+  // ---------------- RENDER CARD ----------------
   const renderCardCliente = (c) => (
     <div
       key={c.id}
@@ -105,25 +108,18 @@ const ClientList = () => {
           loadingId={loadingAction}
           navigate={navigate}
           editPath="/admin/clientes/editar"
-          handleDelete={handleDeactivate}
-          handleActivate={handleActivate}
+          handleDelete={() => handleDeactivate(c.id)}
+          handleActivate={() => handleActivate(c.id)}
         />
       </div>
     </div>
   );
 
-  const listaClientes = tipoLista === "activos" ? clientesActivos : clientesInactivos;
-  const listaTitulo = tipoLista === "activos" ? "Lista de activos" : "Lista de inactivos";
-  const listaIcon = tipoLista === "activos" ? CheckCircleIcon : XCircleIcon;
-  const listaIconColor = tipoLista === "activos" ? "text-orange-400" : "text-red-500";
-
   return (
     <div className="w-full max-w-4xl mx-auto mt-6 pb-25 md:pb-0">
       <div className="flex justify-between items-center space-x-2 mb-4 md:mb-6">
         <h1 className="text-2xl md:text-3xl font-bold">Clientes</h1>
-
         <div className="flex space-x-2 items-center">
-          {/* Input desktop */}
           <input
             type="text"
             placeholder="Buscar por nombre o apellido"
@@ -132,29 +128,10 @@ const ClientList = () => {
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
           />
-
-          <button
-            onClick={() => {
-              setSearchTerm(inputValue.trim());
-              if (tipoLista === "activos") handlePageChangeActivos(1);
-              else handlePageChangeInactivos(1);
-            }}
-            className="hidden md:block cursor-pointer bg-naranja-boton hover:bg-naranja-boton-hover text-white font-medium rounded-2xl px-4 py-2 transition duration-300"
-          >
-            Buscar
-          </button>
-
-          {/* Dropdown para elegir activos o inactivos */}
-          <DropdownLista
-            options={opciones}
-            value={tipoLista}
-            onChange={handleTipoListaChange}
-            className="w-40 md:w-48"
-          />
+          <DropdownLista options={opciones} value={tipoLista} onChange={handleTipoListaChange} className="w-40 md:w-48" />
         </div>
       </div>
 
-      {/* Input mobile */}
       <input
         type="text"
         placeholder="Buscar por nombre o apellido"
@@ -182,20 +159,10 @@ const ClientList = () => {
                 Icon={listaIcon}
                 iconColor={listaIconColor}
               />
-
-              {/* PAGINACIÓN */}
               {tipoLista === "activos" ? (
-                <Pagination
-                  currentPage={pageActivos}
-                  totalPages={totalPagesActivos}
-                  onPageChange={handlePageChangeActivos}
-                />
+                <Pagination currentPage={pageActivos} totalPages={totalPagesActivos} onPageChange={handlePageChangeActivos} />
               ) : (
-                <Pagination
-                  currentPage={pageInactivos}
-                  totalPages={totalPagesInactivos}
-                  onPageChange={handlePageChangeInactivos}
-                />
+                <Pagination currentPage={pageInactivos} totalPages={totalPagesInactivos} onPageChange={handlePageChangeInactivos} />
               )}
             </>
           ) : (
@@ -210,9 +177,6 @@ const ClientList = () => {
 };
 
 export default ClientList;
-
-
-
 
 
 

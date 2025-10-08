@@ -150,7 +150,15 @@ LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Configuración para enviar emails reales con Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'matiasalvian13@gmail.com'       # Reemplazar por tu correo
+EMAIL_HOST_PASSWORD = 'vuuw agrx zscq gecz'        # App Password de Gmail (no tu contraseña normal)
+DEFAULT_FROM_EMAIL = 'Mandale Burger <matiasalvian13@gmail.com>'
 
 
 REST_FRAMEWORK = {
@@ -179,6 +187,7 @@ DJOSER = {
 
     "SEND_ACTIVATION_EMAIL": False,
     "SEND_CONFIRMATION_EMAIL": False,
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
 }
 
 

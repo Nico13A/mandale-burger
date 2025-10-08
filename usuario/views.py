@@ -253,3 +253,13 @@ class ClienteUpdateView(generics.UpdateAPIView):
     serializer_class = ClienteUpdateSerializer
     permission_classes = [IsAuthenticated, IsInGroup]
     allowed_groups = ['AppAdmin']
+
+
+# =========================
+# Obtener cliente (solo Admin)
+# =========================
+class ClienteDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.filter(groups__name="Client")
+    serializer_class = ClienteSerializer
+    permission_classes = [IsAuthenticated, IsInGroup]
+    allowed_groups = ['AppAdmin']

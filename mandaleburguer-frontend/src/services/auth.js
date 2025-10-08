@@ -82,7 +82,14 @@ export const forgotPassword = async (email) => {
     const res = await api.post(ENDPOINTS.RESET_PASSWORD, { email });
     return res.data;
   } catch (err) {
-    const mensaje = err.response?.data?.email || "Error al enviar la solicitud de reseteo.";
+    let mensaje;
+    if (Array.isArray(err.response?.data)) {
+      mensaje = err.response.data[0];
+    } else if (err.response?.data?.email?.[0]) {
+      mensaje = err.response.data.email[0];
+    } else {
+      mensaje = "Error al enviar la solicitud de reseteo.";
+    }
     throw new Error(mensaje);
   }
 };

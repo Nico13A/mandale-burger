@@ -11,13 +11,12 @@ export const useForgotPassword = () => {
     setLoading(true);
     try {
       await forgotPassword(email);
-
       toast.success(
         "Se envió un email con las instrucciones para resetear tu contraseña.",
         { position: "top-right", autoClose: 3000 }
       );
     } catch (err) {
-      setError(err.message || "Error al enviar el email");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
