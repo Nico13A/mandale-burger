@@ -42,6 +42,17 @@ urlpatterns = [
     path('clientes/<int:pk>/edit/', views.ClienteUpdateView.as_view(), name='cliente_update'),
     path('clientes/<int:pk>/delete/', views.ClienteDeleteView.as_view(), name='cliente_logical_delete'),
     path('clientes/<int:pk>/activate/', views.ClienteActivateView.as_view(), name='cliente_activate'),
+
+    # ------------------------------------
+    # ENDPOINTS DE SUSCRIPCIONES
+    # ------------------------------------
+    path('subscriptions/plans/', views.SubscriptionPlanListView.as_view(), name='subscription_plans_list'),
+    path('subscriptions/plans/create/', views.SubscriptionPlanCreateView.as_view(), name='subscription_plan_create'),
+    path('subscriptions/plans/<int:pk>/edit/', views.SubscriptionPlanUpdateView.as_view(), name='subscription_plan_edit'),
+    path('subscriptions/plans/<int:pk>/deactivate/', views.SubscriptionPlanDeactivateView.as_view(), name='subscription_plan_deactivate'),
+    path('subscriptions/plans/<int:pk>/activate/', views.SubscriptionPlanActivateView.as_view(), name='subscription_plan_activate'),
+    path('subscriptions/user/create/', views.UserSubscriptionCreateView.as_view(), name='user_subscription_create'),
+    path('subscriptions/user/active/', views.UserSubscriptionDetailView.as_view(), name='user_subscription_active'),
 ]
 
 

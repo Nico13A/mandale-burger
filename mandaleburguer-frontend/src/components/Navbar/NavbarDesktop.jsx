@@ -3,11 +3,12 @@ import Button from "../Button/Button.jsx";
 import CartButton from "../CartButton/CartButton.jsx";
 import { getMenuItems } from "./menu.config.js";
 import PerfilDropdown from "../PerfilDropdown/PerfilDropdown.jsx";
+import { StarIcon } from "@heroicons/react/24/solid";
 
-const NavbarDesktop = ({ role = "Client", cartCount = 0, onLogout }) => {
+const NavbarDesktop = ({ role = "Client", cartCount = 0, onLogout, suscripcion }) => {
   const navigate = useNavigate();
   const allItems = getMenuItems(role);
-  
+
   const textItems = allItems.filter(
     item => item.key !== "Carrito" && item.key !== "Perfil"
   );
@@ -55,8 +56,27 @@ const NavbarDesktop = ({ role = "Client", cartCount = 0, onLogout }) => {
           />
         )}
 
-        {/* Dropdown de perfil */}
-        {perfilItem && <PerfilDropdown onLogout={onLogout} />}
+        {/* Dropdown de perfil + badge de suscripción */}
+        {perfilItem && (
+          <div className="relative flex items-center">
+            <PerfilDropdown onLogout={onLogout} />
+
+            {suscripcion?.plan && (
+              <div className="relative group ml-2">
+                {/* Badge con icono y nombre */}
+                <div className="flex items-center bg-gris-boton text-white rounded-full p-2 font-medium cursor-default">
+                  <StarIcon className="w-6 h-6 mr-2" />
+                  <span className="text-xs">{suscripcion.plan.name}</span>
+                </div>
+
+                {/* Tooltip */}
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap z-50">
+                  Tu plan actual
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

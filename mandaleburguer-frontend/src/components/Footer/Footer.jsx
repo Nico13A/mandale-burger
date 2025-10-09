@@ -1,27 +1,29 @@
 import { useNavigate } from "react-router-dom";
 import { getMenuItems } from "../Navbar/menu.config.js";
 import Button from "../Button/Button.jsx";
-import CartButton from "../CartButton/CartButton.jsx";
 
-const Footer = ({ role = "Client", cartCount = 0 }) => {
+const Footer = ({ role = "Client" }) => {
   const navigate = useNavigate();
   const allItems = getMenuItems(role);
-  const textItems = allItems.filter((item) => item.key !== "Carrito");
-  const cartItem = allItems.find((item) => item.key === "Carrito");
+
+  let textItems = allItems.filter(
+    (item) =>
+      item.key !== "Carrito" &&
+      item.key !== "Perfil" &&
+      item.key !== "Inicio"
+  );
 
   let displayItems = textItems;
   if (role === "AppAdmin") {
-    displayItems = textItems
-      .filter((item) => item.key !== "Inicio" && item.key !== "Perfil")
-      .map((item) => ({
-        ...item,
-        label: `Administrar ${item.label.toLowerCase()}`,
-      }));
+    displayItems = textItems.map((item) => ({
+      ...item,
+      label: `Administrar ${item.label.toLowerCase()}`,
+    }));
   }
 
   return (
-    <footer className="hidden md:flex w-full bg-gris-boton text-white py-12 px-12 mt-17 flex-col items-center">
-      <div className="w-full max-w-4xl flex items-center justify-between space-x-12">
+    <footer className="hidden md:flex w-full bg-gris-boton text-white p-12 mt-17 flex-col items-center">
+      <div className="w-full max-w-6xl flex flex-col md:flex-row items-center justify-between gap-8">
         <div
           className="cursor-pointer flex flex-col items-center md:items-start"
           onClick={() => navigate("/")}
@@ -33,7 +35,13 @@ const Footer = ({ role = "Client", cartCount = 0 }) => {
           />
         </div>
 
-        <div className="flex flex-col items-start space-y-2">
+        {/* Menú dinámico */}
+        <div
+          className={`flex ${role === "AppAdmin"
+              ? "flex-col items-start space-y-2" 
+              : "flex-row justify-center gap-5"
+            }`}
+        >
           {displayItems.map(({ key, label }) => (
             <Button
               key={key}
@@ -43,31 +51,31 @@ const Footer = ({ role = "Client", cartCount = 0 }) => {
                 else navigate(`/client/${key.toLowerCase()}`);
               }}
               aria-label={`Ir a ${label}`}
-              className="w-48 text-left"
+              className={`${role === "AppAdmin"
+                  ? "w-52 text-left"
+                  : ""
+                }`}
             >
-              <span className="relative inline-block text-sm text-gray-300 hover:text-naranja-boton-hover after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:h-[2px] after:w-0 after:bg-naranja-boton-hover after:transition-all after:duration-300 hover:after:w-full">
+              <span
+                className="relative inline-block text-sm text-gray-300 hover:text-naranja-boton-hover after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-0 after:h-[2px] after:w-0 after:bg-naranja-boton-hover after:transition-all after:duration-300 hover:after:w-full"
+              >
                 {label}
               </span>
             </Button>
           ))}
-
-          {cartItem && role !== "AppAdmin" && (
-            <CartButton
-              key={cartItem.key}
-              count={cartCount}
-              onClick={() => navigate("/client/carrito")}
-              className="w-48 text-left"
-            />
-          )}
         </div>
       </div>
 
-      <p className="mt-8 text-xs text-gray-400 text-center">&copy; 2025 Mandale Burger. Todos los derechos reservados.</p>
+      <p className="mt-8 text-xs text-gray-400 text-center">
+        &copy; 2025 Mandale Burger. Todos los derechos reservados.
+      </p>
     </footer>
   );
 };
 
 export default Footer;
+
+
 
 
 
