@@ -96,7 +96,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'mandale_burger',        
         'USER': 'postgres',             
-        'PASSWORD': 'fence8lear',    
+        'PASSWORD': 'tucontraseña',    
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
@@ -156,8 +156,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'matiasalvian13@gmail.com'       # Reemplazar por tu correo
-EMAIL_HOST_PASSWORD = 'vuuw agrx zscq gecz'        # App Password de Gmail (no tu contraseña normal)
+EMAIL_HOST_USER = 'matiasalvian13@gmail.com'      
+EMAIL_HOST_PASSWORD = 'vuuw agrx zscq gecz'        
 DEFAULT_FROM_EMAIL = 'Mandale Burger <matiasalvian13@gmail.com>'
 
 
