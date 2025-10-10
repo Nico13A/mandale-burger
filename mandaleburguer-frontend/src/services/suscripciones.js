@@ -1,13 +1,13 @@
 import api from "./api";
 
 const ENDPOINTS = {
-  SUBSCRIPTION_PLANS_LIST: "/api/subscriptions/plans/",
-  SUBSCRIPTION_PLAN_CREATE: "/api/subscriptions/plans/create/",
-  SUBSCRIPTION_PLAN_EDIT: (id) => `/api/subscriptions/plans/${id}/edit/`,
-  SUBSCRIPTION_PLAN_ACTIVATE: (id) => `/api/subscriptions/plans/${id}/activate/`,
-  SUBSCRIPTION_PLAN_DEACTIVATE: (id) => `/api/subscriptions/plans/${id}/deactivate/`,
-  USER_SUBSCRIPTION_CREATE: "/api/subscriptions/user/create/",
-  USER_SUBSCRIPTION_ACTIVE: "/api/subscriptions/user/active/",
+  SUBSCRIPTION_PLANS_LIST: "/api/subscription/plans/",
+  SUBSCRIPTION_PLAN_CREATE: "/api/subscription/plans/create/",
+  SUBSCRIPTION_PLAN_EDIT: (id) => `/api/subscription/plans/${id}/edit/`,
+  SUBSCRIPTION_PLAN_ACTIVATE: (id) => `/api/subscription/plans/${id}/activate/`,
+  SUBSCRIPTION_PLAN_DEACTIVATE: (id) => `/api/subscription/plans/${id}/deactivate/`,
+  USER_SUBSCRIPTION_CREATE: "/api/subscription/user/create/",
+  USER_SUBSCRIPTION_ACTIVE: "/api/subscription/user/active/",
 };
 
 // ------------------ LISTAR PLANES ------------------

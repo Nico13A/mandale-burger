@@ -1,4 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 import NavbarDesktop from "../components/Navbar/NavbarDesktop";
 import NavbarMobile from "../components/Navbar/NavbarMobile";
 import Footer from "../components/Footer/Footer";
@@ -8,7 +9,14 @@ import { useSuscripcionUsuario } from "../hooks/useSuscripcionUsuario";
 const ClientLayout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const { suscripcion } = useSuscripcionUsuario(); 
+  const { suscripcion: suscripcionInicial, crearSuscripcion } = useSuscripcionUsuario();
+  const [suscripcionActual, setSuscripcionActual] = useState(suscripcionInicial);
+
+  useEffect(() => {
+    if (suscripcionInicial) {
+      setSuscripcionActual(suscripcionInicial);
+    }
+  }, [suscripcionInicial]);
 
   const handleLogout = () => {
     logout();
@@ -17,25 +25,29 @@ const ClientLayout = () => {
 
   const cartCount = 3;
 
+  const outletContext = useMemo(
+    () => ({
+      suscripcionActual,
+      setSuscripcionActual,
+      crearSuscripcion,
+    }),
+    [suscripcionActual, crearSuscripcion]
+  );
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Navbar Mobile */}
       <NavbarMobile role={user?.groups?.[0]} cartCount={cartCount} />
-
-      {/* Navbar Desktop */}
       <NavbarDesktop
         role={user?.groups?.[0]}
         cartCount={cartCount}
         onLogout={handleLogout}
-        suscripcion={suscripcion} 
+        suscripcion={suscripcionActual}
       />
 
-      {/* Contenido principal */}
       <main className="flex-1 p-5 text-gris-boton md:mt-36">
-        <Outlet />
+        <Outlet context={outletContext} />
       </main>
 
-      {/* Footer visible solo en desktop */}
       <div className="hidden md:block">
         <Footer role={user?.groups?.[0]} />
       </div>
@@ -44,4 +56,5 @@ const ClientLayout = () => {
 };
 
 export default ClientLayout;
+
 
