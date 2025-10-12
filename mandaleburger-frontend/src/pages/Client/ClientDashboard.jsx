@@ -53,10 +53,19 @@ const ClientDashboard = () => {
   };
 
   const handleSeleccionPlan = async (planId) => {
-    try {
-      await pagarPlan(planId);
-    } catch (err) {
-      toast.error(err.message || "Error al iniciar el pago");
+    if (!suscripcionActual || !suscripcionActual?.plan?.id) {
+      try {
+        await pagarPlan(planId);
+      } catch (err) {
+        toast.error(err.message || "Error al iniciar el pago");
+      }
+      return;
+    }
+
+    if (suscripcionActual?.plan?.id === planId) {
+      toast.info("Ya tenés este plan activo. No podés pagar de nuevo.");
+    } else {
+      toast.info("Ya tenés otra suscripción activa. No podés elegir otro plan.");
     }
   };
 
@@ -106,13 +115,7 @@ const ClientDashboard = () => {
               key={plan.id}
               plan={plan}
               suscripcionActiva={suscripcionActual?.plan?.id === plan.id}
-              onSelect={() => {
-                if (!!suscripcionActual && suscripcionActual?.plan?.id !== plan.id) {
-                  toast.info("Ya tienes una suscripción activa, no podés elegir otro plan.");
-                  return;
-                }
-                handleSeleccionPlan(plan.id);
-              }}
+              onSelect={() => handleSeleccionPlan(plan.id)}
             />
           ))}
         </div>

@@ -10,7 +10,7 @@ export const useMercadoPago = () => {
     setError(null);
     try {
       const { init_point } = await crearPreferenciaPago(planId);
-      window.open(init_point, "_blank");
+      window.location.href = init_point;
     } catch (err) {
       setError(err.message);
       throw err;

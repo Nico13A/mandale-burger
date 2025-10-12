@@ -37,6 +37,8 @@ class UserSubscription(models.Model):
     end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
+    payment_id = models.CharField(max_length=255, null=True, blank=True, unique=True)  
+
     def __str__(self):
         return f"{self.user.username} - {self.plan.name}"
 

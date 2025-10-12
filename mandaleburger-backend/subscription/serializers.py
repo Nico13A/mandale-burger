@@ -19,10 +19,11 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     plan = SubscriptionPlanSerializer(read_only=True)
     plan_id = serializers.PrimaryKeyRelatedField(queryset=SubscriptionPlan.objects.all(), write_only=True, source='plan')
+    payment_id = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = UserSubscription
-        fields = ['id', 'user', 'plan', 'plan_id', 'start_date', 'end_date', 'is_active']
+        fields = ['id', 'user', 'plan', 'plan_id', 'payment_id', 'start_date', 'end_date', 'is_active']
 
     def validate_plan(self, plan):
         if not plan.is_active:

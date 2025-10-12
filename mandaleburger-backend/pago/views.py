@@ -12,6 +12,8 @@ import mercadopago
 from subscription.models import SubscriptionPlan, UserSubscription
 from subscription.serializers import UserSubscriptionSerializer 
 
+from django.shortcuts import redirect
+
 
 # -------------------- CREAR PREFERENCIA DE PAGO --------------------
 class CrearPreferenciaPagoView(APIView):
@@ -41,6 +43,12 @@ class CrearPreferenciaPagoView(APIView):
             "external_reference": str(request.user.id),
             
             "notification_url": NOTIFICATION_URL,
+
+            "back_urls": {
+                "success": f"{BASE_URL}/api/pago/success/",
+            },
+
+            "auto_return": "approved",
             
             "metadata": {
                 "plan_id": plan.id, 
@@ -64,7 +72,7 @@ class CrearPreferenciaPagoView(APIView):
         return Response({"init_point": init_point}, status=200)
 
 
-#  -------------------- WEBHOOK/IPN DE MERCADO PAGO --------------------
+#  -------------------- WEBHOOK DE MERCADO PAGO --------------------
 @csrf_exempt
 def mercado_pago_webhook(request):
     if request.method != "POST":
@@ -73,10 +81,7 @@ def mercado_pago_webhook(request):
     try:
         topic = request.GET.get("topic") or request.GET.get("type")
         body = json.loads(request.body.decode('utf-8'))
-        resource_id = (
-            body.get("data", {}).get("id")
-            or request.GET.get("id")
-        )
+        resource_id = (body.get("data", {}).get("id") or request.GET.get("id"))
 
         print("───────────────────────────────")
         print(f"Notificación recibida - Topic: {topic}, ID: {resource_id}")
@@ -95,6 +100,7 @@ def mercado_pago_webhook(request):
         status = payment.get("status")
         external_reference = payment.get("external_reference")
         metadata = payment.get("metadata", {})
+        payment_id = str(payment.get("id"))
 
         print(f"Estado del pago consultado: {status}")
         print(f"Referencia externa (User ID): {external_reference}")
@@ -108,6 +114,10 @@ def mercado_pago_webhook(request):
         except User.DoesNotExist:
             print(f"ERROR: Usuario con ID {external_reference} no encontrado.")
             return JsonResponse({"message": "Usuario no encontrado"}, status=200)
+        
+        if UserSubscription.objects.filter(payment_id=payment_id).exists():
+            print(f"Webhook ya procesado para este payment_id: {payment_id}")
+            return JsonResponse({"message": "Webhook ya procesado para este pago"}, status=200)
 
         if UserSubscription.objects.filter(user=user, is_active=True).exists():
             print(f"Alerta de Concurrencia: El usuario {user.id} ya tiene una suscripción activa. Webhook ignorado.")
@@ -124,7 +134,7 @@ def mercado_pago_webhook(request):
             print(f"ERROR: Plan con ID {plan_id} no encontrado.")
             return JsonResponse({"message": "Plan no encontrado"}, status=200)
 
-        data = {"plan_id": plan.id}
+        data = {"plan_id": plan.id, "payment_id": payment_id}
         serializer = UserSubscriptionSerializer(data=data, context={"user": user})
 
         if serializer.is_valid():
@@ -140,3 +150,5 @@ def mercado_pago_webhook(request):
         return JsonResponse({"message": "Error interno (ver logs)"}, status=200)
 
 
+def success_redirect(request):
+    return redirect("http://localhost:5173")
