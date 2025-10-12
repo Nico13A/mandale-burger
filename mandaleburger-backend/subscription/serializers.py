@@ -29,14 +29,21 @@ class UserSubscriptionSerializer(serializers.ModelSerializer):
             raise ValidationError("No puedes suscribirte a un plan inactivo.")
         return plan
     
+    def _get_user_from_context(self):
+        if 'user' in self.context:
+            return self.context['user']
+        elif 'request' in self.context and hasattr(self.context['request'], 'user'):
+            return self.context['request'].user
+        raise ValidationError("No se encontró el usuario en el contexto.")
+
     def validate(self, attrs):
-        user = self.context['request'].user
+        user = self._get_user_from_context()
         if UserSubscription.objects.filter(user=user, is_active=True).exists():
             raise ValidationError("Ya tienes una suscripción activa.")
         return attrs
 
     def create(self, validated_data):
-        user = self.context['request'].user
+        user = self._get_user_from_context()
         validated_data['user'] = user
         subscription = UserSubscription.objects.create(**validated_data)
         subscription.activate()

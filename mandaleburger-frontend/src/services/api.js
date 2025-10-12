@@ -1,7 +1,7 @@
 import axios from "axios";
 import { logout } from "./auth"; 
 
-const API_URL = "http://localhost:8000";
+const API_URL =   window.location.hostname.includes("ngrok") ? "http://localhost:8000" : "http://localhost:8000";
 
 const api = axios.create({
   baseURL: API_URL,

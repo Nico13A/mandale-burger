@@ -15,12 +15,12 @@ import { usePlanesDeSuscripcion } from "../../hooks/usePlanesDeSuscripcion";
 
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useMercadoPago } from "../../hooks/useMercadoPago";
 
 const ClientDashboard = () => {
   const {
     suscripcionActual,
     setSuscripcionActual,
-    crearSuscripcion,
   } = useOutletContext();
 
   const [search, setSearch] = useState("");
@@ -29,6 +29,8 @@ const ClientDashboard = () => {
 
   const { cocineroActual } = useCocineroDelDia();
   const { planes, cargando: cargandoPlanes, error: errorPlanes } = usePlanesDeSuscripcion();
+
+  const { pagarPlan, cargando: cargandoPago, error: errorPago } = useMercadoPago();
 
   const prevRefPromos = useRef(null);
   const nextRefPromos = useRef(null);
@@ -52,12 +54,9 @@ const ClientDashboard = () => {
 
   const handleSeleccionPlan = async (planId) => {
     try {
-      const nuevaSuscripcion = await crearSuscripcion(planId);
-      setSuscripcionActual(nuevaSuscripcion);
-      toast.success("Suscripción creada con éxito");
+      await pagarPlan(planId);
     } catch (err) {
-      const mensaje = err?.non_field_errors?.[0] || "Error al suscribirse";
-      toast.error(mensaje);
+      toast.error(err.message || "Error al iniciar el pago");
     }
   };
 
@@ -107,7 +106,13 @@ const ClientDashboard = () => {
               key={plan.id}
               plan={plan}
               suscripcionActiva={suscripcionActual?.plan?.id === plan.id}
-              onSelect={handleSeleccionPlan}
+              onSelect={() => {
+                if (!!suscripcionActual && suscripcionActual?.plan?.id !== plan.id) {
+                  toast.info("Ya tienes una suscripción activa, no podés elegir otro plan.");
+                  return;
+                }
+                handleSeleccionPlan(plan.id);
+              }}
             />
           ))}
         </div>

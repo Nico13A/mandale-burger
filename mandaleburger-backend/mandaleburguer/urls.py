@@ -7,10 +7,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('usuario.urls')),  
     path('api/subscription/', include('subscription.urls')),
-    path("pago/", include("pago.urls")),
+    path('api/pago/', include('pago.urls')),
     
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.jwt')),
+
 
 ]
 

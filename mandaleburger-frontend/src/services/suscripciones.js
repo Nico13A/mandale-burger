@@ -6,7 +6,6 @@ const ENDPOINTS = {
   SUBSCRIPTION_PLAN_EDIT: (id) => `/api/subscription/plans/${id}/edit/`,
   SUBSCRIPTION_PLAN_ACTIVATE: (id) => `/api/subscription/plans/${id}/activate/`,
   SUBSCRIPTION_PLAN_DEACTIVATE: (id) => `/api/subscription/plans/${id}/deactivate/`,
-  USER_SUBSCRIPTION_CREATE: "/api/subscription/user/create/",
   USER_SUBSCRIPTION_ACTIVE: "/api/subscription/user/active/",
 };
 
@@ -62,17 +61,6 @@ export const deactivateSubscriptionPlan = async (planId) => {
   } catch (err) {
     if (err.response?.data) throw err.response.data;
     throw { non_field_errors: ["No se pudo dar de baja el plan de suscripción."] };
-  }
-};
-
-// ------------------ CREAR SUSCRIPCIÓN DEL USUARIO ------------------
-export const createUserSubscription = async (planId) => {
-  try {
-    const res = await api.post(ENDPOINTS.USER_SUBSCRIPTION_CREATE, { plan_id: planId });
-    return res.data;
-  } catch (err) {
-    if (err.response?.data) throw err.response.data;
-    throw { non_field_errors: ["No se pudo crear la suscripción."] };
   }
 };
 

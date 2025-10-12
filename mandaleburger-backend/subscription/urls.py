@@ -14,6 +14,5 @@ urlpatterns = [
     # ------------------------------------
     # ENDPOINTS DE SUSCRIPCIÓN DE USUARIO
     # ------------------------------------
-    path('user/create/', views.UserSubscriptionCreateView.as_view(), name='user_subscription_create'),
     path('user/active/', views.UserSubscriptionDetailView.as_view(), name='user_subscription_active'),
 ]
