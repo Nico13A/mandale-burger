@@ -5,10 +5,12 @@ import CardPlanAdmin from "../../components/CardPlan/CardPlanAdmin";
 import CreatePlanModal from "../../components/ModalPlan/CreatePlanModal";
 import EditPlanModal from "../../components/ModalPlan/EditPlanModal";
 import Loading from "../../components/Loading/Loading";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
   const { planes, cargando: cargandoPlanes, error, recargar } = usePlanesDeSuscripcion();
   const { crearPlan, editarPlan, activarPlan, desactivarPlan } = usePlanAdmin();
+  const navigate = useNavigate();
 
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -67,19 +69,29 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleGoToPromotion = () => {
+    navigate("/admin/promociones/nuevo");
+  }
+
   return (
     <div className="w-full max-w-6xl mx-auto mt-6 pb-25 md:pb-0">
       <h1 className="text-4xl font-bold mb-6 text-gris-boton">
         Panel de Administrador
       </h1>
 
-      {/* Botón crear plan */}
-      <div className="flex flex-wrap gap-4 mb-6">
+      {/* Botones de acción */}
+      <div className="flex flex-wrap gap-x-4 gap-y-2 mb-6">
         <button
           onClick={() => setCreateModalOpen(true)}
           className="px-5 py-2 bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer text-white rounded-2xl font-semibold transition"
         >
-          Crear Plan
+          Crear plan
+        </button>
+        <button
+          onClick={handleGoToPromotion}
+          className="px-5 py-2 bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer text-white rounded-2xl font-semibold transition"
+        >
+          Crear promoción
         </button>
       </div>
 

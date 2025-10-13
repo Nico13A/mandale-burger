@@ -59,7 +59,7 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave }) => {
                     <XMarkIcon className="h-6 w-6" />
                 </button>
 
-                <h2 className="text-xl font-bold mb-4">Editar Plan</h2>
+                <h2 className="text-xl font-bold mb-4">Editar plan</h2>
 
                 {errors.general && <p className="text-red-500 text-sm mb-2">{errors.general}</p>}
 

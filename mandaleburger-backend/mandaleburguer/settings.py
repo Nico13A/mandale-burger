@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'usuario.apps.UsuarioConfig',
     'subscription.apps.SubscriptionConfig',
     'pago.apps.PagoConfig',
+    'core.apps.CoreConfig',
+    'promotion.apps.PromotionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -98,7 +100,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'miproyecto',        
+        'NAME': 'mandale_burger',        
         'USER': 'postgres',             
         'PASSWORD': config('DB_PASSWORD'),    
         'HOST': '127.0.0.1',

@@ -23,6 +23,8 @@ import ResetPasswordConfirm from "../pages/ResetPasswordConfirm";
 import Profile from "../pages/Profile";
 import ChangePassword from "../pages/ChangePassword";
 
+import AdminPromocionForm from "../pages/Admin/AdminPromocionForm";
+
 const AppRouter = () => {
   return (
     <Routes>
@@ -48,6 +50,11 @@ const AppRouter = () => {
           <Route path="/admin/cocineros/editar/:id" element={<AdminCocineroForm isEdit={true} />} />
           <Route path="/admin/clientes" element={<ClientList />} />
           <Route path="/admin/clientes/editar/:id" element={<AdminClientForm />} />
+          <Route path="/admin/promociones/nuevo" element={<AdminPromocionForm />} />
+
+
+
+
           <Route path="/admin/posts" element={<Posts />} />
           <Route path="/admin/posts/:id" element={<PostDetail />} />
         </Route>
@@ -63,6 +70,10 @@ const AppRouter = () => {
       <Route element={<PrivateRoutes allowedRoles={['Client']} />}>
         <Route element={<ClientLayout />}>
           <Route path="/client" element={<ClientDashboard />} />
+
+
+
+
           <Route path="/client/posts" element={<Posts />} />
           <Route path="/client/posts/:id" element={<PostDetail />} />
         </Route>
