@@ -13,6 +13,8 @@ import CookDashboard from "../pages/Cook/CookDashboard";
 
 import ClientLayout from "../layouts/ClientLayout";
 import ClientDashboard from "../pages/Client/ClientDashboard";
+import Posts from "../pages/Client/Posts";
+import PostDetail from "../pages/Client/PostDetail";
 
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -46,6 +48,8 @@ const AppRouter = () => {
           <Route path="/admin/cocineros/editar/:id" element={<AdminCocineroForm isEdit={true} />} />
           <Route path="/admin/clientes" element={<ClientList />} />
           <Route path="/admin/clientes/editar/:id" element={<AdminClientForm />} />
+          <Route path="/admin/posts" element={<Posts />} />
+          <Route path="/admin/posts/:id" element={<PostDetail />} />
         </Route>
       </Route>
 
@@ -59,6 +63,8 @@ const AppRouter = () => {
       <Route element={<PrivateRoutes allowedRoles={['Client']} />}>
         <Route element={<ClientLayout />}>
           <Route path="/client" element={<ClientDashboard />} />
+          <Route path="/client/posts" element={<Posts />} />
+          <Route path="/client/posts/:id" element={<PostDetail />} />
         </Route>
       </Route>
 

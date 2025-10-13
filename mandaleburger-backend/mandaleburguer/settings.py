@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'djoser',
+    'post',
 ]
 
 SITE_ID = 1
@@ -97,7 +98,7 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mandale_burger',        
+        'NAME': 'miproyecto',        
         'USER': 'postgres',             
         'PASSWORD': config('DB_PASSWORD'),    
         'HOST': '127.0.0.1',
