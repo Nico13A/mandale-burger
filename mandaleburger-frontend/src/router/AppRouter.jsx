@@ -2,15 +2,21 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoutes from "./PrivateRoutes";
 import RoleRedirect from "./RoleRedirect";
 
+// ADMIN
 import AdminLayout from "../layouts/AdminLayout";
 import AdminDashboard from "../pages/Admin/AdminDashboard";
 import CocinerosList from "../pages/Admin/CocinerosList";
 import AdminCocineroForm from "../pages/Admin/AdminCocineroForm";
 import ClientList from "../pages/Admin/ClientList";
 import AdminClientForm from "../pages/Admin/AdminClientForm";
+import PromocionesList from "../pages/Admin/PromocionesList";
+import AdminPromocionForm from "../pages/Admin/AdminPromocionForm";
+import AdminPromocionEditForm from "../pages/Admin/AdminPromocionEditForm";
 
+// COCINERO
 import CookDashboard from "../pages/Cook/CookDashboard";
 
+// CLIENTE
 import ClientLayout from "../layouts/ClientLayout";
 import ClientDashboard from "../pages/Client/ClientDashboard";
 import Posts from "../pages/Client/Posts";
@@ -22,8 +28,6 @@ import ForgotPassword from "../pages/ForgotPassword";
 import ResetPasswordConfirm from "../pages/ResetPasswordConfirm";
 import Profile from "../pages/Profile";
 import ChangePassword from "../pages/ChangePassword";
-
-import AdminPromocionForm from "../pages/Admin/AdminPromocionForm";
 
 const AppRouter = () => {
   return (
@@ -50,7 +54,9 @@ const AppRouter = () => {
           <Route path="/admin/cocineros/editar/:id" element={<AdminCocineroForm isEdit={true} />} />
           <Route path="/admin/clientes" element={<ClientList />} />
           <Route path="/admin/clientes/editar/:id" element={<AdminClientForm />} />
+          <Route path="/admin/promociones" element={<PromocionesList />} />
           <Route path="/admin/promociones/nuevo" element={<AdminPromocionForm />} />
+          <Route path="/admin/promociones/editar/:id" element={<AdminPromocionEditForm />} />
 
 
 

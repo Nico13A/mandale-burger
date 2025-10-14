@@ -7,9 +7,11 @@ urlpatterns = [
     # -------------------------
     path('promotions/', views.PromotionBurgerListView.as_view(), name='promotion-list'),  
     path('promotions/create/', views.PromotionBurgerCreateView.as_view(), name='promotion-create'),
+    path('promotions/<int:pk>/', views.PromotionBurgerDetailView.as_view(), name='promotion-detail'),
     path('promotions/<int:pk>/update/', views.PromotionBurgerUpdateView.as_view(), name='promotion-update'),
     path('promotions/<int:pk>/deactivate/', views.PromotionBurgerDeactivateView.as_view(), name='promotion-deactivate'),
     path('promotions/<int:pk>/activate/', views.PromotionBurgerActivateView.as_view(), name='promotion-activate'),
+    path('promotions/plan/update/', views.PromotionPlanUpdateView.as_view(), name='promotion-plan-update'),
 
     # -------------------------
     # Asociar promoción a plan

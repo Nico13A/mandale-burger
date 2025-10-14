@@ -17,6 +17,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useMercadoPago } from "../../hooks/useMercadoPago";
 
+import { useListarPromos } from "../../hooks/useListarPromos";
+
 const ClientDashboard = () => {
   const {
     suscripcionActual,
@@ -31,6 +33,8 @@ const ClientDashboard = () => {
   const { planes, cargando: cargandoPlanes, error: errorPlanes } = usePlanesDeSuscripcion();
 
   const { pagarPlan, cargando: cargandoPago, error: errorPago } = useMercadoPago();
+
+  const { promociones } = useListarPromos();
 
   const prevRefPromos = useRef(null);
   const nextRefPromos = useRef(null);
@@ -80,15 +84,17 @@ const ClientDashboard = () => {
       />
       <BotonCocineroDia onClick={handleVerCocinero} />
 
-      <SwiperSection
-        title="Promociones"
-        items={hamburguesas}
-        prevRef={prevRefPromos}
-        nextRef={nextRefPromos}
-        isBeginning={isBeginningPromos}
-        isEnd={isEndPromos}
-        onSwiper={onSwiperPromos}
-      />
+      {promociones.length > 0 && (
+        <SwiperSection
+          title="Promociones"
+          items={promociones}
+          prevRef={prevRefPromos}
+          nextRef={nextRefPromos}
+          isBeginning={isBeginningPromos}
+          isEnd={isEndPromos}
+          onSwiper={onSwiperPromos}
+        />
+      )}
 
       <SwiperSection
         title="Lo más vendido"

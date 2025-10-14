@@ -28,10 +28,11 @@ class PromotionIngredientSerializer(serializers.ModelSerializer):
 class PromotionBurgerSerializer(serializers.ModelSerializer):
     ingredients = PromotionIngredientSerializer(many=True, read_only=True)
     ingredients_data = PromotionIngredientSerializer(many=True, write_only=True, required=False)
+    is_active = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = PromotionBurger
-        fields = ['id', 'name', 'description', 'price', 'img', 'ingredients', 'ingredients_data']
+        fields = ['id', 'name', 'description', 'price', 'img', 'ingredients', 'ingredients_data', 'is_active']
 
     def create(self, validated_data):
         ingredient_data = self.initial_data.get('ingredients_data', [])
@@ -41,6 +42,7 @@ class PromotionBurgerSerializer(serializers.ModelSerializer):
             ingredient_data = json.loads(ingredient_data)
 
         # Crear la promoción
+        validated_data.pop('is_active', None)
         promo = PromotionBurger.objects.create(**validated_data, is_active=True)
 
         # Crear los ingredientes asociados
@@ -48,6 +50,26 @@ class PromotionBurgerSerializer(serializers.ModelSerializer):
             PromotionIngredient.objects.create(promotion_burger=promo, **item)
 
         return promo
+    
+    def update(self, instance, validated_data):
+        ingredient_data = self.initial_data.get('ingredients_data', [])
+
+        if isinstance(ingredient_data, str):
+            import json
+            ingredient_data = json.loads(ingredient_data)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        if ingredient_data:
+            instance.ingredients.all().delete()
+            for item in ingredient_data:
+                PromotionIngredient.objects.create(promotion_burger=instance, **item)
+
+        return instance
+
 
 
 # -------------------------

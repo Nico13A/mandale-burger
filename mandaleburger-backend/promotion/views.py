@@ -2,11 +2,11 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import PromotionBurger
+from .models import PromotionBurger, PromotionSubscription
 from .serializers import PromotionBurgerSerializer, PromotionSubscriptionSerializer
 from usuario.permissions import IsInGroup
+from subscription.models import SubscriptionPlan
 
-# Create your views here.
 # -------------------------
 # Crear promoción
 # -------------------------
@@ -14,6 +14,17 @@ class PromotionBurgerCreateView(generics.CreateAPIView):
     serializer_class = PromotionBurgerSerializer
     permission_classes = [IsAuthenticated, IsInGroup]
     allowed_groups = ['AppAdmin']
+
+
+# -------------------------
+# Obtener detalle de promoción
+# -------------------------
+class PromotionBurgerDetailView(generics.RetrieveAPIView):
+    serializer_class = PromotionBurgerSerializer
+    permission_classes = [IsAuthenticated, IsInGroup]
+    allowed_groups = ['Client', 'AppAdmin']
+    queryset = PromotionBurger.objects.prefetch_related('ingredients__ingredient').all()
+
 
 # -------------------------
 # Editar promoción
@@ -88,3 +99,32 @@ class PromotionBurgerListView(generics.ListAPIView):
                 is_active=True
             ).distinct()
 
+
+# -------------------------
+# Editar plan de una promoción
+# -------------------------
+class PromotionPlanUpdateView(APIView):
+    permission_classes = [IsAuthenticated, IsInGroup]
+    allowed_groups = ['AppAdmin']
+
+    def patch(self, request):
+        promotion_id = request.data.get('promotion_id')
+        subscription_id = request.data.get('subscription_id')
+
+        if not promotion_id or not subscription_id:
+            return Response({"error": "Faltan datos"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            promo_sub = PromotionSubscription.objects.get(promotion_id=promotion_id)
+        except PromotionSubscription.DoesNotExist:
+            return Response({"error": "Promoción sin plan asociado"}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            subscription = SubscriptionPlan.objects.get(id=subscription_id)
+        except SubscriptionPlan.DoesNotExist:
+            return Response({"error": "Plan no válido"}, status=status.HTTP_400_BAD_REQUEST)
+
+        promo_sub.subscription = subscription
+        promo_sub.save()
+
+        return Response({"success": "Plan actualizado"})

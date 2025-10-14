@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePlanesDeSuscripcion } from "../../hooks/usePlanesDeSuscripcion";
 import { usePlanAdmin } from "../../hooks/usePlanAdmin";
 import CardPlanAdmin from "../../components/CardPlan/CardPlanAdmin";
@@ -6,11 +6,23 @@ import CreatePlanModal from "../../components/ModalPlan/CreatePlanModal";
 import EditPlanModal from "../../components/ModalPlan/EditPlanModal";
 import Loading from "../../components/Loading/Loading";
 import { useNavigate } from "react-router-dom";
+import { useListarPromos } from "../../hooks/useListarPromos";
+import PromocionesList from "./PromocionesList";
+import { usePromocionAdmin } from "../../hooks/usePromocionAdmin";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const { planes, cargando: cargandoPlanes, error, recargar } = usePlanesDeSuscripcion();
   const { crearPlan, editarPlan, activarPlan, desactivarPlan } = usePlanAdmin();
-  const navigate = useNavigate();
+
+  const { promociones, cargando: cargandoPromos, error: errorPromos } = useListarPromos();
+  const { activarPromo, desactivarPromo, cargando: cargandoPromoAccion, error: errorPromoAccion } = usePromocionAdmin();
+  const [promocionesEstado, setPromocionesEstado] = useState([]);
+  
+  useEffect(() => {
+    setPromocionesEstado(promociones)
+  }, [promociones]);
+  
 
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -69,9 +81,37 @@ const AdminDashboard = () => {
     }
   };
 
+  // ----------------------------
+  // Redirigir a creación de promo
+  // ----------------------------
   const handleGoToPromotion = () => {
     navigate("/admin/promociones/nuevo");
   }
+
+  // ----------------------------
+  // Promociones: Activar y desactivar
+  // ----------------------------
+  const handleActivatePromo = async (promoId) => {
+    try {
+      await activarPromo(promoId);
+      setPromocionesEstado(prev =>
+        prev.map(p => p.id === promoId ? { ...p, is_active: true } : p)
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeactivatePromo = async (promoId) => {
+    try {
+      await desactivarPromo(promoId);
+      setPromocionesEstado(prev =>
+        prev.map(p => p.id === promoId ? { ...p, is_active: false } : p)
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto mt-6 pb-25 md:pb-0">
@@ -100,7 +140,7 @@ const AdminDashboard = () => {
       {error && <p className="text-red-500">{error}</p>}
 
       {/* Grilla de planes */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5">
         {planes.map(plan => (
           <CardPlanAdmin
             key={plan.id}
@@ -110,7 +150,17 @@ const AdminDashboard = () => {
             onActivate={handleActivate}
           />
         ))}
-      </div>
+      </section>
+
+      {/* Sección de promociones */}
+      {cargandoPromos && <Loading />}
+      {errorPromos && <p className="text-red-500 mt-4">{errorPromos}</p>}
+      {!cargandoPromos && !errorPromos &&
+        <PromocionesList
+          promociones={promocionesEstado}
+          onActivate={handleActivatePromo}
+          onDeactivate={handleDeactivatePromo}
+        />}
 
       {/* Modales */}
       <EditPlanModal
