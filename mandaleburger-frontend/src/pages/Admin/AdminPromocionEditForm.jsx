@@ -24,6 +24,9 @@ const AdminPromocionEditForm = () => {
   const { actualizarPlan, cargando: cargandoPlan } = useActualizarPlanPromo();
   const { ingredientes: categorias, cargando: cargandoIng, error: errorIng } = useIngredientes();
 
+  console.log(promo);
+  
+
   // Estados
   const [formData, setFormData] = useState({
     name: "",
@@ -114,12 +117,10 @@ const AdminPromocionEditForm = () => {
     try {
       await editarPromo(promo.id, dataToSend);
 
-      if (formData.plan) {
-        await actualizarPlan({
-          promotion_id: promo.id,
-          subscription_id: formData.plan,
-        });
-      }
+      await actualizarPlan({
+        promotion_id: promo.id,
+        subscription_id: formData.plan || null,
+      });
 
       toast.success("Promoción actualizada con éxito", {
         autoClose: 2000,

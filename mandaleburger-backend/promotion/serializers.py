@@ -29,10 +29,12 @@ class PromotionBurgerSerializer(serializers.ModelSerializer):
     ingredients = PromotionIngredientSerializer(many=True, read_only=True)
     ingredients_data = PromotionIngredientSerializer(many=True, write_only=True, required=False)
     is_active = serializers.BooleanField(read_only=True)
+    plan_id = serializers.SerializerMethodField()  
+    plan_name = serializers.SerializerMethodField()  
 
     class Meta:
         model = PromotionBurger
-        fields = ['id', 'name', 'description', 'price', 'img', 'ingredients', 'ingredients_data', 'is_active']
+        fields = ['id', 'name', 'description', 'price', 'img', 'ingredients', 'ingredients_data', 'is_active', 'plan_id', 'plan_name']
 
     def create(self, validated_data):
         ingredient_data = self.initial_data.get('ingredients_data', [])
@@ -70,6 +72,21 @@ class PromotionBurgerSerializer(serializers.ModelSerializer):
 
         return instance
 
+    def get_plan_id(self, obj):
+        """Obtiene el ID del plan asociado a la promoción"""
+        try:
+            promo_sub = PromotionSubscription.objects.get(promotion=obj)
+            return promo_sub.subscription.id
+        except PromotionSubscription.DoesNotExist:
+            return None
+
+    def get_plan_name(self, obj):
+        """Obtiene el nombre del plan asociado"""
+        try:
+            promo_sub = PromotionSubscription.objects.get(promotion=obj)
+            return promo_sub.subscription.name
+        except PromotionSubscription.DoesNotExist:
+            return None
 
 
 # -------------------------

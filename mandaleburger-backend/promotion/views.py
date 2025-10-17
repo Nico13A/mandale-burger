@@ -23,7 +23,7 @@ class PromotionBurgerDetailView(generics.RetrieveAPIView):
     serializer_class = PromotionBurgerSerializer
     permission_classes = [IsAuthenticated, IsInGroup]
     allowed_groups = ['Client', 'AppAdmin']
-    queryset = PromotionBurger.objects.prefetch_related('ingredients__ingredient').all()
+    queryset = PromotionBurger.objects.prefetch_related('ingredients__ingredient', 'promotionsubscription_set__subscription').all()
 
 
 # -------------------------
@@ -111,20 +111,32 @@ class PromotionPlanUpdateView(APIView):
         promotion_id = request.data.get('promotion_id')
         subscription_id = request.data.get('subscription_id')
 
-        if not promotion_id or not subscription_id:
-            return Response({"error": "Faltan datos"}, status=status.HTTP_400_BAD_REQUEST)
+        if not promotion_id:
+            return Response({"error": "Falta promotion_id"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            promo_sub = PromotionSubscription.objects.get(promotion_id=promotion_id)
-        except PromotionSubscription.DoesNotExist:
-            return Response({"error": "Promoción sin plan asociado"}, status=status.HTTP_404_NOT_FOUND)
+            promotion = PromotionBurger.objects.get(id=promotion_id)
+        except PromotionBurger.DoesNotExist:
+            return Response({"error": "Promoción no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+
+        if not subscription_id:
+            try:
+                promo_sub = PromotionSubscription.objects.get(promotion=promotion)
+                promo_sub.delete()
+                return Response({"success": "Plan eliminado"}, status=status.HTTP_200_OK)
+            except PromotionSubscription.DoesNotExist:
+                return Response({"success": "Sin cambios en el plan"}, status=status.HTTP_200_OK)
 
         try:
             subscription = SubscriptionPlan.objects.get(id=subscription_id)
         except SubscriptionPlan.DoesNotExist:
             return Response({"error": "Plan no válido"}, status=status.HTTP_400_BAD_REQUEST)
 
-        promo_sub.subscription = subscription
-        promo_sub.save()
+        _, created = PromotionSubscription.objects.update_or_create(
+            promotion=promotion,
+            defaults={'subscription': subscription}
+        )
 
-        return Response({"success": "Plan actualizado"})
+        return Response({
+            "success": "Plan asociado" if created else "Plan actualizado"
+        }, status=status.HTTP_200_OK)
