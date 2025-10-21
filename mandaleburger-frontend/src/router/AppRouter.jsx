@@ -12,7 +12,8 @@ import AdminClientForm from "../pages/Admin/AdminClientForm";
 import PromocionesList from "../pages/Admin/PromocionesList";
 import AdminPromocionForm from "../pages/Admin/AdminPromocionForm";
 import AdminPromocionEditForm from "../pages/Admin/AdminPromocionEditForm";
-
+import AdminIngredientesIndex from "../pages/Admin/AdminIngredientesIndex";
+import AdminIngredienteForm from "../pages/Admin/AdminIngredienteForm";
 // COCINERO
 import CookDashboard from "../pages/Cook/CookDashboard";
 
@@ -28,6 +29,7 @@ import ForgotPassword from "../pages/ForgotPassword";
 import ResetPasswordConfirm from "../pages/ResetPasswordConfirm";
 import Profile from "../pages/Profile";
 import ChangePassword from "../pages/ChangePassword";
+
 
 const AppRouter = () => {
   return (
@@ -57,6 +59,9 @@ const AppRouter = () => {
           <Route path="/admin/promociones" element={<PromocionesList />} />
           <Route path="/admin/promociones/nuevo" element={<AdminPromocionForm />} />
           <Route path="/admin/promociones/editar/:id" element={<AdminPromocionEditForm />} />
+          <Route path="/admin/ingredientes" element={<AdminIngredientesIndex />} />
+          <Route path="/admin/ingredientes/nuevo" element={<AdminIngredienteForm mode="create" />} />
+          <Route path="/admin/ingredientes/editar/:id" element={<AdminIngredienteForm mode="edit" />} />
 
 
 
@@ -76,10 +81,7 @@ const AppRouter = () => {
       <Route element={<PrivateRoutes allowedRoles={['Client']} />}>
         <Route element={<ClientLayout />}>
           <Route path="/client" element={<ClientDashboard />} />
-
-
-
-
+          
           <Route path="/client/posts" element={<Posts />} />
           <Route path="/client/posts/:id" element={<PostDetail />} />
         </Route>
