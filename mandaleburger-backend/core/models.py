@@ -16,7 +16,6 @@ class Ingredient(models.Model):
 
     is_vegan = models.BooleanField(default=False)
     is_gluten_free = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

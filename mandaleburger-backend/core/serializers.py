@@ -9,30 +9,18 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    
-    category = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all()
-    )
-   
-    img = serializers.ImageField(required=False, allow_null=True)
+    category = CategorySerializer(read_only=True)
 
     class Meta:
         model = Ingredient
         fields = [
-            "id",
-            "name",
-            "price",
-            "img",
-            "stock",
-            "is_vegan",
-            "is_gluten_free",
-            "is_active",
-            "category",  
+            'id',
+            'name',
+            'price',
+            'img',
+            'stock',
+            'is_vegan',
+            'is_gluten_free',
+            'category',
         ]
-
-    
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data["category"] = CategorySerializer(instance.category).data
-        return data
 

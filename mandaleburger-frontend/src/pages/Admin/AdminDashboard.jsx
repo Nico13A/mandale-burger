@@ -87,13 +87,6 @@ const AdminDashboard = () => {
   const handleGoToPromotion = () => {
     navigate("/admin/promociones/nuevo");
   }
-  // ----------------------------
-  // Redirigir a manipulacion ingredientes de ingrediente
-  // ----------------------------
-  const handleGoToIngredient = () => {
-  navigate("/admin/ingredientes");
-  }; 
-
 
   // ----------------------------
   // Promociones: Activar y desactivar
@@ -140,12 +133,6 @@ const AdminDashboard = () => {
         >
           Crear promoción
         </button>
-        <button
-          onClick={handleGoToIngredient}
-          className="px-5 py-2 bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer text-white rounded-2xl font-semibold transition"
-        >
-          ingredientes
-        </button>
       </div>
 
       {/* Estado de carga y errores */}
@@ -187,7 +174,6 @@ const AdminDashboard = () => {
         onClose={() => setCreateModalOpen(false)}
         onSave={handleCreate}
       />
-      
     </div>
   );
 };

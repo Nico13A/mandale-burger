@@ -31,7 +31,6 @@ URL_PERMITIDA = config('URL_PERMITIDA')
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", URL_PERMITIDA]
 
-
 # Application definition
 
 INSTALLED_APPS = [
