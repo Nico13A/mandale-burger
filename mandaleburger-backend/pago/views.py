@@ -32,7 +32,7 @@ class CrearPreferenciaPagoView(APIView):
 
         sdk = mercadopago.SDK(settings.MERCADO_PAGO_ACCESS_TOKEN)
 
-        BASE_URL = "https://annita-degraded-ryker.ngrok-free.dev"
+        BASE_URL = settings.URL_PAGO
         NOTIFICATION_URL = f"{BASE_URL}/api/pago/webhooks/mercadopago/"
 
         preference_data = {

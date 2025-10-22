@@ -23,11 +23,11 @@ const ChangePassword = () => {
 
     const handleBack = () => {
         if (user?.groups.includes("AppAdmin")) {
-        navigate("/admin/profile");
+            navigate("/admin/profile");
         } else if (user?.groups.includes("Cook")) {
-        navigate("/cook");
+            navigate("/cook");
         } else {
-        navigate("/client");
+            navigate("/client");
         }
     }
 
@@ -112,11 +112,17 @@ const ChangePassword = () => {
                         />
                         {errors.new_password && (
                             Array.isArray(errors.new_password) ? (
-                                <ul className="text-red-500 text-sm list-disc ml-5 mt-1">
-                                    {errors.new_password.map((msg, i) => (
-                                        <li key={i}>{msg}</li>
-                                    ))}
-                                </ul>
+                                errors.new_password.length > 1 ? (
+                                    <ul className="text-red-500 text-sm list-disc ml-5 mt-1">
+                                        {errors.new_password.map((msg, i) => (
+                                            <li key={i}>{msg}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-red-500 text-sm mt-1">
+                                        {errors.new_password[0]}
+                                    </p>
+                                )
                             ) : <p className="text-red-500 text-sm mt-1">{errors.new_password}</p>
                         )}
                     </div>

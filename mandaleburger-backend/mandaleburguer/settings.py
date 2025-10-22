@@ -26,7 +26,10 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "annita-degraded-ryker.ngrok-free.dev"]
+URL_PAGO = config('URL_PAGO')
+URL_PERMITIDA = config('URL_PERMITIDA')
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", URL_PERMITIDA]
 
 
 # Application definition
@@ -178,7 +181,8 @@ REST_FRAMEWORK = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  
+    "http://localhost:5173",
+    f"https://{URL_PERMITIDA}",  
 ]
 
 #DJOSER = {

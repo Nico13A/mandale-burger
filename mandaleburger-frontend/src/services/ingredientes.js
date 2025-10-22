@@ -1,12 +1,12 @@
 import api from "./api";
 
-const BASE = "/api/ingredients/"; 
+const BASE = "/api/ingredients/";
 const ENDPOINTS = {
-  INGREDIENTS_LIST: BASE,   
-   INGREDIENTS_BY_CATEGORY: `${BASE}by-category/`,                        
-  INGREDIENT_DETAIL: (id) => `${BASE}${id}/`,      
-  ACTIVATE: (id) => `${BASE}${id}/activate/`,      
-  DEACTIVATE: (id) => `${BASE}${id}/deactivate/`,  
+  INGREDIENTS_LIST: BASE,
+  INGREDIENTS_BY_CATEGORY: `${BASE}by-category/`,
+  INGREDIENT_DETAIL: (id) => `${BASE}${id}/`,
+  ACTIVATE: (id) => `${BASE}${id}/activate/`,
+  DEACTIVATE: (id) => `${BASE}${id}/deactivate/`,
 };
 
 const authHeaders = () => {
@@ -25,10 +25,10 @@ function rethrowWithMessage(err, fallback) {
 export const getIngredients = async (filters = {}) => {
   try {
     const res = await api.get(ENDPOINTS.INGREDIENTS_LIST, {
-     params: filters,
-     headers: authHeaders(),
-     });
-     return res.data;
+      params: filters,
+      headers: authHeaders(),
+    });
+    return res.data;
   } catch (err) {
     rethrowWithMessage(err, "No se pudieron obtener los ingredientes.");
   }
@@ -38,7 +38,7 @@ export const getIngredients = async (filters = {}) => {
 export const getIngredient = async (id) => {
   try {
     const res = await api.get(ENDPOINTS.INGREDIENT_DETAIL(id), {
-    headers: authHeaders(),
+      headers: authHeaders(),
     })
     return res.data;
   } catch (err) {
@@ -49,8 +49,8 @@ export const getIngredient = async (id) => {
 // ------------------ CREAR ------------------
 export const createIngredient = async (formData) => {
   const res = await api.post(ENDPOINTS.INGREDIENTS_LIST, formData, {
-   headers: authHeaders(),
- });
+    headers: authHeaders(),
+  });
   return res.data;
 };
 
@@ -66,8 +66,8 @@ export const updateIngredient = async (id, formData) => {
 export const deleteIngredient = async (id) => {
   try {
     await api.delete(ENDPOINTS.INGREDIENT_DETAIL(id), {
-     headers: authHeaders(),
-   });
+      headers: authHeaders(),
+    });
     return true;
   } catch (err) {
     rethrowWithMessage(err, "No se pudo eliminar el ingrediente.");
@@ -93,8 +93,8 @@ export const deactivateIngredient = async (id) => {
 export const getCategories = async () => {
   try {
     const res = await api.get("/api/categories/", {
-    headers: authHeaders(),
-   });
+      headers: authHeaders(),
+    });
     return res.data;
   } catch (err) {
     rethrowWithMessage(err, "No se pudieron obtener las categorías.");
