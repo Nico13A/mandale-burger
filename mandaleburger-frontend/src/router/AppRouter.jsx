@@ -12,6 +12,8 @@ import AdminClientForm from "../pages/Admin/AdminClientForm";
 import PromocionesList from "../pages/Admin/PromocionesList";
 import AdminPromocionForm from "../pages/Admin/AdminPromocionForm";
 import AdminPromocionEditForm from "../pages/Admin/AdminPromocionEditForm";
+import Ingredientes from "../pages/Admin/Ingredientes";
+import IngredienteForm from "../pages/Admin/IngredienteForm";
 
 // COCINERO
 import CookDashboard from "../pages/Cook/CookDashboard";
@@ -58,6 +60,9 @@ const AppRouter = () => {
           <Route path="/admin/promociones/nuevo" element={<AdminPromocionForm />} />
           <Route path="/admin/promociones/editar/:id" element={<AdminPromocionEditForm />} />
 
+          <Route path="/admin/ingredientes" element={<Ingredientes />} />
+          <Route path="/admin/ingredientes/nuevo" element={<IngredienteForm />} />
+          <Route path="/admin/ingredientes/:id" element={<IngredienteForm />} />
 
 
 

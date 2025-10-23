@@ -133,6 +133,12 @@ const AdminDashboard = () => {
         >
           Crear promoción
         </button>
+        <button
+          onClick={() => navigate("/admin/ingredientes")}
+          className="px-5 py-2 bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer text-white rounded-2xl font-semibold transition"
+        >
+          Ingredientes
+        </button>
       </div>
 
       {/* Estado de carga y errores */}

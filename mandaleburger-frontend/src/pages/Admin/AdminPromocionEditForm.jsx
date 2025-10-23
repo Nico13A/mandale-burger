@@ -24,9 +24,6 @@ const AdminPromocionEditForm = () => {
   const { actualizarPlan, cargando: cargandoPlan } = useActualizarPlanPromo();
   const { ingredientes: categorias, cargando: cargandoIng, error: errorIng } = useIngredientes();
 
-  console.log(promo);
-  
-
   // Estados
   const [formData, setFormData] = useState({
     name: "",
