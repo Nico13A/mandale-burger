@@ -9,7 +9,11 @@ from subscription.models import SubscriptionPlan
 # Serializer de Ingrediente en la promoción
 # -------------------------
 class PromotionIngredientSerializer(serializers.ModelSerializer):
-    ingredient_id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(), write_only=True, source='ingredient')
+    ingredient_id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all(),
+        write_only=True,
+        source='ingredient'
+    )
     ingredient = serializers.StringRelatedField(read_only=True)
 
     class Meta:
@@ -18,8 +22,31 @@ class PromotionIngredientSerializer(serializers.ModelSerializer):
 
     def validate_quantity(self, value):
         if value <= 0:
-            raise serializers.ValidationError("La cantidad debe ser mayor a 0")
+            raise serializers.ValidationError("La cantidad debe ser mayor a 0.")
         return value
+
+    def validate(self, data):
+        ingredient = data.get('ingredient')
+
+        if not ingredient:
+            ingredient_id = self.initial_data.get('ingredient_id')
+            if ingredient_id:
+                try:
+                    ingredient = Ingredient.objects.get(id=ingredient_id)
+                except Ingredient.DoesNotExist:
+                    raise serializers.ValidationError({"ingredient_id": "El ingrediente no existe."})
+
+        if not ingredient.is_active:
+            raise serializers.ValidationError(
+                {"ingredient_id": f"El ingrediente '{ingredient.name}' está inactivo y no puede usarse en una promoción."}
+            )
+        
+        if ingredient.stock <= 0:
+            raise serializers.ValidationError(
+                {"ingredient_id": f"El ingrediente '{ingredient.name}' no tiene stock disponible."}
+            )
+
+        return data
 
 
 # -------------------------
@@ -29,30 +56,46 @@ class PromotionBurgerSerializer(serializers.ModelSerializer):
     ingredients = PromotionIngredientSerializer(many=True, read_only=True)
     ingredients_data = PromotionIngredientSerializer(many=True, write_only=True, required=False)
     is_active = serializers.BooleanField(read_only=True)
-    plan_id = serializers.SerializerMethodField()  
-    plan_name = serializers.SerializerMethodField()  
+    plan_id = serializers.SerializerMethodField()
+    plan_name = serializers.SerializerMethodField()
 
     class Meta:
         model = PromotionBurger
-        fields = ['id', 'name', 'description', 'price', 'img', 'ingredients', 'ingredients_data', 'is_active', 'plan_id', 'plan_name']
+        fields = [
+            'id',
+            'name',
+            'description',
+            'price',
+            'img',
+            'ingredients',
+            'ingredients_data',
+            'is_active',
+            'plan_id',
+            'plan_name'
+        ]
 
     def create(self, validated_data):
         ingredient_data = self.initial_data.get('ingredients_data', [])
 
+        # Si viene como string (por multipart/form-data)
         if isinstance(ingredient_data, str):
             import json
             ingredient_data = json.loads(ingredient_data)
 
-        # Crear la promoción
         validated_data.pop('is_active', None)
         promo = PromotionBurger.objects.create(**validated_data, is_active=True)
 
-        # Crear los ingredientes asociados
-        for item in ingredient_data:
-            PromotionIngredient.objects.create(promotion_burger=promo, **item)
+        try:
+            for item in ingredient_data:
+                pis = PromotionIngredientSerializer(data=item)
+                pis.is_valid(raise_exception=True)
+                PromotionIngredient.objects.create(promotion_burger=promo, **pis.validated_data)
+        except Exception as e:
+            promo.delete()  
+            raise e
 
         return promo
-    
+
     def update(self, instance, validated_data):
         ingredient_data = self.initial_data.get('ingredients_data', [])
 
@@ -62,18 +105,18 @@ class PromotionBurgerSerializer(serializers.ModelSerializer):
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-
         instance.save()
 
         if ingredient_data:
             instance.ingredients.all().delete()
             for item in ingredient_data:
-                PromotionIngredient.objects.create(promotion_burger=instance, **item)
+                pis = PromotionIngredientSerializer(data=item)
+                pis.is_valid(raise_exception=True)
+                PromotionIngredient.objects.create(promotion_burger=instance, **pis.validated_data)
 
         return instance
 
     def get_plan_id(self, obj):
-        """Obtiene el ID del plan asociado a la promoción"""
         try:
             promo_sub = PromotionSubscription.objects.get(promotion=obj)
             return promo_sub.subscription.id
@@ -81,7 +124,6 @@ class PromotionBurgerSerializer(serializers.ModelSerializer):
             return None
 
     def get_plan_name(self, obj):
-        """Obtiene el nombre del plan asociado"""
         try:
             promo_sub = PromotionSubscription.objects.get(promotion=obj)
             return promo_sub.subscription.name
@@ -94,9 +136,17 @@ class PromotionBurgerSerializer(serializers.ModelSerializer):
 # -------------------------
 class PromotionSubscriptionSerializer(serializers.ModelSerializer):
     promotion = PromotionBurgerSerializer(read_only=True)
-    promotion_id = serializers.PrimaryKeyRelatedField(queryset=PromotionBurger.objects.all(), write_only=True, source='promotion')
+    promotion_id = serializers.PrimaryKeyRelatedField(
+        queryset=PromotionBurger.objects.all(),
+        write_only=True,
+        source='promotion'
+    )
     subscription = serializers.StringRelatedField(read_only=True)
-    subscription_id = serializers.PrimaryKeyRelatedField(queryset=SubscriptionPlan.objects.all(), write_only=True, source='subscription')
+    subscription_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubscriptionPlan.objects.all(),
+        write_only=True,
+        source='subscription'
+    )
 
     class Meta:
         model = PromotionSubscription
@@ -108,3 +158,4 @@ class PromotionSubscriptionSerializer(serializers.ModelSerializer):
         if PromotionSubscription.objects.filter(promotion=promotion, subscription=subscription).exists():
             raise ValidationError("Esta promoción ya está asociada a este plan.")
         return attrs
+

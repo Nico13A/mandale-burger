@@ -2,7 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Category, Ingredient
-from .serializers import IngredientSerializer
+from .serializers import IngredientSerializer, IngredientCRUDSerializer, CategorySerializer
+from rest_framework import viewsets, status
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 
 class IngredientByCategoryView(APIView):
@@ -21,7 +23,7 @@ class IngredientByCategoryView(APIView):
         result = []
 
         for cat in categories:
-            ingredients = Ingredient.objects.filter(category=cat)
+            ingredients = Ingredient.objects.filter(category=cat, is_active=True, stock__gt=0)
 
             # Filtros opcionales según query params
             if is_vegan == 'true':
@@ -41,4 +43,37 @@ class IngredientByCategoryView(APIView):
         return Response(result)
 
 
+class IngredientCRUDViewSet(viewsets.ModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientCRUDSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
+    def destroy(self, request, *args, **kwargs):
+        ingredient = self.get_object()
+
+        # Revisamos si el ingrediente pertenece a alguna promoción activa
+        tiene_promocion_activa = ingredient.promotioningredient_set.filter(
+            promotion_burger__is_active=True
+        ).exists()
+
+        if tiene_promocion_activa:
+            return Response(
+                {"detail": "No se puede desactivar este ingrediente porque pertenece a una promoción activa."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Si no tiene promociones activas, desactivamos
+        ingredient.is_active = False
+        ingredient.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class CategoryListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
