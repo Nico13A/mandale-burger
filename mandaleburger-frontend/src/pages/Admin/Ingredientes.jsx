@@ -20,7 +20,7 @@ const Ingredientes = () => {
   };
 
   const handleActivar = (id) => {
-    activarIngrediente(id); 
+    activarIngrediente(id);
   };
 
   // ------------------ Filtrado por categoría ------------------
@@ -46,11 +46,16 @@ const Ingredientes = () => {
       <ToastContainer position="top-right" autoClose={2000} />
 
       {/* Encabezado */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gris-boton">Ingredientes</h1>
-        <div className="flex space-x-2">
+      <div className="flex flex-wrap justify-between items-center mb-6 gap-2">
+        {/* Título */}
+        <h1 className="text-2xl md:text-3xl font-bold text-gris-boton flex-shrink-0">
+          Ingredientes
+        </h1>
+
+        {/* Select y botón */}
+        <div className="flex flex-wrap gap-2 items-center w-full md:w-auto">
           <select
-            className="cursor-pointer px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-1 focus:ring-naranja-boton focus:border-naranja-boton transition-all duration-200"
+            className="w-1/2 md:w-auto cursor-pointer px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-1 focus:ring-naranja-boton focus:border-naranja-boton transition-all duration-200"
             value={categoriaFiltro}
             onChange={(e) => setCategoriaFiltro(e.target.value)}
           >
@@ -62,13 +67,14 @@ const Ingredientes = () => {
           </select>
 
           <button
-            className="px-4 py-2 bg-naranja-boton text-white rounded-2xl hover:bg-naranja-boton-hover transition-colors cursor-pointer"
+            className="px-4 py-2 bg-naranja-boton text-white rounded-2xl hover:bg-naranja-boton-hover transition-colors w-full sm:w-auto"
             onClick={() => navigate("/admin/ingredientes/nuevo")}
           >
-            Nuevo Ingrediente
+            Nuevo ingrediente
           </button>
         </div>
       </div>
+
 
       {/* Cards */}
       <div className="space-y-4">

@@ -112,7 +112,7 @@ const IngredienteForm = () => {
     };
 
     return (
-        <div className="w-full max-w-xl mx-auto mt-6 p-6 bg-white rounded-2xl shadow-md">
+        <div className="mb-25 md:mb-auto w-full max-w-xl mx-auto mt-6 p-6 bg-white rounded-2xl shadow-md">
             <ToastContainer position="top-right" autoClose={2000} />
             <h1 className="text-2xl font-bold mb-6">{id ? "Editar Ingrediente" : "Nuevo Ingrediente"}</h1>
 
@@ -193,7 +193,7 @@ const IngredienteForm = () => {
 
                 <div>
                     <label className="block font-semibold mb-1">Imagen</label>
-                    <input type="file" name="img" onChange={handleChange} />
+                    <input type="file" name="img" className="w-full" onChange={handleChange} />
                 </div>
 
                 <div className="flex justify-end space-x-2 mt-4">
