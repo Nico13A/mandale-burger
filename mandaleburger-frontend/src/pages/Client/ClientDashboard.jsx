@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 import Buscador from "../../components/Buscador/Buscador";
 import BotonesFiltros from "../../components/BotonesFiltros/BotonesFiltros";
@@ -25,6 +25,8 @@ const ClientDashboard = () => {
     setSuscripcionActual,
   } = useOutletContext();
 
+  const navigate = useNavigate();
+
   const [search, setSearch] = useState("");
   const [selectedFilter, setSelectedFilter] = useState(null);
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -32,7 +34,7 @@ const ClientDashboard = () => {
   const { cocineroActual } = useCocineroDelDia();
   const { planes, cargando: cargandoPlanes, error: errorPlanes } = usePlanesDeSuscripcion();
 
-  const { pagarPlan, cargando: cargandoPago, error: errorPago } = useMercadoPago();
+  const { pagarPlan } = useMercadoPago();
 
   const { promociones } = useListarPromos();
 
@@ -73,15 +75,16 @@ const ClientDashboard = () => {
     }
   };
 
+  const handleVerDetallePromo = (id) => {
+    navigate(`/client/promociones/${id}`);
+  };
+
   return (
     <div className="pb-25 mx-auto md:pb-0 md:min-w-3xl md:max-w-3xl lg:min-w-4xl xl:min-w-6xl xl:max-w-6xl">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
 
       <Buscador value={search} onChange={setSearch} />
-      <BotonesFiltros
-        opciones={["Hamburguesa Vegana", "Sin TACC", "Clásicas", "Con Queso"]}
-        onSelect={setSelectedFilter}
-      />
+
       <BotonCocineroDia onClick={handleVerCocinero} />
 
       {promociones.length > 0 && (
@@ -93,6 +96,7 @@ const ClientDashboard = () => {
           isBeginning={isBeginningPromos}
           isEnd={isEndPromos}
           onSwiper={onSwiperPromos}
+          onClickItem={handleVerDetallePromo}
         />
       )}
 

@@ -23,13 +23,16 @@ import ClientLayout from "../layouts/ClientLayout";
 import ClientDashboard from "../pages/Client/ClientDashboard";
 import Posts from "../pages/Client/Posts";
 import PostDetail from "../pages/Client/PostDetail";
+import PromoDetalle from "../pages/Client/PromoDetalle";
 
+// PUBLIC
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import ResetPasswordConfirm from "../pages/ResetPasswordConfirm";
 import Profile from "../pages/Profile";
 import ChangePassword from "../pages/ChangePassword";
+import Carrito from "../pages/Client/Carrito";
 
 const AppRouter = () => {
   return (
@@ -81,6 +84,8 @@ const AppRouter = () => {
       <Route element={<PrivateRoutes allowedRoles={['Client']} />}>
         <Route element={<ClientLayout />}>
           <Route path="/client" element={<ClientDashboard />} />
+          <Route path="/client/promociones/:id" element={<PromoDetalle />} />
+          <Route path="/client/carrito" element={<Carrito />} />
 
 
 

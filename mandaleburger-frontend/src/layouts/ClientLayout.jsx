@@ -6,11 +6,16 @@ import Footer from "../components/Footer/Footer";
 import { useAuth } from "../hooks/useAuth";
 import { useSuscripcionUsuario } from "../hooks/useSuscripcionUsuario";
 
-const ClientLayout = () => {
+import { CarritoProvider, useCarrito } from "../context/CarritoContext";
+
+const ClientLayoutContent = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { suscripcion: suscripcionInicial, crearSuscripcion } = useSuscripcionUsuario();
   const [suscripcionActual, setSuscripcionActual] = useState(suscripcionInicial);
+
+  const { cart } = useCarrito(); 
+  const cartCount = cart?.items?.length || 0;
 
   useEffect(() => {
     if (suscripcionInicial) {
@@ -22,8 +27,6 @@ const ClientLayout = () => {
     logout();
     navigate("/login");
   };
-
-  const cartCount = 3;
 
   const outletContext = useMemo(
     () => ({
@@ -55,6 +58,16 @@ const ClientLayout = () => {
   );
 };
 
+// Envolvemos todo el layout con CarritoProvider
+const ClientLayout = () => {
+  return (
+    <CarritoProvider>
+      <ClientLayoutContent />
+    </CarritoProvider>
+  );
+};
+
 export default ClientLayout;
+
 
 

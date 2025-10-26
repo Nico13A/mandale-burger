@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'pago.apps.PagoConfig',
     'core.apps.CoreConfig',
     'promotion.apps.PromotionConfig',
+    'cart.apps.CartConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

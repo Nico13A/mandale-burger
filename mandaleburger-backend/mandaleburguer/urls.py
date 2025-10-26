@@ -5,16 +5,18 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
     path('api/', include('usuario.urls')),  
     path('api/subscription/', include('subscription.urls')),
     path('api/pago/', include('pago.urls')),
     path('api/', include('core.urls')),
     path('api/', include('promotion.urls')),
+    path('api/', include('post.urls')),
+    path('api/cart/', include('cart.urls')),
     
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.jwt')),
 
-    path('api/', include('post.urls')),
 ]
 
 if settings.DEBUG:

@@ -2,9 +2,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { Eye } from 'lucide-react';
+import { Eye } from "lucide-react";
 
-const HamburguesasSwiper = ({ items, prevRef, nextRef }) => {
+const HamburguesasSwiper = ({ items, prevRef, nextRef, onClickItem }) => {
   return (
     <Swiper
       modules={[Navigation]}
@@ -52,8 +52,10 @@ const HamburguesasSwiper = ({ items, prevRef, nextRef }) => {
                 <p className="font-semibold text-orange-500 text-sm">
                   &#36;{item.price}
                 </p>
-
-                <button className="cursor-pointer bg-naranja-boton hover:bg-naranja-boton-hover text-white p-2 rounded-full transition-all duration-300 hover:scale-110">
+                <button
+                  onClick={() => onClickItem && onClickItem(item.id)}
+                  className="cursor-pointer bg-naranja-boton hover:bg-naranja-boton-hover text-white p-2 rounded-full transition-all duration-300 hover:scale-110"
+                >
                   <Eye size={20} />
                 </button>
               </div>
@@ -63,6 +65,6 @@ const HamburguesasSwiper = ({ items, prevRef, nextRef }) => {
       ))}
     </Swiper>
   );
-}
+};
 
 export default HamburguesasSwiper;
