@@ -16,7 +16,7 @@ const HamburguesasSwiper = ({ items, prevRef, nextRef, onClickItem }) => {
       }}
       onSwiper={(swiper) => {
         setTimeout(() => {
-          if (swiper.params.navigation) {
+          if (swiper.navigation && swiper.params.navigation) {
             swiper.params.navigation.prevEl = prevRef?.current;
             swiper.params.navigation.nextEl = nextRef?.current;
             swiper.navigation.destroy();

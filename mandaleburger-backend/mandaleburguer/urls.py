@@ -13,6 +13,8 @@ urlpatterns = [
     path('api/', include('promotion.urls')),
     path('api/', include('post.urls')),
     path('api/cart/', include('cart.urls')),
+    path('api/orders/', include('order.urls')),
+
     
     path('api/auth/', include('djoser.urls')),
     path('api/auth/', include('djoser.urls.jwt')),

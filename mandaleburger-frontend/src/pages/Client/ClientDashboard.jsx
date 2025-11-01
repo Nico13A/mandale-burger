@@ -111,7 +111,7 @@ const ClientDashboard = () => {
       />
 
       <section className="mt-6">
-        <h2 className="text-xl font-bold mb-2">Planes de Suscripción</h2>
+        <h2 className="text-2xl font-bold mb-3">Planes de suscripción</h2>
         {cargandoPlanes && (
           <div className="flex justify-center py-4">
             <Spinner size="w-10 h-10" color="border-orange-500" />

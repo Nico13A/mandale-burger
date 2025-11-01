@@ -5,6 +5,7 @@ import {
   removeItemFromCart,
   updateCartItemQuantity,
   checkoutCart,
+  clearCart,
 } from "../services/carrito";
 
 export const useCarrito = () => {
@@ -44,7 +45,6 @@ export const useCarrito = () => {
 
   // Eliminar ítem
   const eliminarItem = async (itemId) => {
-    // 1️⃣ Actualización local inmediata
     setCart((prevCart) => {
       if (!prevCart) return prevCart;
       const updatedItems = prevCart.items.filter(item => item.id !== itemId);
@@ -55,7 +55,6 @@ export const useCarrito = () => {
       return { ...prevCart, items: updatedItems, total_price: nuevoTotal };
     });
 
-    // 2️⃣ Llamada al backend
     try {
       await removeItemFromCart(itemId);
     } catch (err) {
@@ -63,8 +62,7 @@ export const useCarrito = () => {
       fetchCart();
     }
   };
-
-
+  
   // Actualizar cantidad
   const actualizarCantidad = async (itemId, nuevaCantidad) => {
     if (nuevaCantidad < 1) return;
@@ -101,16 +99,34 @@ export const useCarrito = () => {
     }
   };
 
+  // Vaciar carrito
   const vaciarCarrito = async () => {
     setCart((prevCart) => {
       if (!prevCart) return prevCart;
       return { ...prevCart, items: [], total_price: 0 };
     });
+
     try {
-      await checkoutCart();
+      await clearCart(); 
     } catch (err) {
       console.error(err);
       fetchCart();
+    }
+  };
+
+  // Checkout: crear orden y vaciar carrito
+  const realizarCheckout = async () => {
+    setLoading(true);
+    try {
+      const data = await checkoutCart();
+      setCart({ ...cart, items: [], total_price: 0 }); 
+      return data;
+    } catch (err) {
+      setError(err.message);
+      fetchCart();
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -123,5 +139,6 @@ export const useCarrito = () => {
     eliminarItem,
     actualizarCantidad,
     vaciarCarrito,
+    realizarCheckout,
   };
 };

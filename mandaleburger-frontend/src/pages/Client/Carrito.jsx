@@ -1,15 +1,22 @@
 import { useCarrito } from "../../context/CarritoContext";
 import Loading from "../../components/Loading/Loading";
+import { useMercadoPagoOrden } from "../../hooks/useMercadoPagoOrden";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingCart, Hamburger } from "lucide-react";
+
 
 const Carrito = () => {
-    const { cart, eliminarItem, vaciarCarrito, actualizarCantidad, loading } = useCarrito();
+    const { cart, eliminarItem, vaciarCarrito, actualizarCantidad, realizarCheckout, loading } = useCarrito();
+    const { pagarOrden } = useMercadoPagoOrden();
+    const [errorModal, setErrorModal] = useState(null);
 
     if (loading) return <Loading />;
 
     if (!cart || !cart.items || cart.items.length === 0)
         return (
             <div className="flex flex-col items-center justify-center min-h-[80vh] md:min-h-[60vh]">
-                <div className="text-7xl mb-4">🍔</div>
+                <Hamburger className="w-16 h-16 text-naranja-boton mb-4" />
                 <p className="text-xl text-gray-400 font-medium">Tu carrito está vacío</p>
                 <p className="text-sm text-gray-600 mt-2">¡Agrega tus hamburguesas favoritas!</p>
             </div>
@@ -31,16 +38,31 @@ const Carrito = () => {
         vaciarCarrito();
     };
 
-    const handleCheckout = () => {
-        console.log("Procediendo al pago...");
+    const handleCheckout = async () => {
+        try {
+            const data = await realizarCheckout();
+            await pagarOrden(data.order_id);
+        } catch (err) {
+            try {
+                const { msg, detalles } = JSON.parse(err.message);
+                setErrorModal({ msg, detalles });
+            } catch (parseError) {
+                console.error("Error inesperado:", err);
+                setErrorModal({
+                    msg: "Ocurrió un error inesperado al procesar tu pedido.",
+                    detalles: [],
+                });
+            }
+        }
     };
 
     return (
-        <div className="max-w-6xl mx-auto mt-6 p-0 pb-25 md:p-8">
+        <div className="max-w-6xl mx-auto mt-6 p-0 pb-25">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-naranja-boton to-orange-500 bg-clip-text text-transparent mb-2">
-                    Mi Carrito 🛒
+                <h1 className="flex items-center gap-4 text-2xl md:text-3xl font-bold bg-gradient-to-r from-naranja-boton to-orange-500 bg-clip-text text-transparent mb-2">
+                    Mi carrito
+                    <ShoppingCart className="w-7 h-7 text-naranja-boton" />
                 </h1>
                 <p className="text-gray-400 text-sm">
                     Hay {cart.items.length} {cart.items.length === 1 ? "producto" : "productos"} en tu pedido
@@ -175,6 +197,82 @@ const Carrito = () => {
                     </div>
                 </div>
             </div>
+            {/* Modal de error */}
+            <AnimatePresence>
+                {errorModal && (
+                    <motion.div
+                        className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setErrorModal(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            transition={{ type: "spring", duration: 0.3 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-gradient-to-br from-gris-boton to-gris-boton-hover text-white p-8 rounded-2xl max-w-lg w-full shadow-2xl border border-gray-700/50 relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-naranja-boton/20 rounded-full blur-3xl -z-10" />
+                            <div className="flex justify-center mb-4">
+                                <div className="w-16 h-16 bg-naranja-boton/20 rounded-full flex items-center justify-center">
+                                    <svg className="w-8 h-8 text-naranja-boton" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <h2 className="text-2xl font-bold text-center mb-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                                {errorModal.msg}
+                            </h2>
+
+                            <p className="text-gray-400 text-center text-sm mb-6">
+                                Los siguientes productos no tienen stock suficiente
+                            </p>
+
+                            {errorModal.detalles.length > 0 && (
+                                <div className="bg-black/40 rounded-xl p-4 mb-6 max-h-64 overflow-y-auto custom-scrollbar">
+                                    <ul className="space-y-3">
+                                        {errorModal.detalles.map((d, i) => (
+                                            <motion.li
+                                                key={i}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: i * 0.05 }}
+                                                className="flex items-start gap-3 p-3 rounded-lg bg-gray-800/10 border border-gray-700/50 hover:border-naranja-boton/30 transition-colors"
+                                            >
+                                                <div className="mt-2 w-1.5 h-1.5 rounded-full bg-naranja-boton flex-shrink-0" />
+                                                <div className="flex-1 text-sm">
+                                                    <span className="font-semibold text-white block mb-1">
+                                                        {d.promotion}
+                                                    </span>
+                                                    <span className="text-gray-300">
+                                                        Sin stock de <span className="text-naranja-boton font-medium">{d.ingredient.toLowerCase()}</span>
+                                                    </span>
+                                                    <span className="text-gray-500 text-xs block mt-1">
+                                                        {d.faltante === 1 ? "Falta 1 unidad" : `Faltan ${d.faltante} unidades`}
+                                                    </span>
+                                                </div>
+                                            </motion.li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            <div className="flex gap-3 justify-end">
+                                <button
+                                    onClick={() => setErrorModal(null)}
+                                    className="bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer text-white font-semibold py-2 px-4 rounded-xl"
+                                >
+                                    Entendido
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

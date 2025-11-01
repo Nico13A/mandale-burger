@@ -6,6 +6,7 @@ const ENDPOINTS = {
   REMOVE_ITEM: "/api/cart/remove_item/",
   UPDATE_QUANTITY: "/api/cart/update_quantity/",
   CHECKOUT: "/api/cart/checkout/",
+  CLEAR_CART: "/api/cart/clear_cart/",
 };
 
 // ------------------ OBTENER CARRITO ------------------
@@ -62,14 +63,26 @@ export const updateCartItemQuantity = async (itemId, quantity) => {
   }
 };
 
+// ------------------ CLEAR CART (Vaciar carrito) ------------------
+export const clearCart = async () => {
+  try {
+    const res = await api.post(ENDPOINTS.CLEAR_CART);
+    return res.data;
+  } catch (err) {
+    throw new Error(
+      err.response?.data?.error || "No se pudo vaciar el carrito."
+    );
+  }
+};
+
 // ------------------ CHECKOUT (VACÍAR CARRITO) ------------------
 export const checkoutCart = async () => {
   try {
     const res = await api.post(ENDPOINTS.CHECKOUT);
     return res.data;
   } catch (err) {
-    throw new Error(
-      err.response?.data?.error || "No se pudo vaciar el carrito."
-    );
+    const msg = err.response?.data?.error || "No se pudo vaciar el carrito.";
+    const detalles = err.response?.data?.detalles || [];
+    throw new Error(JSON.stringify({ msg, detalles }));
   }
 };

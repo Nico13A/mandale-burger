@@ -20,6 +20,16 @@ class PromotionBurger(models.Model):
         self.is_active = False
         self.save()
 
+    def restore_ingredients(self, quantity=1):
+        """
+        Restaura el stock de los ingredientes según la cantidad de promociones canceladas.
+        quantity: cantidad de items de esta promoción que se cancelan
+        """
+        for pi in self.ingredients.all():  
+            ingredient = pi.ingredient
+            ingredient.stock += pi.quantity * quantity
+            ingredient.save()
+
 
 class PromotionIngredient(models.Model):
     promotion_burger = models.ForeignKey(PromotionBurger, on_delete=models.CASCADE, related_name='ingredients')

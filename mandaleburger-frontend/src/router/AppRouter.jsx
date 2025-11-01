@@ -16,7 +16,10 @@ import Ingredientes from "../pages/Admin/Ingredientes";
 import IngredienteForm from "../pages/Admin/IngredienteForm";
 
 // COCINERO
+import CocineroLayout from "../layouts/CocineroLayout";
 import CookDashboard from "../pages/Cook/CookDashboard";
+import CocineroPedidos from "../pages/Cook/CocineroPedidos";
+import Cocina from "../pages/Cook/Cocina";
 
 // CLIENTE
 import ClientLayout from "../layouts/ClientLayout";
@@ -24,6 +27,7 @@ import ClientDashboard from "../pages/Client/ClientDashboard";
 import Posts from "../pages/Client/Posts";
 import PostDetail from "../pages/Client/PostDetail";
 import PromoDetalle from "../pages/Client/PromoDetalle";
+import Pedidos from "../pages/Client/Pedidos";
 
 // PUBLIC
 import Login from "../pages/Login";
@@ -63,10 +67,10 @@ const AppRouter = () => {
           <Route path="/admin/promociones/nuevo" element={<AdminPromocionForm />} />
           <Route path="/admin/promociones/editar/:id" element={<AdminPromocionEditForm />} />
 
+
           <Route path="/admin/ingredientes" element={<Ingredientes />} />
           <Route path="/admin/ingredientes/nuevo" element={<IngredienteForm />} />
           <Route path="/admin/ingredientes/:id" element={<IngredienteForm />} />
-
 
 
           <Route path="/admin/posts" element={<Posts />} />
@@ -76,7 +80,11 @@ const AppRouter = () => {
 
 
       <Route element={<PrivateRoutes allowedRoles={['Cook']} />}>
-        <Route path="/cook" element={<CookDashboard />} />
+        <Route element={<CocineroLayout />}>
+          <Route path="/cook" element={<CookDashboard />} />
+          <Route path="/cook/pedidos" element={<CocineroPedidos />} />
+          <Route path="/cook/cocina" element={<Cocina />} />
+        </Route>
       </Route>
 
 
@@ -86,6 +94,7 @@ const AppRouter = () => {
           <Route path="/client" element={<ClientDashboard />} />
           <Route path="/client/promociones/:id" element={<PromoDetalle />} />
           <Route path="/client/carrito" element={<Carrito />} />
+          <Route path="/client/pedidos" element={<Pedidos />} />
 
 
 
