@@ -7,9 +7,6 @@ const Campanita = () => {
   const [abierto, setAbierto] = useState(false);
   const ref = useRef(null);
 
-  console.log(notificaciones);
-
-
   const sinLeer = notificaciones.filter((n) => !n.read).length;
 
   const formatFechaHora = (isoString) => {
