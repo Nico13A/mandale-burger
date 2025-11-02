@@ -7,6 +7,9 @@ const Campanita = () => {
   const [abierto, setAbierto] = useState(false);
   const ref = useRef(null);
 
+  console.log(notificaciones);
+
+
   const sinLeer = notificaciones.filter((n) => !n.read).length;
 
   const formatFechaHora = (isoString) => {
@@ -99,7 +102,7 @@ const Campanita = () => {
                       }`}
                   >
                     <div className="flex gap-3">
-                      <div className="flex-shrink-0 mt-2">
+                      <div className="flex-shrink-0 mt-2.5">
                         {!n.read ? (
                           <div className="w-2 h-2 bg-naranja-boton rounded-full"></div>
                         ) : (
@@ -108,6 +111,7 @@ const Campanita = () => {
                       </div>
 
                       <div className="flex-1 min-w-0">
+                        <h4 className="text-md md:text-lg font-semibold truncate">Orden #{n.order_info.match(/#(\d+)/)[1]}</h4>
                         <p className={`text-sm leading-relaxed ${!n.read ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
                           {n.message}
                         </p>

@@ -8,7 +8,7 @@ const Pedidos = () => {
     useEffect(() => {
         cargarOrdenes();
     }, []);
-    
+
     const getStatusColor = (status) => {
         const colors = {
             pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -19,6 +19,15 @@ const Pedidos = () => {
             cancelled: "bg-red-100 text-red-800 border-red-200",
         };
         return colors[status.toLowerCase()] || "bg-gray-100 text-gray-800 border-gray-200";
+    };
+
+    const statusText = {
+        pending: "Pendiente",
+        paid: "Pagado",
+        in_progress: "En proceso",
+        ready_for_pickup: "Listo para retirar",
+        picked_up: "Retirado",
+        cancelled: "Cancelado",
     };
 
     if (cargando) return <Loading />;
@@ -63,7 +72,7 @@ const Pedidos = () => {
                                                 orden.status
                                             )}`}
                                         >
-                                            {orden.status}
+                                            {statusText[orden.status.toLowerCase()] || orden.status}
                                         </span>
                                     </div>
                                     <p className="text-sm text-gray-400 flex items-center gap-1">
