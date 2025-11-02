@@ -23,7 +23,7 @@ const PerfilDropdown = ({ onLogout }) => {
   return (
     <Menu as="div" className="relative">
       {/* Botón del perfil */}
-      <MenuButton className="flex items-center space-x-1 px-3 py-2 text-gris-boton hover:text-naranja-boton-hover rounded cursor-pointer focus:outline-none">
+      <MenuButton className="flex items-center space-x-1 py-2 text-gris-boton hover:text-naranja-boton-hover rounded cursor-pointer focus:outline-none">
         <UserIcon className="w-5 h-5" />
         <span className="hidden md:inline">Perfil</span>
         <ChevronDownIcon className="w-4 h-4" />

@@ -26,7 +26,12 @@ const Footer = ({ role = "Client" }) => {
       <div className="w-full max-w-6xl flex flex-col md:flex-row items-center justify-between gap-8">
         <div
           className="cursor-pointer flex flex-col items-center md:items-start"
-          onClick={() => navigate("/")}
+          onClick={() => {
+            if (role === "AppAdmin") navigate("/admin");
+            else if (role === "Cook") navigate("/cook");
+            else if (role === "Client") navigate("/client");
+            else navigate("/");
+          }}
         >
           <img
             src="/assets/LogoBlanco.png"
@@ -38,8 +43,8 @@ const Footer = ({ role = "Client" }) => {
         {/* Menú dinámico */}
         <div
           className={`flex ${role === "AppAdmin"
-              ? "flex-col items-start space-y-2" 
-              : "flex-row justify-center gap-5"
+            ? "flex-col items-start space-y-2"
+            : "flex-row justify-center gap-5"
             }`}
         >
           {displayItems.map(({ key, label }) => (
@@ -52,8 +57,8 @@ const Footer = ({ role = "Client" }) => {
               }}
               aria-label={`Ir a ${label}`}
               className={`${role === "AppAdmin"
-                  ? "w-52 text-left"
-                  : ""
+                ? "w-52 text-left"
+                : ""
                 }`}
             >
               <span

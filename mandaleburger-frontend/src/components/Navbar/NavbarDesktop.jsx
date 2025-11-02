@@ -4,6 +4,7 @@ import CartButton from "../CartButton/CartButton.jsx";
 import { getMenuItems } from "./menu.config.js";
 import PerfilDropdown from "../PerfilDropdown/PerfilDropdown.jsx";
 import { StarIcon } from "@heroicons/react/24/solid";
+import Campanita from "../Campanita/Campanita.jsx";
 
 const NavbarDesktop = ({ role = "Client", cartCount = 0, onLogout, suscripcion }) => {
   const navigate = useNavigate();
@@ -19,7 +20,12 @@ const NavbarDesktop = ({ role = "Client", cartCount = 0, onLogout, suscripcion }
     <nav className="hidden md:flex items-center justify-between w-full bg-white shadow-xs px-6 py-3 fixed top-0 left-0 z-50">
       <div
         className="text-xl font-bold cursor-pointer"
-        onClick={() => navigate("/")}
+        onClick={() => {
+          if (role === "AppAdmin") navigate("/admin");
+          else if (role === "Cook") navigate("/cook");
+          else if (role === "Client") navigate("/client");
+          else navigate("/"); 
+        }}
       >
         <img
           src="/assets/Logo.png"
@@ -33,6 +39,12 @@ const NavbarDesktop = ({ role = "Client", cartCount = 0, onLogout, suscripcion }
           <Button
             key={key}
             onClick={() => {
+              if (key === "Inicio") {
+                if (role === "AppAdmin") navigate("/admin");
+                else if (role === "Cook") navigate("/cook");
+                else navigate("/client");
+                return;
+              }
               if (role === "AppAdmin") navigate(`/admin/${key.toLowerCase()}`);
               else if (role === "Cook") navigate(`/cook/${key.toLowerCase()}`);
               else navigate(`/client/${key.toLowerCase()}`);
@@ -44,6 +56,8 @@ const NavbarDesktop = ({ role = "Client", cartCount = 0, onLogout, suscripcion }
             </span>
           </Button>
         ))}
+
+        {role === "Client" && <Campanita />}
 
         {cartItem && (
           <CartButton

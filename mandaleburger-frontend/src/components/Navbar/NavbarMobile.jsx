@@ -23,6 +23,12 @@ const NavbarMobile = ({ role = "Client", cartCount = 0 }) => {
           <Button
             key={key}
             onClick={() => {
+              if (key === "Inicio") {
+                if (role === "AppAdmin") navigate("/admin");
+                else if (role === "Cook") navigate("/cook");
+                else navigate("/client");
+                return;
+              }
               if (role === "AppAdmin") navigate(`/admin/${key.toLowerCase()}`);
               else if (role === "Cook") navigate(`/cook/${key.toLowerCase()}`);
               else navigate(`/client/${key.toLowerCase()}`);

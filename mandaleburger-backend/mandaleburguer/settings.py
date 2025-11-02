@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'promotion.apps.PromotionConfig',
     'cart.apps.CartConfig',
     'order.apps.OrderConfig',
+    'notification.apps.NotificationConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

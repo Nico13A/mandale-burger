@@ -11,7 +11,6 @@ import {
 export const MENUS = {
   Client: [
     { key: "Inicio", label: "Inicio", icon: HomeIcon },
-    { key: "Promos", label: "Promos", icon: BoltIcon },
     { key: "Carrito", label: "Carrito", icon: ShoppingCartIcon, hideLabel: true },
     { key: "Pedidos", label: "Pedidos", icon: ClipboardDocumentListIcon },
     { key: "Perfil", label: "Perfil", icon: UserIcon },

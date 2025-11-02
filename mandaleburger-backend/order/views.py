@@ -63,6 +63,7 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
         Permite al cocinero (o cliente) avanzar el estado de la orden.
         Body ejemplo: {"new_status": "in_progress"}
         """
+        from notification.models import Notification
         order = self.get_object()
         new_status = request.data.get("new_status")
 
@@ -71,6 +72,21 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
 
         try:
             order.advance_status(new_status, request.user)
+            # -------------------------
+            # Crear notificación para el cliente
+            # -------------------------
+            mensaje = None
+            if new_status == 'in_progress':
+                mensaje = "Tu orden está siendo preparada"
+            elif new_status == 'ready_for_pickup':
+                mensaje = "Tu orden está lista para retirar"
+
+            if mensaje:
+                Notification.objects.create(
+                    user=order.user,  
+                    order=order,
+                    message=mensaje
+                )
             return Response({"message": f"Estado actualizado a '{new_status}'"}, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_403_FORBIDDEN)
