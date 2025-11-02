@@ -3,7 +3,7 @@ import { useNotificaciones } from "../../hooks/useNotificaciones";
 import { Bell, X } from "lucide-react";
 
 const Campanita = () => {
-  const { notificaciones, cargando, marcarComoLeida } = useNotificaciones();
+  const { notificaciones, cargando, marcarComoLeida, cargarNotificaciones } = useNotificaciones();
   const [abierto, setAbierto] = useState(false);
   const ref = useRef(null);
 
@@ -30,6 +30,10 @@ const Campanita = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (abierto) cargarNotificaciones();
+  }, [abierto]);
 
   return (
     <div ref={ref} className="relative">
