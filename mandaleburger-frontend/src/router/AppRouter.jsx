@@ -28,6 +28,7 @@ import Posts from "../pages/Client/Posts";
 import PostDetail from "../pages/Client/PostDetail";
 import PromoDetalle from "../pages/Client/PromoDetalle";
 import Pedidos from "../pages/Client/Pedidos";
+import ClientArmarBurger from "../pages/Client/ClientArmarBurger";
 
 // PUBLIC
 import Login from "../pages/Login";
@@ -95,6 +96,7 @@ const AppRouter = () => {
           <Route path="/client/promociones/:id" element={<PromoDetalle />} />
           <Route path="/client/carrito" element={<Carrito />} />
           <Route path="/client/pedidos" element={<Pedidos />} />
+          <Route path="/client/armar" element={<ClientArmarBurger />} />
 
 
 

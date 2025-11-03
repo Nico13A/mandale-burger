@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'post',
+    'customerBurger',
 ]
 
 SITE_ID = 1

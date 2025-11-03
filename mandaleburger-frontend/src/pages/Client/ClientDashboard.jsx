@@ -85,8 +85,17 @@ const ClientDashboard = () => {
 
       <Buscador value={search} onChange={setSearch} />
 
-      <BotonCocineroDia onClick={handleVerCocinero} />
-
+      <div className="flex justify-end items-center gap-3 mb-4 [&>div]:mb-0">
+          <button
+            onClick={() => navigate("/client/armar")}
+            className="px-4 py-2 text-white text-sm md:text-base rounded-2xl
+                          bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer"
+              >
+                Armar mi burger
+            </button>
+      
+              <BotonCocineroDia onClick={handleVerCocinero} />
+        </div>
       {promociones.length > 0 && (
         <SwiperSection
           title="Promociones"
