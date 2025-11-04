@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from promotion.models import PromotionBurger
 from django.utils import timezone
-
+from customerBurger.models import CustomBurger
 
 # -------------------------
 # Modelo principal de Orden
@@ -94,7 +94,13 @@ class Order(models.Model):
 
         if new_status == 'cancelled':
             for item in self.items.all():
-                item.promotion.restore_ingredients(item.quantity)
+                if item.promotion:
+                    item.promotion.restore_ingredients(item.quantity)
+                elif item.custom_burger:
+                    for ci in item.custom_burger.ingredients.all():
+                        ingredient = ci.ingredient
+                        ingredient.stock += ci.quantity * item.quantity
+                        ingredient.save()
 
         # Actualizar estado actual
         self.status = new_status
@@ -120,11 +126,35 @@ class OrderStatusHistory(models.Model):
 # -------------------------
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    promotion = models.ForeignKey(PromotionBurger, on_delete=models.CASCADE)
+    promotion = models.ForeignKey(PromotionBurger, on_delete=models.CASCADE, null=True, blank=True)
+    custom_burger = models.ForeignKey(CustomBurger, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
 
     def total_price(self):
-        return self.promotion.price * self.quantity
+        price = 0
+        if self.promotion:
+            price = self.promotion.price
+        elif self.custom_burger:
+            price = self.custom_burger.total_price
+        return price * self.quantity
+    
+    def save(self, *args, **kwargs):
+        if not self.promotion and not self.custom_burger:
+            raise ValueError("Debe especificarse una promoción o una hamburguesa personalizada.")
+        if self.promotion and self.custom_burger:
+            raise ValueError("Solo puede asociarse una promoción o una hamburguesa personalizada, no ambas.")
+        super().save(*args, **kwargs)
+
+    def get_item_type(self):
+        if self.promotion:
+            return "promotion"
+        elif self.custom_burger:
+            return "custom_burger"
+        return "unknown"
 
     def __str__(self):
-        return f"{self.quantity} x {self.promotion.name}"
+        if self.promotion:
+            return f"{self.quantity} x {self.promotion.name}"
+        if self.custom_burger:
+            return f"{self.quantity} x {self.custom_burger.custom_name}"
+        return f"{self.quantity} x (item sin definir)"

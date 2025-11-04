@@ -13,7 +13,7 @@ const PromoDetalle = () => {
     
     const handleAgregarAlCarrito = async () => {
         try {
-            await agregarItem(promo.id, 1);
+            await agregarItem({ promotionId: promo.id, quantity: 1 });
             toast.success(`${promo.name} agregado al carrito!`);
         } catch (err) {
             console.error(err);

@@ -98,7 +98,7 @@ class CustomBurgerSerializer(serializers.ModelSerializer):
         if not request or not request.user or not request.user.is_authenticated:
             raise ValidationError({"user": "Debes estar autenticado para crear la burger."})
 
-        
+        # Creamos la burger con el total que viene del front (por compatibilidad)
         burger = CustomBurger.objects.create(user=request.user, **validated_data)
 
         # Ingredientes
@@ -107,16 +107,36 @@ class CustomBurgerSerializer(serializers.ModelSerializer):
             burger.delete()
             raise ValidationError({"ingredients_data": "Debe incluir al menos un ingrediente."})
 
+        total = 0
         try:
             for item in ingredient_data:
                 cis = CustomIngredientSerializer(data=item)
                 cis.is_valid(raise_exception=True)
+                ingrediente = cis.validated_data['ingredient']
+                cantidad = cis.validated_data['quantity']
+
+                # Crear la relación ingrediente <-> burger
                 CustomIngredient.objects.create(custom_burger=burger, **cis.validated_data)
+
+                # Calcular el total con el precio real desde la BD
+                if hasattr(ingrediente, 'price'):
+                    total += ingrediente.price * cantidad
+                else:
+                    burger.delete()
+                    raise ValidationError(
+                        {"ingredients_data": f"El ingrediente '{ingrediente}' no tiene campo 'price' definido."}
+                    )
+
+            # Sobrescribimos el total_price con el valor calculado real
+            burger.total_price = total
+            burger.save()
+
         except Exception:
             burger.delete()
             raise
 
         return burger
+
 
     def update(self, instance, validated_data):
         validated_data.pop('is_active', None)
@@ -139,7 +159,7 @@ class CustomBurgerSerializer(serializers.ModelSerializer):
 # -------------------------
 # Serializer de relación CustomBurgerUsuario
 # -------------------------
-class CustomerBurgerUsuarioSerializer(serializers.ModelSerializer):
+class CustomBurgerUsuarioSerializer(serializers.ModelSerializer):
     custom_burger = CustomBurgerSerializer(read_only=True)
     usuario = serializers.StringRelatedField(read_only=True)
 

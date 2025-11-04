@@ -10,6 +10,7 @@ from order.models import Order, OrderItem, OrderStatusHistory
 from django.db import transaction
 from core.models import Ingredient
 from django.utils import timezone
+from customerBurger.models import CustomBurger
 
 
 class CartViewSet(viewsets.ViewSet):
@@ -24,6 +25,7 @@ class CartViewSet(viewsets.ViewSet):
 
     permission_classes = [IsClientUser]
 
+
     def list(self, request):
         """GET /api/cart/ → devuelve el carrito del usuario"""
         try:
@@ -34,20 +36,30 @@ class CartViewSet(viewsets.ViewSet):
         serializer = CartSerializer(cart)
         return Response(serializer.data)
 
+
     @action(detail=False, methods=['post'])
     def add_item(self, request):
         """
         POST /api/cart/add_item/
-        body: { "promotion_id": 1, "quantity": 2 }
+        body: { "promotion_id": 1, "quantity": 2 } 
+        o  { "custom_burger_id": 5, "quantity": 1 }
         """
         promotion_id = request.data.get('promotion_id')
+        custom_burger_id = request.data.get('custom_burger_id')
         quantity = int(request.data.get('quantity', 1))
-        promotion = get_object_or_404(PromotionBurger, id=promotion_id)
 
-        # Solo crear carrito si agrega algo
+        if not promotion_id and not custom_burger_id:
+            return Response({"error": "Debe indicar promotion_id o custom_burger_id"}, status=status.HTTP_400_BAD_REQUEST)
+
         cart, _ = Cart.objects.get_or_create(user=request.user)
 
-        item, created = CartItem.objects.get_or_create(cart=cart, promotion=promotion)
+        if promotion_id:
+            promotion = get_object_or_404(PromotionBurger, id=promotion_id)
+            item, created = CartItem.objects.get_or_create(cart=cart, promotion=promotion)
+        else:
+            custom_burger = get_object_or_404(CustomBurger, id=custom_burger_id, user=request.user)
+            item, created = CartItem.objects.get_or_create(cart=cart, custom_burger=custom_burger)
+
         if not created:
             item.quantity += quantity
         else:
@@ -56,6 +68,7 @@ class CartViewSet(viewsets.ViewSet):
 
         serializer = CartSerializer(cart)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
     @action(detail=False, methods=['post'])
     def remove_item(self, request):
@@ -109,66 +122,71 @@ class CartViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=['post'])
     def checkout(self, request):
-        # Intentamos obtener el carrito del usuario que hace la petición
+        """Crea una orden a partir del carrito (soporta promociones y custom burgers)"""
         try:
             cart = request.user.cart
         except Cart.DoesNotExist:
-            # Si el usuario no tiene carrito, devolvemos error 400
             return Response({"error": "Carrito vacío"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Verificamos si el carrito tiene items
         if not cart.items.exists():
-            # Si no hay items, devolvemos error
             return Response({"error": "El carrito está vacío"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Abrimos una transacción atómica: todo lo que hagamos dentro será reversible si hay error
         with transaction.atomic():
-            # 🔒 BLOQUEO DE INGREDIENTES: primero recopilamos todos los IDs de ingredientes que necesitamos
+            # 1️⃣ Recolectar todos los IDs de ingredientes que participan (promos + custom burgers)
             ingredient_ids = []
+
             for item in cart.items.all():
-                for promo_ing in item.promotion.ingredients.all():
-                    # Guardamos el id de cada ingrediente que forma parte de las promociones del carrito
-                    ingredient_ids.append(promo_ing.ingredient.id)
+                if item.promotion:
+                    for promo_ing in item.promotion.ingredients.all():
+                        ingredient_ids.append(promo_ing.ingredient.id)
+                elif item.custom_burger:
+                    for ci in item.custom_burger.ingredients.all():
+                        ingredient_ids.append(ci.ingredient.id)
 
-            # Bloqueamos esos ingredientes para que nadie más pueda modificar su stock mientras procesamos la orden
+            # Evitar duplicados
+            ingredient_ids = list(set(ingredient_ids))
+
+            # 2️⃣ Bloquear ingredientes para evitar condiciones de carrera
             ingredients_locked = Ingredient.objects.select_for_update().filter(id__in=ingredient_ids)
-
-            # Creamos un diccionario para acceder rápido a cada ingrediente por su ID
             ingredients_map = {ing.id: ing for ing in ingredients_locked}
 
-            # Lista para acumular ingredientes que no tienen stock suficiente
             missing_ingredients = []
 
-            # Verificamos stock bajo bloqueo
+            # 3️⃣ Verificar stock de todos los ingredientes requeridos
             for item in cart.items.all():
-                promotion = item.promotion
-                for promo_ing in promotion.ingredients.all():
-                    # Obtenemos el ingrediente bloqueado desde el diccionario
-                    ingredient = ingredients_map[promo_ing.ingredient.id]
-                    # Calculamos la cantidad total necesaria (cantidad del ingrediente * cantidad de promos en el carrito)
-                    required_qty = promo_ing.quantity * item.quantity
+                if item.promotion:
+                    for promo_ing in item.promotion.ingredients.all():
+                        ingredient = ingredients_map[promo_ing.ingredient.id]
+                        required_qty = promo_ing.quantity * item.quantity
+                        if ingredient.stock < required_qty:
+                            missing_ingredients.append({
+                                "producto": item.promotion.name,
+                                "ingredient": ingredient.name,
+                                "faltante": required_qty - ingredient.stock
+                            })
+                elif item.custom_burger:
+                    for ci in item.custom_burger.ingredients.all():
+                        ingredient = ingredients_map[ci.ingredient.id]
+                        required_qty = ci.quantity * item.quantity
+                        if ingredient.stock < required_qty:
+                            missing_ingredients.append({
+                                "producto": item.custom_burger.custom_name,
+                                "ingredient": ingredient.name,
+                                "faltante": required_qty - ingredient.stock
+                            })
 
-                    # Si el stock disponible es menor que el requerido, agregamos a la lista de faltantes
-                    if ingredient.stock < required_qty:
-                        missing_ingredients.append({
-                            "promotion": promotion.name,
-                            "ingredient": ingredient.name,
-                            "faltante": required_qty - ingredient.stock
-                        })
-
-            # Si hay algún ingrediente faltante, devolvemos error y no hacemos ningún cambio
             if missing_ingredients:
                 return Response({
                     "error": "No hay stock disponible",
                     "detalles": missing_ingredients
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # Todo está bien: creamos la orden principal
+            # 4️⃣ Crear la orden principal
             order = Order.objects.create(
                 user=request.user,
-                status='pending',              
+                status='pending',
                 total_price=cart.total_price(),
-                expiration_time=timezone.now() + timezone.timedelta(minutes=5) 
+                expiration_time=timezone.now() + timezone.timedelta(minutes=5)
             )
 
             OrderStatusHistory.objects.create(
@@ -178,30 +196,36 @@ class CartViewSet(viewsets.ViewSet):
                 changed_by=request.user
             )
 
-            # Recorremos nuevamente los items para crear los OrderItems y descontar stock
+            # 5️⃣ Crear items de orden y descontar stock
             for item in cart.items.all():
-                # Creamos cada OrderItem asociado a la orden
                 OrderItem.objects.create(
                     order=order,
-                    promotion=item.promotion,
+                    promotion=item.promotion if item.promotion_id else None,
+                    custom_burger=item.custom_burger if item.custom_burger_id else None,
                     quantity=item.quantity
                 )
 
-                # Descontamos el stock de cada ingrediente
-                for promo_ing in item.promotion.ingredients.all():
-                    ingredient = ingredients_map[promo_ing.ingredient.id]
-                    ingredient.stock -= promo_ing.quantity * item.quantity
-                    ingredient.save()  # Guardamos el cambio en la base de datos
+                if item.promotion:
+                    for promo_ing in item.promotion.ingredients.all():
+                        ingredient = ingredients_map[promo_ing.ingredient.id]
+                        ingredient.stock -= promo_ing.quantity * item.quantity
+                        ingredient.save()
+                elif item.custom_burger:
+                    for ci in item.custom_burger.ingredients.all():
+                        ingredient = ingredients_map[ci.ingredient.id]
+                        ingredient.stock -= ci.quantity * item.quantity
+                        ingredient.save()
 
-            # Vaciar carrito: borramos todos los items del carrito
+            # 6️⃣ Vaciar carrito
             cart.items.all().delete()
 
-        # Finalmente devolvemos respuesta exitosa con id de la orden y total
+        # 7️⃣ Respuesta
         return Response({
             "success": "Orden creada correctamente.",
             "order_id": order.id,
-            "total": float(order.total_price)  
+            "total": float(order.total_price)
         }, status=status.HTTP_201_CREATED)
+
 
 
 

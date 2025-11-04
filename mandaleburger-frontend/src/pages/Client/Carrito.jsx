@@ -72,89 +72,107 @@ const Carrito = () => {
             <div className="grid lg:grid-cols-3 gap-5">
                 {/* Lista de items */}
                 <div className="lg:col-span-2 space-y-4">
-                    {cart.items.map((item) => (
-                        <div
-                            key={item.id}
-                            className="bg-gradient-to-br from-gris-boton to-gris-boton-hover rounded-2xl p-6 border-2 border-gray-800 shadow-lg"
-                        >
-                            <div className="flex flex-col md:flex-row gap-2 md:gap-6">
-                                {/* Imagen */}
-                                <div className="relative flex-shrink-0 m-auto md:m-0">
-                                    <div className="w-28 h-full rounded-xl overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 shadow-lg border-2 border-gray-700">
-                                        <img
-                                            src={`${import.meta.env.VITE_API_URL}${item.promotion.img}`}
-                                            alt={item.promotion.name}
-                                            className="w-full h-full object-contain"
-                                        />
-                                    </div>
-                                </div>
+                    {cart.items.map((item) => {
+                        const isCustom = !!item.custom_burger; 
+                        const name = item.promotion?.name || item.custom_burger?.custom_name || "Burger Personalizada";
+                        const img = item.promotion?.img || item.custom_burger?.img || "";
+                        const price = item.promotion?.price ?? item.total_price;
 
-                                {/* Info */}
-                                <div className="flex-1 flex flex-col justify-between">
-                                    <div>
-                                        <h3 className="font-bold text-white text-lg mb-1">{item.promotion.name}</h3>
-                                        <p className="text-gray-400 text-sm flex items-center gap-2">
-                                            <span className="text-xs bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
-                                                Precio unitario
-                                            </span>
-                                            <span className="font-semibold text-naranja-boton">
-                                                ${item.promotion.price}
-                                            </span>
-                                        </p>
+                        return (
+                            <div
+                                key={item.id}
+                                className="bg-gradient-to-br from-gris-boton to-gris-boton-hover rounded-2xl p-6 border-2 border-gray-800 shadow-lg"
+                            >
+                                <div className="flex flex-col md:flex-row gap-2 md:gap-6">
+                                    {/* Imagen */}
+                                    <div className="relative flex-shrink-0 m-auto md:m-0">
+                                        <div className="w-28 h-full rounded-xl overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900 shadow-lg border-2 border-gray-700">
+                                            {img && (
+                                                <img
+                                                    src={`${import.meta.env.VITE_API_URL}${img}`}
+                                                    alt={name}
+                                                    className="w-full h-full object-contain"
+                                                />
+                                            )}
+                                        </div>
                                     </div>
 
-                                    {/* Controles cantidad */}
-                                    <div className="flex mt-4">
-                                        <div className="flex items-center gap-3 bg-gray-800 rounded-full p-1 border border-gray-700">
-                                            <button
-                                                onClick={() => handleDecrement(item.id, item.quantity)}
-                                                className="cursor-pointer bg-gray-700 hover:bg-gray-600 text-white w-8 h-8 rounded-full text-lg font-bold transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-md"
-                                                disabled={item.quantity <= 1}
+                                    {/* Info */}
+                                    <div className="flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <h3 className="font-bold text-white text-lg mb-1">{name}</h3>
+
+                                            {/* Ingredientes si es custom burger */}
+                                            {isCustom && item.custom_burger.ingredients?.length > 0 && (
+                                                <ul className="text-gray-400 text-sm">
+                                                    {item.custom_burger.ingredients.map((ing, idx) => (
+                                                        <li key={idx}>{ing.name || ing.ingredient_name}</li>
+                                                    ))}
+                                                </ul>
+                                            )}
+
+                                            <p className="text-gray-400 text-sm flex items-center gap-2 mt-2">
+                                                <span className="text-xs bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                                                    Precio unitario
+                                                </span>
+                                                <span className="font-semibold text-naranja-boton">${price}</span>
+                                            </p>
+                                        </div>
+
+                                        {/* Controles cantidad */}
+                                        <div className="flex mt-4">
+                                            <div className="flex items-center gap-3 bg-gray-800 rounded-full p-1 border border-gray-700">
+                                                <button
+                                                    onClick={() => handleDecrement(item.id, item.quantity)}
+                                                    className="cursor-pointer bg-gray-700 hover:bg-gray-600 text-white w-8 h-8 rounded-full text-lg font-bold transition-all duration-200 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-md"
+                                                    disabled={item.quantity <= 1}
+                                                >
+                                                    −
+                                                </button>
+                                                <span className="text-white font-bold text-lg min-w-[2rem] text-center">
+                                                    {item.quantity}
+                                                </span>
+                                                <button
+                                                    onClick={() => handleIncrement(item.id, item.quantity)}
+                                                    className="cursor-pointer bg-gradient-to-r bg-naranja-boton hover:bg-naranja-boton-hover text-white w-8 h-8 rounded-full text-lg font-bold transition-all duration-200 hover:scale-110 shadow-md shadow-orange-400/30"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Subtotal y eliminar */}
+                                    <div className="flex flex-col text-end justify-between">
+                                        <button
+                                            onClick={() => handleDelete(item.id)}
+                                            className="cursor-pointer self-end text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all duration-200 group/delete"
+                                            title="Eliminar producto"
+                                        >
+                                            <svg
+                                                className="w-5 h-5 group-hover/delete:scale-110 transition-transform"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
                                             >
-                                                −
-                                            </button>
-                                            <span className="text-white font-bold text-lg min-w-[2rem] text-center">
-                                                {item.quantity}
-                                            </span>
-                                            <button
-                                                onClick={() => handleIncrement(item.id, item.quantity)}
-                                                className="cursor-pointer bg-gradient-to-r bg-naranja-boton hover:bg-naranja-boton-hover text-white w-8 h-8 rounded-full text-lg font-bold transition-all duration-200 hover:scale-110 shadow-md shadow-orange-400/30"
-                                            >
-                                                +
-                                            </button>
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                />
+                                            </svg>
+                                        </button>
+                                        <div className="text-right">
+                                            <p className="text-xs text-gray-500 mb-1">Subtotal</p>
+                                            <p className="font-bold text-xl text-naranja-boton">${item.total_price}</p>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Subtotal y eliminar */}
-                                <div className="flex flex-col text-end justify-between">
-                                    <button
-                                        onClick={() => handleDelete(item.id)}
-                                        className="cursor-pointer self-end text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all duration-200 group/delete"
-                                        title="Eliminar producto"
-                                    >
-                                        <svg
-                                            className="w-5 h-5 group-hover/delete:scale-110 transition-transform"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                            />
-                                        </svg>
-                                    </button>
-                                    <div className="text-right">
-                                        <p className="text-xs text-gray-500 mb-1">Subtotal</p>
-                                        <p className="font-bold text-xl text-naranja-boton">${item.total_price}</p>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
+
                 </div>
 
                 {/* Resumen */}
@@ -278,4 +296,3 @@ const Carrito = () => {
 };
 
 export default Carrito;
-

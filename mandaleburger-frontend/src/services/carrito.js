@@ -22,12 +22,14 @@ export const getCart = async () => {
 };
 
 // ------------------ AGREGAR ÍTEM ------------------
-export const addItemToCart = async (promotionId, quantity = 1) => {
+export const addItemToCart = async ({ promotionId = null, customBurgerId = null, quantity = 1 }) => {
   try {
-    const res = await api.post(ENDPOINTS.ADD_ITEM, {
-      promotion_id: promotionId,
+    const body = {
       quantity,
-    });
+      ...(promotionId ? { promotion_id: promotionId } : {}),
+      ...(customBurgerId ? { custom_burger_id: customBurgerId } : {}),
+    };
+    const res = await api.post(ENDPOINTS.ADD_ITEM, body);
     return res.data;
   } catch (err) {
     throw new Error(

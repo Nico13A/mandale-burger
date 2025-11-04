@@ -1,9 +1,7 @@
-from rest_framework import generics, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from .models import CustomBurger, CustomBurgerUsuario
-from .serializers import CustomBurgerSerializer, CustomerBurgerUsuarioSerializer
+from .models import CustomBurger
+from .serializers import CustomBurgerSerializer, CustomBurgerUsuarioSerializer
 from usuario.permissions import IsInGroup
 
 
@@ -40,7 +38,7 @@ class CustomBurgerUpdateView(generics.UpdateAPIView):
 # Crear asociación burger-usuario para que otro usuario la pida
 # -------------------------
 class CustomBurgerUsuarioCreateView(generics.CreateAPIView):
-    serializer_class = CustomerBurgerUsuarioSerializer
+    serializer_class = CustomBurgerUsuarioSerializer
     permission_classes = [IsAuthenticated, IsInGroup]
     allowed_groups = ['Client', 'AppAdmin']
 

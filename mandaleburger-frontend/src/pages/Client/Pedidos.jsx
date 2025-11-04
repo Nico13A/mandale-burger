@@ -121,7 +121,11 @@ const Pedidos = () => {
                                                     <span className="border border-gray-800 rounded-md px-2 py-1 text-sm font-medium text-gray-500 min-w-10 flex justify-center">
                                                         {item.quantity}×
                                                     </span>
-                                                    <span className="text-gray-500">{item.promotion.name}</span>
+                                                    <span className="text-gray-500">
+                                                        {item.item_type === "promotion"
+                                                            ? item.promotion.name
+                                                            : item.custom_burger.custom_name}
+                                                    </span>
                                                 </div>
                                                 <span className="font-semibold text-gray-500">
                                                     ${item.total_price}

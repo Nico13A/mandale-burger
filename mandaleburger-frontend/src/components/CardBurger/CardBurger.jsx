@@ -39,7 +39,7 @@ const CardBurger = forwardRef(function CardBurger({ pan, carne, capas }, ref) {
     return ordered.map((ing, idx) => ({
       ...ing,
       _key: ing._uid ?? `capa-${ing.id}-${idx}`,
-      _z: 20 - idx,
+      _z: 49 - idx,
       _mt: getOffset(ing, idx),
     }));
   }, [capas]);
@@ -50,7 +50,7 @@ const CardBurger = forwardRef(function CardBurger({ pan, carne, capas }, ref) {
         <div ref={ref} className="relative w-[320px]"> 
 
           {/* pan superior */}
-          <div className="text-center relative top-3 h-40 z-30">
+          <div className="text-center relative top-3 h-40 z-50">
             <img
               crossOrigin="anonymous"
               src={pan?.imagen}

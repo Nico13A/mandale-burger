@@ -5,9 +5,7 @@ import { useCocinaOrders } from "../../hooks/useCocinaOrders";
 
 const Cocina = () => {
     const { ordenes, cargando, error, cargarOrdenesCocina } = useCocinaOrders();
-    console.log(ordenes);
-
-
+    
     useEffect(() => {
         cargarOrdenesCocina();
     }, []);
@@ -63,15 +61,15 @@ const Cocina = () => {
                                         <div className="flex items-center gap-2">
                                             <UtensilsCrossed className="text-naranja-boton w-5 h-5" />
                                             <h3 className="font-semibold text-naranja-boton">
-                                                {item.quantity}× {item.promotion.name}
+                                                {item.quantity}× {item.item_type === "promotion" ? item.promotion.name : item.custom_burger.custom_name}
                                             </h3>
                                         </div>
                                     </div>
 
                                     {/* Ingredientes */}
-                                    {item.promotion.ingredients ? (
+                                    {(item.item_type === "promotion" ? item.promotion.ingredients : item.custom_burger.ingredients)?.length > 0 ? (
                                         <ul className="text-sm text-gray-300 pl-6 list-disc">
-                                            {item.promotion.ingredients.map((ing) => (
+                                            {(item.item_type === "promotion" ? item.promotion.ingredients : item.custom_burger.ingredients).map((ing) => (
                                                 <li key={ing.id} className="flex items-center gap-2">
                                                     <Circle className="w-3 h-3 text-green-500" />
                                                     {ing.quantity}× {ing.name}

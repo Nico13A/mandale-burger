@@ -17,7 +17,7 @@ const NavbarDesktop = ({ role = "Client", cartCount = 0, onLogout, suscripcion }
   const perfilItem = allItems.find(item => item.key === "Perfil");
 
   return (
-    <nav className="hidden md:flex items-center justify-between w-full bg-white shadow-xs px-6 py-3 fixed top-0 left-0 z-50">
+    <nav className="hidden md:flex items-center justify-between w-full bg-white shadow-xs px-6 py-3 fixed top-0 left-0 z-100">
       <div
         className="text-xl font-bold cursor-pointer"
         onClick={() => {

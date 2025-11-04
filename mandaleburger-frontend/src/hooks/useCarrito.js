@@ -31,10 +31,10 @@ export const useCarrito = () => {
   }, []);
 
   // Agregar ítem
-  const agregarItem = async (promotionId, quantity = 1) => {
+  const agregarItem = async ({ promotionId = null, customBurgerId = null, quantity = 1 }) => {
     setLoading(true);
     try {
-      const data = await addItemToCart(promotionId, quantity);
+      const data = await addItemToCart({ promotionId, customBurgerId, quantity });
       setCart(data);
     } catch (err) {
       setError(err.message);
@@ -62,7 +62,7 @@ export const useCarrito = () => {
       fetchCart();
     }
   };
-  
+
   // Actualizar cantidad
   const actualizarCantidad = async (itemId, nuevaCantidad) => {
     if (nuevaCantidad < 1) return;
@@ -76,7 +76,9 @@ export const useCarrito = () => {
           ? {
             ...item,
             quantity: nuevaCantidad,
-            total_price: nuevaCantidad * parseFloat(item.promotion.price),
+            total_price: nuevaCantidad * parseFloat(
+              item.promotion?.price ?? item.custom_burger?.total_price ?? 0
+            ),
           }
           : item
       );
@@ -107,7 +109,7 @@ export const useCarrito = () => {
     });
 
     try {
-      await clearCart(); 
+      await clearCart();
     } catch (err) {
       console.error(err);
       fetchCart();
@@ -119,7 +121,7 @@ export const useCarrito = () => {
     setLoading(true);
     try {
       const data = await checkoutCart();
-      setCart({ ...cart, items: [], total_price: 0 }); 
+      setCart({ ...cart, items: [], total_price: 0 });
       return data;
     } catch (err) {
       setError(err.message);

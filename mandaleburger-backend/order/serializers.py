@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from .models import Order, OrderItem, OrderStatusHistory
 from promotion.models import PromotionBurger
+from customerBurger.models import CustomBurger
 
 # -------------------------
-# Serializer para los productos/promociones
+# Serializer para promociones
 # -------------------------
 class PromotionBurgerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,18 +13,32 @@ class PromotionBurgerSerializer(serializers.ModelSerializer):
 
 
 # -------------------------
+# Serializer para hamburguesas personalizadas
+# -------------------------
+class CustomBurgerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomBurger
+        fields = ['id', 'custom_name', 'total_price', 'img']
+
+
+# -------------------------
 # Serializer para los items de la orden
 # -------------------------
 class OrderItemSerializer(serializers.ModelSerializer):
     promotion = PromotionBurgerSerializer(read_only=True)
+    custom_burger = CustomBurgerSerializer(read_only=True)
     total_price = serializers.SerializerMethodField()
+    item_type = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'promotion', 'quantity', 'total_price']
+        fields = ['id', 'promotion', 'custom_burger', 'quantity', 'total_price', 'item_type']
 
     def get_total_price(self, obj):
         return obj.total_price()
+
+    def get_item_type(self, obj):
+        return obj.get_item_type()
 
 
 # -------------------------
@@ -50,7 +65,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 # -------------------------
-# Serializer orden para cocinero y cliente
+# Serializer simplificado (cliente/cocinero)
 # -------------------------
 class OrderSerializerLite(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
@@ -61,14 +76,14 @@ class OrderSerializerLite(serializers.ModelSerializer):
 
 
 # -------------------------
-# Serializer para promociones con ingredientes (solo cocina)
+# Serializer para cocina (detalles de ingredientes)
 # -------------------------
 class PromotionBurgerCocinaSerializer(serializers.ModelSerializer):
     ingredients = serializers.SerializerMethodField()
 
     class Meta:
         model = PromotionBurger
-        fields = ['id', 'name', 'ingredients']  
+        fields = ['id', 'name', 'ingredients']
 
     def get_ingredients(self, obj):
         return [
@@ -81,15 +96,38 @@ class PromotionBurgerCocinaSerializer(serializers.ModelSerializer):
         ]
 
 
+class CustomBurgerCocinaSerializer(serializers.ModelSerializer):
+    ingredients = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomBurger
+        fields = ['id', 'custom_name', 'ingredients']
+
+    def get_ingredients(self, obj):
+        return [
+            {
+                "id": ci.ingredient.id,
+                "name": ci.ingredient.name,
+                "quantity": ci.quantity
+            }
+            for ci in obj.ingredients.all()
+        ]
+
+
 # -------------------------
 # OrderItem serializer para cocina
 # -------------------------
 class OrderItemCocinaSerializer(serializers.ModelSerializer):
     promotion = PromotionBurgerCocinaSerializer(read_only=True)
+    custom_burger = CustomBurgerCocinaSerializer(read_only=True)
+    item_type = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'promotion', 'quantity']  
+        fields = ['id', 'promotion', 'custom_burger', 'quantity', 'item_type']
+
+    def get_item_type(self, obj):
+        return obj.get_item_type()
 
 
 # -------------------------
@@ -100,5 +138,6 @@ class OrderCocinaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'status', 'items'] 
+        fields = ['id', 'status', 'items']
+
 
