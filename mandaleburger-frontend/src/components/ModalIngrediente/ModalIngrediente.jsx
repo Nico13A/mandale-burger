@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 export default function ModalIngredientes({
   isOpen,
@@ -6,23 +6,36 @@ export default function ModalIngredientes({
   onConfirm,
   ingredientes,
 }) {
-  
   const [categoriaActiva, setCategoriaActiva] = useState("todos");
 
-  // cantidades por id: { [id]: number }
   const [cantidades, setCantidades] = useState(() => {
-  const guardado = localStorage.getItem("cantIngredientes");
-  return guardado ? JSON.parse(guardado) : {};
-});
+    const guardado = localStorage.getItem("cantIngredientes");
+    return guardado ? JSON.parse(guardado) : {};
+  });
 
-  // persistir cantidades
+  // Bloquear scroll del fondo cuando el modal está abierto
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => (document.body.style.overflow = "");
+  }, [isOpen]);
+
+  // Cerrar con tecla escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    if (isOpen) document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Persistir cantidades
   useEffect(() => {
     try {
       localStorage.setItem("cantIngredientes", JSON.stringify(cantidades));
-      // opcional: también guardo sólo los ids seleccionados (>=1) para compat
       const ids = Object.keys(cantidades).filter((k) => cantidades[k] > 0);
       localStorage.setItem("idSeleccionados", JSON.stringify(ids.map(Number)));
-    } catch {}
+    } catch { }
   }, [cantidades]);
 
   const visibles = useMemo(() => {
@@ -34,34 +47,32 @@ export default function ModalIngredientes({
   }, [ingredientes, categoriaActiva]);
 
   const sinPanes = useMemo(
-  () => (ingredientes || []).flatMap(c => c?.ingredients || []),
-  [ingredientes]
-);
-  //controlo el stock de cada ingrediente
+    () => (ingredientes || []).flatMap((c) => c?.ingredients || []),
+    [ingredientes]
+  );
+
   const getStock = (id) => {
-  const ing = sinPanes.find(i => i.id ===id);
-  
-  return ing?.stock ?? 0;
-};
-  // sumar o restar cantidad
+    const ing = sinPanes.find((i) => i.id === id);
+    return ing?.stock ?? 0;
+  };
+
   const inc = (id) =>
     setCantidades((prev) => {
       const max = getStock(id);
       const nextQty = Math.min((prev[id] || 0) + 1, max);
-      // si ya está en el máximo, no cambia
       if (nextQty === (prev[id] || 0)) return prev;
       return { ...prev, [id]: nextQty };
     });
+
   const dec = (id) =>
     setCantidades((prev) => {
       const next = { ...prev };
       const q = (next[id] || 0) - 1;
       if (q <= 0) delete next[id];
-        else next[id] = q;
+      else next[id] = q;
       return next;
     });
 
-  // click en card: si no está, lo pone en 1; si está, lo quita (a 0)
   const toggleCard = (id) =>
     setCantidades((prev) => {
       const has = (prev[id] || 0) > 0;
@@ -79,19 +90,43 @@ export default function ModalIngredientes({
     onClose?.();
   };
 
+  // Referencia para enfocar al abrir
+  const botonInicial = useRef(null);
+  useEffect(() => {
+    if (isOpen && botonInicial.current) {
+      botonInicial.current.focus();
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#FFF7EB] w-[90%] max-w-md rounded-2xl p-5 shadow-lg">
+    <div
+      className="fixed inset-x-0 bottom-0 top-[144px] bg-black/50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-modal"
+      onClick={(e) => e.target === e.currentTarget && onClose?.()}
+    >
+      <div
+        className="bg-[#FFF7EB] w-xl max-w-xl rounded-2xl p-6 shadow-lg max-h-[80vh] overflow-y-auto"
+        role="document"
+      >
+        <h2
+          id="titulo-modal"
+          className="sr-only"
+        >
+          Seleccioná tus ingredientes
+        </h2>
+
         {/* Tabs */}
-        <div className="flex gap-2 flex-nowrap whitespace-nowrap mb-4 bg-[#FFE7C7] rounded-full px-2 py-1 overflow-x-auto">
+        <div className="flex mb-4 bg-[#FFE7C7] rounded-full justify-between">
           <button
-            className={`shrink-0 px-3 py-1.5 rounded-full capitalize text-sm ${
-              categoriaActiva === "todos"
-                ? "bg-white text-black font-semibold"
-                : "text-gray-500"
-            }`}
+            ref={botonInicial}
+            className={`tracking-wide cursor-pointer px-4 py-2 rounded-full capitalize text-sm ${categoriaActiva === "todos"
+                ? "bg-naranja-boton text-white font-medium"
+                : "text-gris-boton"
+              }`}
             onClick={() => setCategoriaActiva("todos")}
           >
             Todos
@@ -99,11 +134,10 @@ export default function ModalIngredientes({
           {ingredientes.map((cat) => (
             <button
               key={cat.id || cat.name}
-              className={`shrink-0 px-3 py-1.5 rounded-full capitalize text-sm ${
-                categoriaActiva === cat.name
-                  ? "bg-white text-black font-semibold"
-                  : "text-gray-500"
-              }`}
+              className={`tracking-wide cursor-pointer px-4 py-2 rounded-full capitalize text-sm ${categoriaActiva === cat.name
+                  ? "bg-naranja-boton text-white font-medium"
+                  : "text-gris-boton"
+                }`}
               onClick={() => setCategoriaActiva(cat.name)}
             >
               {cat.name}
@@ -112,40 +146,45 @@ export default function ModalIngredientes({
         </div>
 
         {/* Ingredientes con cantidad */}
-        <div className="grid grid-rows-3 grid-flow-col gap-3 h-80 overflow-x-auto overflow-y-hidden pr-2">
+        <div className="grid grid-rows-3 grid-flow-col gap-4 overflow-x-auto overflow-y-hidden py-2 snap-x snap-mandatory scroll-smooth h-[420px]">
           {visibles.map((ing) => {
             const qty = cantidades[ing.id] || 0;
             const seleccionado = qty > 0;
             return (
               <div
                 key={ing.id}
-                className={`flex flex-col items-center rounded-xl min-w-[110px] ${
-                  seleccionado ? "bg-orange-200" : "bg-orange-50"
-                }`}
+                className={`flex flex-col gap-2 items-center justify-between rounded-xl py-2 px-4 min-w-[110px] sm:min-w-[130px] md:min-w-[160px] transition-all duration-150 snap-start ${seleccionado ? "bg-orange-200" : "bg-orange-50"
+                  }`}
               >
                 <button
                   onClick={() => toggleCard(ing.id)}
                   className="focus:outline-none"
                   title={seleccionado ? "Quitar" : "Seleccionar"}
+                  aria-pressed={seleccionado}
+                  aria-label={
+                    seleccionado
+                      ? `Quitar ${ing.name}`
+                      : `Seleccionar ${ing.name}`
+                  }
                 >
                   <img
                     src={ing.img}
                     alt={ing.name}
-                    className="w-10 h-10 object-contain mx-auto"
+                    className="w-16 h-10 object-contain mx-auto"
                   />
-                  <span className="block text-xs mt-1 text-center">
+                  <span className="block text-xs text-center font-semibold tracking-wide uppercase">
                     {ing.name}
                   </span>
                 </button>
 
                 {/* Controles de cantidad */}
-                <div className="mt-1 flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => dec(ing.id)}
-                    className="w-7 h-7 rounded-full bg-white border text-lg leading-7 text-gray-700 disabled:opacity-40"
+                    className="w-7 h-7 rounded-full bg-white border text-lg leading-7 text-gray-700 disabled:opacity-40 cursor-pointer"
                     disabled={qty <= 0}
-                    aria-label="Disminuir"
+                    aria-label={`Disminuir ${ing.name}`}
                   >
                     −
                   </button>
@@ -155,8 +194,8 @@ export default function ModalIngredientes({
                   <button
                     type="button"
                     onClick={() => inc(ing.id)}
-                    className="w-7 h-7 rounded-full bg-white border text-lg leading-7 text-gray-700"
-                    aria-label="Aumentar"
+                    className="w-7 h-7 rounded-full bg-white border text-lg leading-7 text-gray-700 cursor-pointer"
+                    aria-label={`Aumentar ${ing.name}`}
                   >
                     +
                   </button>
@@ -169,7 +208,7 @@ export default function ModalIngredientes({
         {/* Botón confirmar */}
         <button
           onClick={confirmar}
-          className="w-full mt-4 bg-orange-400 hover:bg-orange-500 text-white py-3 rounded-full font-bold"
+          className="tracking-wide w-full mt-4 cursor-pointer bg-naranja-boton hover:bg-naranja-boton-hover text-white px-4 py-2 rounded-full font-semibold"
         >
           Confirmar ingredientes
         </button>
