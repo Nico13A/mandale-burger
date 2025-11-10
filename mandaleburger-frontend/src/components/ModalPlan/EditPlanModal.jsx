@@ -48,7 +48,7 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-5">
+        <div className="fixed inset-0 flex items-center justify-center z-200 p-5">
             <div className="absolute inset-0 backdrop-blur-sm bg-black/20"></div>
 
             <div className="relative bg-white rounded-2xl p-6 w-full max-w-md shadow-lg z-10">

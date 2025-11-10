@@ -158,7 +158,7 @@ export default function ModalIngredientes({
               >
                 <button
                   onClick={() => toggleCard(ing.id)}
-                  className="focus:outline-none"
+                  className="focus:outline-none flex flex-col space-y-2"
                   title={seleccionado ? "Quitar" : "Seleccionar"}
                   aria-pressed={seleccionado}
                   aria-label={
@@ -170,7 +170,7 @@ export default function ModalIngredientes({
                   <img
                     src={ing.img}
                     alt={ing.name}
-                    className="w-16 h-10 object-contain mx-auto"
+                    className="h-6 w-16 object-contain mx-auto"
                   />
                   <span className="block text-xs text-center font-semibold tracking-wide uppercase">
                     {ing.name}

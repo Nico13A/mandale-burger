@@ -17,13 +17,18 @@ const AdminDashboard = () => {
 
   const { promociones, cargando: cargandoPromos, error: errorPromos } = useListarPromos();
   const { activarPromo, desactivarPromo, cargando: cargandoPromoAccion, error: errorPromoAccion } = usePromocionAdmin();
+
   const [promocionesEstado, setPromocionesEstado] = useState([]);
+  const [planesEstado, setPlanesEstado] = useState([]);
+
+  useEffect(() => {
+    setPlanesEstado(planes);
+  }, [planes]);
   
   useEffect(() => {
-    setPromocionesEstado(promociones)
+    setPromocionesEstado(promociones);
   }, [promociones]);
   
-
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -32,7 +37,7 @@ const AdminDashboard = () => {
   // Editar plan
   // ----------------------------
   const handleEdit = (planId) => {
-    const plan = planes.find(p => p.id === planId);
+    const plan = planesEstado.find((p) => p.id === planId);
     setSelectedPlan(plan);
     setEditModalOpen(true);
   };
@@ -66,7 +71,9 @@ const AdminDashboard = () => {
   const handleDeactivate = async (planId) => {
     try {
       await desactivarPlan(planId);
-      recargar();
+      setPlanesEstado((prev) =>
+        prev.map((p) => (p.id === planId ? { ...p, is_active: false } : p))
+      );
     } catch (err) {
       console.error(err);
     }
@@ -75,7 +82,9 @@ const AdminDashboard = () => {
   const handleActivate = async (planId) => {
     try {
       await activarPlan(planId);
-      recargar();
+      setPlanesEstado((prev) =>
+        prev.map((p) => (p.id === planId ? { ...p, is_active: true } : p))
+      );
     } catch (err) {
       console.error(err);
     }
@@ -147,7 +156,7 @@ const AdminDashboard = () => {
 
       {/* Grilla de planes */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5">
-        {planes.map(plan => (
+        {planesEstado.map(plan => (
           <CardPlanAdmin
             key={plan.id}
             plan={plan}
