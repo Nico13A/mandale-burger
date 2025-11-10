@@ -28,8 +28,10 @@ DEBUG = True
 
 URL_PAGO = config('URL_PAGO')
 URL_PERMITIDA = config('URL_PERMITIDA')
+LOCAL_IP = config('LOCAL_IP')
+IP_MOBILE= config('IP_MOBILE')
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", URL_PERMITIDA]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", URL_PERMITIDA, LOCAL_IP]
 
 # Application definition
 
@@ -185,7 +187,9 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    f"https://{URL_PERMITIDA}",  
+    f"https://{URL_PERMITIDA}",
+    f"http://{LOCAL_IP}:8000",
+    f"http://{IP_MOBILE}:8081", 
 ]
 
 #DJOSER = {

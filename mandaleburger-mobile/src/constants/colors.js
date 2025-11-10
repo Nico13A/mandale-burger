@@ -1,0 +1,10 @@
+export const COLORS = {
+    NARANJA_BOTON: '#FA9A34',
+    NARANJA_BOTON_HOVER: '#E5882B', 
+    
+    GRIS_BOTON: '#212121',
+    GRIS_BOTON_HOVER: '#191919', 
+
+    BACKGROUND: '#F3F4F6',
+
+};
