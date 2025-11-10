@@ -6,19 +6,19 @@ export default function RenderLista({ items = [], seleccion = [], setSeleccion }
   };
 
   return (
-    <div className="h-30 overflow-auto pr-1">
+    <div className="h-30 overflow-auto">
       {items.map((it) => {
         const id = String(it.id);
         const activo = seleccion.includes(id);
         return (
           <label
             key={id}
-            className="flex items-center justify-between py-1.5 px-2 hover:bg-orange-50 rounded"
+            className="flex items-center justify-between rounded-md py-2 pr-2"
           >
-            <span className="text-sm">{it.name}</span>
+            <span className="text-sm text-naranja-boton font-semibold">{it.name}</span>
             <input
               type="checkbox"
-              className="accent-orange-500"
+              className="accent-orange-200"
               checked={activo}
               onChange={() => onToggle(id)}
             />

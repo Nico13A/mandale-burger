@@ -10,6 +10,8 @@ import Spinner from "../../components/Spinner/Spinner";
 import { useNavigate } from "react-router-dom";
 import * as htmlToImage from "html-to-image";
 import { useCarrito } from "../../context/CarritoContext.jsx";
+import Input from "../../components/Input/Input.jsx";
+import Loading from "../../components/Loading/Loading.jsx";
 
 export default function ClientArmarBurger() {
 
@@ -19,19 +21,19 @@ export default function ClientArmarBurger() {
   const { handleCreateCustomerBurger, cargando: creando, error: errorCreacion } = useCreateCustomerBurger();
 
   const [nombre, setNombre] = useState("");
-  //categorías de ingredientes
+  // Categorías de ingredientes
   const catPanes = ingredientes.filter(cat => (cat?.name || "").toLowerCase() === "panes");
   const catMed = ingredientes.filter(med => (med?.name || "").toLowerCase() === "medallones");
   const catAderezos = ingredientes.filter(aderezo => (aderezo?.name || "").toLowerCase() === "aderezos");
   const catPaps = ingredientes.filter(pap => (pap?.name || "").toLowerCase() === "papas");
   const catBebidas = ingredientes.filter(bebi => (bebi?.name || "").toLowerCase() === "bebidas");
 
-  // ingredientes por categoría
+  // Ingredientes por categoría
   const papas = catPaps[0]?.ingredients ?? []
   const aderezos = catAderezos[0]?.ingredients ?? [];
   const bebidas = catBebidas[0]?.ingredients ?? []
 
-  //filtrar ingredientes excluyendo panes, aderezos, papas y bebidas para el ModalIngredientes
+  // Filtrar ingredientes excluyendo panes, aderezos, papas y bebidas para el ModalIngredientes
   const Ingredientes = ingredientes.filter(ing =>
     (ing?.name || "").toLowerCase() !== "panes" &&
     (ing?.name || "").toLowerCase() !== "aderezos" &&
@@ -39,15 +41,15 @@ export default function ClientArmarBurger() {
     (ing?.name || "").toLowerCase() !== "aderezos veganos" &&
     (ing?.name || "").toLowerCase() !== "bebidas"
   );
-  // ingredientes específicos para carrusel
+  // Ingredientes específicos para carrusel
   const panes = catPanes[0]?.ingredients ?? [];
   const medallones = catMed[0]?.ingredients ?? [];
 
-  //igredientes lista plana
+  // Igredientes lista plana
   const ingListaPlana = () =>
     (ingredientes || []).flatMap(cat => cat?.ingredients || []);
 
-  // ids de aderezos seleccionados
+  // Ids de aderezos seleccionados
   const [selAderezos, setSelAderezos] = useState([]);
   const [selPapas, setSelPapas] = useState([]);
   const [selBebidas, setSelBebidas] = useState([]);
@@ -57,7 +59,7 @@ export default function ClientArmarBurger() {
   const navigate = useNavigate();
   const carruselRef = useRef(null);
 
-  // armado final de ingredientes para enviar al backend
+  // Armado final de ingredientes para enviar al backend
   const ingFinal = () => {
     const ingredientesFinales = [];
     ingredientesFinales.push(...ingBu);
@@ -83,7 +85,7 @@ export default function ClientArmarBurger() {
     return ingredientesFinales;
   };
 
-  //calcula el precio total
+  // Calcula el precio total
   useEffect(() => {
     const ingFin = ingListaPlana();
     const idx = new Map(ingFin.map(i => [Number(i.id), Number(i.price ?? 0)]));
@@ -101,17 +103,17 @@ export default function ClientArmarBurger() {
 
   const validateBurger = () => {
     if (!nombre?.trim()) {
-      toast.error("Ingresá un nombre para la burger");
+      toast.error("Ingresá un nombre para la burger", {autoClose: 2000});
       return false;
     }
     const list = ingFinal();
     if (!list.length) {
-      toast.error("Seleccioná al menos un ingrediente");
+      toast.error("Seleccioná al menos un ingrediente", {autoClose: 2000});
       return false;
     }
     return true;
   };
-  // limpiar localStorage
+  // Limpiar localStorage
   const clearKeys = (keys) => {
     keys.forEach(k => { try { localStorage.removeItem(k); } catch { } });
   };
@@ -192,7 +194,7 @@ export default function ClientArmarBurger() {
       navigate("/client/carrito");
     } catch (err) {
       const msg = err?.non_field_errors?.[0] || err?.detail || err?.message || "No se pudo crear la burger";
-      toast.error(msg, { autoClose: 3500 });
+      toast.error(msg, { autoClose: 2000 });
     }
   };
 
@@ -204,7 +206,7 @@ export default function ClientArmarBurger() {
     }
   };
 
-  if (cargando) return <div>Cargando…</div>;
+  if (cargando) return <Loading />;
   if (error) return <div className="text-red-600">Error: {String(error)}</div>;
 
   return (
@@ -218,31 +220,33 @@ export default function ClientArmarBurger() {
           onChange={handleCarruselChange}
         />
       </div>
-      <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 max-w-2xl">
+      <div className="bg-white p-6 rounded-lg shadow-md w-1/3 max-w-2xl">
         <form onSubmit={handleArmarBurger} className="w-full flex flex-col gap-4">
-          <label className="block text-sm font-medium">
-            Nombre Burger
-            <input
+          <div className="flex flex-col gap-1">
+            <label htmlFor="nombre-burger" className="font-semibold">Nombre burger</label>
+            <Input
+              id="nombre-burger"
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              className="mt-1 w-full border rounded px-3 py-2"
               placeholder="Ej: La Mandale Clásica"
             />
-          </label>
-          <label className="block text-sm font-medium">
-            Descripcion
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="descripcion-burger" className="font-semibold">Descripción</label>
             <textarea
+              id="descripcion-burger"
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              className="mt-1 w-full h-20 border rounded px-3 py-2"
-              placeholder="Danos una pequeña descripcion de tu burger"
+              className="w-full px-4 py-3 border border-gray-300 rounded-md shadow-none focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-300 transition placeholder-gray-400 text-sm md:text-base h-24 resize-none"
+              placeholder="Danos una pequeña descripción de tu burger"
             />
-          </label>
-          <div className="flex gap-4 border border-black p-2">
+          </div>
+
+          <div className="mt-2 flex space-x-2 border border-gray-300 rounded-md px-4 py-3 bg-white shadow-none transition focus-within:ring-2">
             {/* Selección de aderezos */}
             <div className="w-1/3">
-              <label className="block text-sm font-medium mb-2">Aderezos</label>
+              <p className="text-sm font-semibold mb-2">Aderezos</p>
               {!aderezos.length ? (
                 <div className="text-xs text-gray-500">No hay aderezos</div>
               ) : (
@@ -256,7 +260,7 @@ export default function ClientArmarBurger() {
 
             {/* Papas */}
             <div className="w-1/3">
-              <label className="block text-sm font-medium mb-2">Papas</label>
+              <p className="text-sm font-semibold mb-2">Papas</p>
               {!papas.length ? (
                 <div className="text-xs text-gray-500">Sin papas</div>
               ) : (
@@ -270,7 +274,7 @@ export default function ClientArmarBurger() {
 
             {/* Bebidas */}
             <div className="w-1/3">
-              <label className="block text-sm font-medium mb-2">Bebidas</label>
+              <p className="text-sm font-semibold mb-2">Bebidas</p>
               {!bebidas.length ? (
                 <div className="text-xs text-gray-500">Sin bebidas</div>
               ) : (
@@ -283,16 +287,16 @@ export default function ClientArmarBurger() {
             </div>
           </div>
           <div>
-            <div className="w-full flex items-center justify-end gap-3 mt-4 mb-4">
-              <label className="text-lg font-semibold whitespace-nowrap">Total:</label>
-              <div className="w-1/3 border rounded px-3 py-2 bg-gray-100 text-right font-semibold">
+            <div className="w-full flex items-center justify-end gap-2 mt-2 mb-4">
+              <p className="text-lg font-semibold whitespace-nowrap" id="label-total-burger">Total</p>
+              <div className="border border-gray-300 rounded-md px-4 py-3 bg-white shadow-none transition focus-within:ring-2 text-right font-medium" role="status" aria-labelledby="label-total-burger">
                 ${totalPrice}
               </div>
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-naranja-boton hover:bg-naranja-boton-hover text-white shadow-md flex items-center justify-center disabled:opacity-50"
+              className="bg-naranja-boton hover:bg-naranja-boton-hover disabled:opacity-50"
               disabled={creando || loadingCarrito}
             >
               {creando || loadingCarrito ? <Spinner /> : "Crear hamburguesa"}
