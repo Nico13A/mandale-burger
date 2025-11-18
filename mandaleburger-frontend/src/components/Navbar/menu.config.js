@@ -7,10 +7,12 @@ import {
   BoltIcon,
   UserGroupIcon
 } from "@heroicons/react/24/solid";
+import { Hamburger } from "lucide-react"; 
 
 export const MENUS = {
   Client: [
     { key: "Inicio", label: "Inicio", icon: HomeIcon },
+    { key: "misBurgers", label: "Mis\u00A0Burgers", icon: Hamburger },
     { key: "Carrito", label: "Carrito", icon: ShoppingCartIcon, hideLabel: true },
     { key: "Pedidos", label: "Pedidos", icon: ClipboardDocumentListIcon },
     { key: "Perfil", label: "Perfil", icon: UserIcon },

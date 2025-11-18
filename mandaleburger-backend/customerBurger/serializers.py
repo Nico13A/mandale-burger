@@ -64,6 +64,8 @@ class CustomBurgerSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
 
+    is_owner = serializers.SerializerMethodField()
+
     class Meta:
         model = CustomBurger
         fields = [
@@ -77,7 +79,14 @@ class CustomBurgerSerializer(serializers.ModelSerializer):
             'username',
             'ingredients',
             'ingredients_data',
+            'is_owner',
         ]
+
+    def get_is_owner(self, obj):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        return obj.user_id == request.user.id
 
     def _get_ingredients_payload(self):
         if 'ingredients_data' not in self.initial_data:

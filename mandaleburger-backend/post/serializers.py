@@ -1,22 +1,33 @@
 from rest_framework import serializers
 from django.utils import timezone
-from .models import Publication, Comment
+from .models import Publication, Comment, Rating
+from customerBurger.models import CustomBurger
+from rest_framework.exceptions import ValidationError
+
+
+class CustomBurgerMiniSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='custom_name')
+    price = serializers.DecimalField(
+        source='total_price',
+        max_digits=10,
+        decimal_places=2
+    )
+
+    class Meta:
+        model = CustomBurger
+        fields = ['id', 'name', 'img', 'price']
+
+# =======================
+# Comment
+# =======================
 
 class CommentSerializer(serializers.ModelSerializer):
-    user_display = serializers.SerializerMethodField(read_only=True)
+    user_display = serializers.CharField(source='user.get_full_name', read_only=True)
 
     class Meta:
         model = Comment
-        fields = [
-            'id', 'publication', 'user', 'user_display',
-            'comment_text', 'comment_date'
-        ]
-
+        fields = ['id', 'publication', 'user', 'user_display', 'comment_text', 'comment_date']
         read_only_fields = ['id', 'user', 'comment_date', 'publication']
-
-    def get_user_display(self, obj):
-        #  username en el front sin otra consulta
-        return getattr(obj.user, 'username', str(obj.user_id))
 
     def validate_comment_text(self, value):
         if not value or not value.strip():
@@ -26,40 +37,36 @@ class CommentSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        """
-        La vista setea en el context:
-          - request
-          - publication (objeto Publication)
-        """
         request = self.context['request']
         publication = self.context['publication']
         validated_data['user'] = request.user
         validated_data['publication'] = publication
-        validated_data['comment_date'] = timezone.now()
+        
         return super().create(validated_data)
 
 
-# ==== Publicaciones ====
+# =======================
+# Publication (base única)
+# =======================
 
-class PublicationBaseSerializer(serializers.ModelSerializer):
-    """
-    Base con utilidades comunes (image_url, user_display, validaciones).
-    Heredan de esta: List y Detail.
-    """
-    user_display = serializers.SerializerMethodField(read_only=True)
-    image = serializers.ImageField(required=False, allow_null=True)
-    image_url = serializers.SerializerMethodField(read_only=True)
-
+class PublicationSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    username = serializers.CharField(source='user.username', read_only=True)
+    image_url = serializers.URLField(required=False, allow_blank=True, allow_null=True)
+    custom_burger_id = serializers.PrimaryKeyRelatedField(
+        source='custom_burger',               
+        queryset=CustomBurger.objects.all(),
+        required=False,
+        allow_null=True
+    )
     class Meta:
         model = Publication
         fields = [
             'id', 'title', 'description', 'publication_date',
-            'custom_burger_id', 'user', 'user_display',
-            'image', 'image_url',
+            'custom_burger_id', 'user_id', 'username', 'image_url',
         ]
-        read_only_fields = ['id', 'publication_date', 'user', 'image_url']
+        read_only_fields = ['id', 'publication_date', 'user_id', 'username']
 
-   
     def validate_title(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError("El título es obligatorio.")
@@ -68,46 +75,125 @@ class PublicationBaseSerializer(serializers.ModelSerializer):
         return value
 
     def validate_description(self, value):
-        # opcional, pero evita textos enormes
         if value and len(value) > 4000:
             raise serializers.ValidationError("Máximo 4000 caracteres.")
         return value
 
-    def validate_image(self, img):
-        # límites razonables para dev. Ajustá si querés.
-        if not img:
-            return img
-        if img.size > 5 * 1024 * 1024:
-            raise serializers.ValidationError("La imagen no puede superar 5MB.")
-        valid_types = {'image/jpeg', 'image/png', 'image/webp'}
-        if getattr(img, 'content_type', None) not in valid_types:
-            raise serializers.ValidationError("Solo JPG, PNG o WEBP.")
-        return img
+    def validate_image_url(self, value):
+        if not value:
+            return value
+        if not (value.startswith('http://') or value.startswith('https://')):
+            # Si querés aceptar '/media/...', relajá esta regla.
+            raise serializers.ValidationError("Debe ser una URL válida (http/https).")
+        return value
+        
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
 
-    # --------- Helpers de presentación ----------
-    def get_user_display(self, obj):
-        return getattr(obj.user, 'username', str(obj.user_id))
-
-    def get_image_url(self, obj):
-        if not obj.image:
-            return None
         request = self.context.get('request')
-        url = obj.image.url
-        return request.build_absolute_uri(url) if request else url
+        if not request or request.user.is_anonymous:
+            return attrs
+
+        burger = attrs.get('custom_burger')
+        if burger is not None:
+            qs = Publication.objects.filter(
+                user=request.user,
+                custom_burger=burger
+            )
+            # Si estoy editando, excluir esta misma publicación
+            if self.instance is not None:
+                qs = qs.exclude(pk=self.instance.pk)
+
+            if qs.exists():
+                raise ValidationError({
+                    "already_published": "Ya publicaste esta burger."
+                })
+
+        return attrs
 
 
-class PublicationListSerializer(PublicationBaseSerializer):
-    comments_count = serializers.IntegerField(source='comments.count', read_only=True)
+# =======================
+# List / Detail
+# =======================
 
-    class Meta(PublicationBaseSerializer.Meta):
-        fields = PublicationBaseSerializer.Meta.fields + ['comments_count']
+class PublicationListSerializer(PublicationSerializer):
+    comments_count = serializers.SerializerMethodField()
+    burger = CustomBurgerMiniSerializer(
+        source='custom_burger',  # nombre del FK en Publication
+        read_only=True
+    )
+    average_score = serializers.FloatField(read_only=True)      
+    ratings_count = serializers.IntegerField(read_only=True)  
 
+    class Meta(PublicationSerializer.Meta):
+        fields = PublicationSerializer.Meta.fields + [
+            'comments_count',
+            'burger',
+            'average_score',   
+            'ratings_count',  
+        ]
 
-class PublicationDetailSerializer(PublicationBaseSerializer):
-    
+    def get_comments_count(self, obj):
+        return obj.comments.count()
+
+class PublicationDetailSerializer(PublicationSerializer):
     comments = CommentSerializer(many=True, read_only=True)
+    user_score = serializers.SerializerMethodField()
 
-    class Meta(PublicationBaseSerializer.Meta):
-        fields = PublicationBaseSerializer.Meta.fields + ['comments']
+    class Meta(PublicationSerializer.Meta):
+        fields = PublicationSerializer.Meta.fields + ['comments', 'user_score']
 
-    
+    def get_user_score(self, obj):
+        request = self.context.get('request')
+
+        if not request or not request.user or not request.user.is_authenticated:
+            return None
+
+        rating = (
+            Rating.objects
+            .filter(publication=obj, user=request.user)
+            .first()
+        )
+
+        return rating.score if rating else None
+
+# =======================
+# calificacion
+# =======================
+
+class RatingSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    publication_id = serializers.IntegerField(source='publication.id', read_only=True)
+
+    class Meta:
+        model = Rating
+        fields = ['id', 'publication_id', 'user_id', 'user', 'score', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'publication_id', 'user_id', 'user', 'created_at', 'updated_at']
+
+    def validate_score(self, value):
+        if not 1 <= value <= 5:
+            raise ValidationError("La puntuación debe estar entre 1 y 5.")
+        return value
+
+    def create(self, validated_data):
+        """
+        Creamos o actualizamos la puntuación de este usuario para esta publicación.
+        La publicación la vamos a pasar desde la vista (no desde el front).
+        """
+        request = self.context.get('request')
+        publication = self.context.get('publication')
+
+        if not request or not request.user or not request.user.is_authenticated:
+            raise ValidationError({"user": "Debes estar autenticado para puntuar."})
+
+        if not publication:
+            raise ValidationError({"publication": "No se pudo determinar la publicación."})
+
+        score = validated_data['score']
+        rating, created = Rating.objects.update_or_create(
+            publication=publication,
+            user=request.user,
+            defaults={'score': score}
+        )
+        return rating

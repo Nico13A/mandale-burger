@@ -18,8 +18,56 @@ import "react-toastify/dist/ReactToastify.css";
 import { useMercadoPago } from "../../hooks/useMercadoPago";
 
 import { useListarPromos } from "../../hooks/useListarPromos";
+import { useListaPost } from "../../hooks/useListPost";
 
 const ClientDashboard = () => {
+
+const {
+    listaPost,
+    cargando: cargandoPost,
+    error: errorPost,
+    handleListarPost,
+} = useListaPost();
+
+useEffect(() => {
+    handleListarPost();
+}, []);
+
+  const [burgers, setBurgers] = useState([]);
+
+useEffect(() => {
+  const postsArray = Array.isArray(listaPost)
+    ? listaPost
+    : listaPost?.results || [];
+
+  const soloBurgers = postsArray
+    .map((post) => post.burger)
+    .filter(Boolean);
+
+  const verMas = {
+    id: "ver-mas",
+    name: "Ver más…",
+    img: "http://localhost:8000/media/ingredients/mas.png",
+    price: "Ver más…  ->",
+    isVerMas: true,
+  };
+
+  const MAX_PREVIEW = 4;
+  let resultado = soloBurgers.slice(0, MAX_PREVIEW);
+
+  resultado = [...resultado, verMas];
+
+  setBurgers(resultado);
+}, [listaPost]);
+
+ const handleClickBurgerPublicada = (id) => {
+    if (id === "ver-mas") {
+      navigate("/client/posts");
+    } else {
+      navigate(`/client/burger/${id}`);
+    }
+  };
+
   const {
     suscripcionActual,
     setSuscripcionActual,
@@ -110,13 +158,14 @@ const ClientDashboard = () => {
       )}
 
       <SwiperSection
-        title="Lo más vendido"
-        items={hamburguesas}
+        title="Burgers publicadas"
+        items={burgers}
         prevRef={prevRefTop}
         nextRef={nextRefTop}
         isBeginning={isBeginningTop}
         isEnd={isEndTop}
         onSwiper={onSwiperTop}
+        onClickItem={handleClickBurgerPublicada}
       />
 
       <section className="mt-6">

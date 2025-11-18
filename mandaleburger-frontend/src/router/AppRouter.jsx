@@ -29,6 +29,8 @@ import PostDetail from "../pages/Client/PostDetail";
 import PromoDetalle from "../pages/Client/PromoDetalle";
 import Pedidos from "../pages/Client/Pedidos";
 import ClientArmarBurger from "../pages/Client/ClientArmarBurger";
+import MisBurgers from "../pages/Client/misBurgers";
+import BurgerDetalle from "../pages/Client/BurgerDetalle";
 
 // PUBLIC
 import Login from "../pages/Login";
@@ -97,7 +99,8 @@ const AppRouter = () => {
           <Route path="/client/carrito" element={<Carrito />} />
           <Route path="/client/pedidos" element={<Pedidos />} />
           <Route path="/client/armar" element={<ClientArmarBurger />} />
-
+          <Route path="client/misBurgers" element={<MisBurgers/>} />
+          <Route path="client/Burger/:id" element={<BurgerDetalle/>}/>
 
 
 

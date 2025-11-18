@@ -57,9 +57,15 @@ class CartViewSet(viewsets.ViewSet):
             promotion = get_object_or_404(PromotionBurger, id=promotion_id)
             item, created = CartItem.objects.get_or_create(cart=cart, promotion=promotion)
         else:
-            custom_burger = get_object_or_404(CustomBurger, id=custom_burger_id, user=request.user)
-            item, created = CartItem.objects.get_or_create(cart=cart, custom_burger=custom_burger)
-
+            custom_burger = get_object_or_404(
+                CustomBurger,
+                id=custom_burger_id,
+                
+            )
+            item, created = CartItem.objects.get_or_create(
+                cart=cart,
+                custom_burger=custom_burger
+            )
         if not created:
             item.quantity += quantity
         else:

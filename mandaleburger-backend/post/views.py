@@ -1,89 +1,181 @@
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.parsers import JSONParser
 from django.shortcuts import get_object_or_404
-
-from .models import Publication, Comment
+from subscription.models import UserSubscription
+from .models import Publication, Comment, Rating
+from django.utils import timezone
+from datetime import date, timedelta
+from rest_framework.exceptions import ValidationError
 from .serializers import (
     PublicationListSerializer,
     PublicationDetailSerializer,
     CommentSerializer,
 )
+from .serializers import RatingSerializer
+from usuario.permissions import IsInGroup 
+from django.db.models import Avg, Count, F
+from .pagination import StandardResultsSetPagination
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    """
-    Permite lectura a cualquiera; escritura solo al dueño del objeto.
-    Sirve para proteger PUT/PATCH/DELETE.
-    """
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return getattr(obj, "user_id", None) == getattr(request.user, "id", None)
-
-
-class PublicationViewSet(viewsets.ModelViewSet):
-    """
-    /api/publications/            (GET, POST)
-    /api/publications/{id}/       (GET, PUT, PATCH, DELETE)
-    /api/publications/{id}/comments/        (POST)   -> crear comentario del post
-    /api/publications/{id}/list_comments/   (GET)    -> listar comentarios del post
-    """
-    queryset = (
-        Publication.objects
-        .select_related('user')
-        .prefetch_related('comments')  
-        .all()
+def _enforce_publication_quota(user):
+    sub = (
+        UserSubscription.objects
+        .select_related('plan')
+        .filter(user=user, is_active=True, end_date__gte=date.today()) 
+        .order_by('-id')
+        .first()
     )
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    parser_classes = [MultiPartParser, FormParser, JSONParser]  
+    if not sub:
+        raise ValidationError({"subscription": "Necesitás un plan activo para publicar."})
+    try:
+        limit = int(getattr(sub.plan, 'max_monthly_publications', 0))
+    except (TypeError, ValueError):
+        limit = 0
+    if limit <= 0:
+        return
 
-    def get_serializer_class(self):
-        # Detalle con comentarios anidados
-        return PublicationDetailSerializer if self.action == 'retrieve' else PublicationListSerializer
+    now = timezone.now()
+    period_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    period_end = (period_start + timedelta(days=32)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    usados = Publication.objects.filter(
+        user=user,
+        publication_date__gte=period_start,
+        publication_date__lt=period_end,
+    ).count()
+
+    if usados >= limit:
+        raise ValidationError({
+            "quota": f"Alcanzaste tu cupo mensual de ({limit}) publicaciones ."
+        })
+
+# ========== PUBLICATIONS ==========
+
+# LIST
+class PublicationListView(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
+    parser_classes = [JSONParser]
+    serializer_class = PublicationListSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        return (Publication.objects
+                .select_related('user')
+                .prefetch_related('comments', 'comments__user')
+                .annotate(
+                    average_score=Avg('ratings__score'),            
+                    ratings_count=Count('ratings', distinct=True),
+                )
+                .order_by(
+                    F('average_score').desc(nulls_last=True),
+                    '-publication_date',
+                )
+            )
+
+# CREATE
+class PublicationCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [JSONParser]
+    serializer_class = PublicationDetailSerializer
 
     def perform_create(self, serializer):
-        # El “creador” es el usuario autenticado del token
+        _enforce_publication_quota(self.request.user)
         serializer.save(user=self.request.user)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def comments(self, request, pk=None):
-        """
-        Crear un comentario para ESTA publicación.
-        Body: { "comment_text": "..." }
-        """
-        publication = get_object_or_404(Publication, pk=pk)
-        ser = CommentSerializer(
+        
+# RETRIEVE (detalle, lectura pública)
+class PublicationRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [permissions.AllowAny]
+    parser_classes = [JSONParser]
+    serializer_class = PublicationDetailSerializer
+
+    queryset = (Publication.objects
+                .select_related('user')
+                .prefetch_related('comments', 'comments__user')
+                .all())
+
+# UPDATE (PUT/PATCH) — sólo dueño o Admin
+class PublicationUpdateView(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [JSONParser]
+    serializer_class = PublicationDetailSerializer
+
+    def get_queryset(self):
+        qs = Publication.objects.all()
+        user = self.request.user
+        if user.groups.filter(name='AppAdmin').exists():
+            return qs
+        return qs.filter(user=user)
+
+# DELETE — sólo dueño o Admin
+class PublicationDeleteView(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [JSONParser]
+    serializer_class = PublicationDetailSerializer
+
+    def get_queryset(self):
+        qs = Publication.objects.all()
+        user = self.request.user
+        if user.groups.filter(name='AppAdmin').exists():
+            return qs
+        return qs.filter(user=user)
+
+# ========== COMMENTS ==========
+
+# LIST de comentarios de una publicación
+class PublicationCommentListView(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        return (Comment.objects
+                .select_related('user', 'publication')
+                .filter(publication_id=self.kwargs['pk'])
+                .order_by('-comment_date'))
+
+# CREATE comentario para una publicación
+class PublicationCommentCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [JSONParser]
+    serializer_class = CommentSerializer
+
+    def create(self, request, *args, **kwargs):
+        publication = get_object_or_404(Publication, pk=kwargs['pk'])
+        ser = self.get_serializer(
             data=request.data,
             context={'request': request, 'publication': publication}
         )
         ser.is_valid(raise_exception=True)
-        ser.save()
+        self.perform_create(ser)
         return Response(ser.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
-    def list_comments(self, request, pk=None):
-        """
-        Listar comentarios de ESTA publicación.
-        """
-        qs = Comment.objects.select_related('user').filter(publication_id=pk)
-        ser = CommentSerializer(qs, many=True)
-        return Response(ser.data)
+#crea y actualiza la calificacion
 
+class PublicationRatingCreateUpdateView(generics.CreateAPIView):
+    serializer_class = RatingSerializer
+    permission_classes = [permissions.IsAuthenticated, IsInGroup]
+    allowed_groups = ['Client', 'AppAdmin']
 
-class CommentViewSet(viewsets.ModelViewSet):
-    """
-    /api/comments/            (GET lista general, POST directo opcional)
-    /api/comments/{id}/       (GET, PUT, PATCH, DELETE)
-    Nota: para crear desde la publicación usar /publications/{id}/comments/
-    """
-    queryset = Comment.objects.select_related('user', 'publication').all()
-    serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    def get_publication(self):
+        return get_object_or_404(Publication, pk=self.kwargs['pk'])
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['publication'] = self.get_publication()
+        return context
 
     def perform_create(self, serializer):
-        """
-        Soporte opcional: permitir POST directo a /api/comments/ con 'publication' en el body.
-        Igual setea el user del token.
-        """
-        serializer.save(user=self.request.user)
+        serializer.save()
+
+#  LIST de todas las calificaciones de una publicación
+class PublicationRatingListView(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = RatingSerializer
+
+    def get_queryset(self):
+        return (
+            Rating.objects
+            .select_related('user', 'publication')
+            .filter(publication_id=self.kwargs['pk'])
+            .order_by('-created_at')
+        )
