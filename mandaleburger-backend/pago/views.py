@@ -19,11 +19,13 @@ from django.db import transaction
 
 # -------------------- CREAR PREFERENCIA DE PAGO --------------------
 class CrearPreferenciaPagoView(APIView):
-
+    
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         plan_id = request.data.get("plan_id")
+        is_mobile = request.data.get("mobile", False)  
+
         if not plan_id:
             return Response({"error": "plan_id es requerido"}, status=400)
 
@@ -33,9 +35,7 @@ class CrearPreferenciaPagoView(APIView):
             return Response({"error": "Plan no encontrado o inactivo"}, status=404)
 
         sdk = mercadopago.SDK(settings.MERCADO_PAGO_ACCESS_TOKEN)
-
         BASE_URL = settings.URL_PAGO
-
         NOTIFICATION_URL = f"{BASE_URL}/api/pago/webhooks/mercadopago/"
 
         preference_data = {
@@ -44,33 +44,22 @@ class CrearPreferenciaPagoView(APIView):
             ],
             "payer": {"email": request.user.email},
             "external_reference": str(request.user.id),
-            
             "notification_url": NOTIFICATION_URL,
-
-            "back_urls": {
-                "success": f"{BASE_URL}/api/pago/success/",
-            },
-
-            "auto_return": "approved",
-            
-            "metadata": {
-                "plan_id": plan.id, 
-            },
+            "metadata": {"plan_id": plan.id},
         }
+
+        if not is_mobile:
+            preference_data["back_urls"] = {"success": f"{BASE_URL}/api/pago/success/"}
+            preference_data["auto_return"] = "approved"
 
         print("Datos enviados a Mercado Pago:", json.dumps(preference_data, indent=2))
 
         try:
             preference_response = sdk.preference().create(preference_data)
             init_point = preference_response["response"]["init_point"]
-
-            print(
-                "Respuesta de Mercado Pago:", json.dumps(preference_response, indent=2)
-            )
+            print("Respuesta de Mercado Pago:", json.dumps(preference_response, indent=2))
         except Exception as e:
-            return Response(
-                {"error": f"No se pudo crear la preferencia: {str(e)}"}, status=500
-            )
+            return Response({"error": f"No se pudo crear la preferencia: {str(e)}"}, status=500)
 
         return Response({"init_point": init_point}, status=200)
 
@@ -81,6 +70,8 @@ class CrearPreferenciaPedidoView(APIView):
 
     def post(self, request):
         order_id = request.data.get("order_id")
+        is_mobile = request.data.get("mobile", False) 
+
         if not order_id:
             return Response({"error": "order_id es requerido"}, status=400)
 
@@ -90,7 +81,6 @@ class CrearPreferenciaPedidoView(APIView):
             return Response({"error": "Pedido no encontrado o ya procesado"}, status=404)
 
         sdk = mercadopago.SDK(settings.MERCADO_PAGO_ACCESS_TOKEN)
-
         BASE_URL = settings.URL_PAGO
         NOTIFICATION_URL = f"{BASE_URL}/api/pago/webhooks/mercadopago/"
 
@@ -105,15 +95,15 @@ class CrearPreferenciaPedidoView(APIView):
             "payer": {"email": request.user.email},
             "external_reference": f"order_{order.id}",
             "notification_url": NOTIFICATION_URL,
-            "back_urls": {
-                "success": f"{BASE_URL}/api/pago/success/",
-            },
-            "auto_return": "approved",
             "metadata": {
                 "order_id": order.id,
                 "type": "order"
             },
         }
+
+        if not is_mobile:
+            preference_data["back_urls"] = {"success": f"{BASE_URL}/api/pago/success/"}
+            preference_data["auto_return"] = "approved"
 
         try:
             preference_response = sdk.preference().create(preference_data)

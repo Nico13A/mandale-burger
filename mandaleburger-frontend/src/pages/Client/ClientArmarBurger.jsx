@@ -296,7 +296,7 @@ export default function ClientArmarBurger() {
 
             <Button
               type="submit"
-              className="bg-naranja-boton hover:bg-naranja-boton-hover disabled:opacity-50"
+              className="flex items-center justify-center bg-naranja-boton hover:bg-naranja-boton-hover disabled:opacity-50"
               disabled={creando || loadingCarrito}
             >
               {creando || loadingCarrito ? <Spinner /> : "Crear hamburguesa"}

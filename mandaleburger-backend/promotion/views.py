@@ -6,6 +6,7 @@ from .models import PromotionBurger, PromotionSubscription
 from .serializers import PromotionBurgerSerializer, PromotionSubscriptionSerializer
 from usuario.permissions import IsInGroup
 from subscription.models import SubscriptionPlan
+from django.utils import timezone
 
 # -------------------------
 # Crear promoción
@@ -92,7 +93,9 @@ class PromotionBurgerListView(generics.ListAPIView):
         if user.groups.filter(name='AppAdmin').exists():
             return PromotionBurger.objects.prefetch_related('ingredients__ingredient').all()
         else:
-            active_subscriptions = user.usersubscription_set.filter(is_active=True)
+            active_subscriptions = user.usersubscription_set.filter(
+                end_date__gte=timezone.now()
+            )
             plan_ids = [sub.plan.id for sub in active_subscriptions]
             return PromotionBurger.objects.prefetch_related('ingredients__ingredient').filter(
                 promotionsubscription__subscription_id__in=plan_ids,

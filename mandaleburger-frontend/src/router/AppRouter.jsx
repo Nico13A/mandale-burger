@@ -32,6 +32,7 @@ import ClientArmarBurger from "../pages/Client/ClientArmarBurger";
 import MisBurgers from "../pages/Client/misBurgers";
 import BurgerDetalle from "../pages/Client/BurgerDetalle";
 
+
 // PUBLIC
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -101,6 +102,7 @@ const AppRouter = () => {
           <Route path="/client/armar" element={<ClientArmarBurger />} />
           <Route path="client/misBurgers" element={<MisBurgers/>} />
           <Route path="client/Burger/:id" element={<BurgerDetalle/>}/>
+          <Route path="/client/profile" element={<Profile />} />
 
 
 

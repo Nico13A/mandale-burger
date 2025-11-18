@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";             
 import { useListaBurger } from "../../hooks/useListarBurger";
 import { Eye } from "lucide-react"
+import Loading from "../../components/Loading/Loading";
 
 export default function MisBurgers() {
   
@@ -14,8 +15,8 @@ export default function MisBurgers() {
 
   useEffect(() => { handleListarBurger(); }, []);
 
-  if (cargando) return <div>Cargando…</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (cargando) return <Loading />;
+  if (error) return <p className="text-center text-red-500 mt-4">Error: {error}</p>;
 
   return (
     <div className="pb-25 mx-auto md:pb-0 md:min-w-3xl md:max-w-3xl lg:min-w-4xl xl:min-w-6xl xl:max-w-6xl">

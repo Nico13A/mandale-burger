@@ -61,5 +61,11 @@ class UserSubscription(models.Model):
         profile.save()
 
     def check_expiration(self):
-        if self.is_active and self.end_date and self.end_date < date.today():
+        if not self.is_active:
+            return False 
+        if not self.end_date:
+            return False 
+        if self.end_date < date.today():
             self.deactivate()
+            return True
+        return False
