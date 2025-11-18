@@ -24,6 +24,7 @@ export default function PostDetail() {
     rate,
   } = usePublicationRating(post?.user_score || 0);
 
+
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [promedio, setPromedio] = useState(null);
@@ -67,7 +68,6 @@ useEffect(() => {
 
   if (cargando) return <Loading />;
   if (!post) return <p className="text-center text-red-500 mt-4">Error: {error}</p>;
-
   return (
     <div className="px-4 md:px-5">
       <div className="max-w-5xl mx-auto">
@@ -144,7 +144,17 @@ useEffect(() => {
               <h1 className="text-2xl font-bold">{post.title}</h1>
               <p className="text-sm text-gray-600">
                 Fecha de publicación: {post.user_display}{" "}
-                {new Date(post.publication_date).toLocaleString("es-AR")}
+                {/*new Date(post.publication_date).toLocaleString("es-AR")*/}
+                
+                {new Intl.DateTimeFormat("es-AR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                    hourCycle: "h23",
+                    timeZone: "America/Argentina/Buenos_Aires",
+                }).format(new Date(post.publication_date))} hs
               </p>
               {post.description && (
                 <p className="mt-2 text-gray-800 whitespace-pre-line">
@@ -161,7 +171,15 @@ useEffect(() => {
                   <li key={c.id} className="border rounded p-2 bg-white">
                     <p className="text-sm text-gray-600">
                       {c.user_display} —{" "}
-                      {new Date(c.comment_date).toLocaleString("es-AR")}
+                      {new Intl.DateTimeFormat("es-AR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
+                        hourCycle: "h23",
+                        timeZone: "America/Argentina/Buenos_Aires",
+                    }).format(new Date(c.comment_date))} hs
                     </p>
                     <p>{c.comment_text}</p>
                   </li>
