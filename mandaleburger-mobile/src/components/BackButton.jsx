@@ -8,7 +8,7 @@ export default function BackButton({ style }) {
 
     return (
         <TouchableOpacity
-            style={[styles.button, style]}
+            style={[style]}
             onPress={() => navigation.goBack()}
             activeOpacity={0.7}
         >
@@ -21,11 +21,5 @@ export default function BackButton({ style }) {
     );
 }
 
-const styles = StyleSheet.create({
-    button: {
-        position: "absolute",
-        top: 60,
-        left: 24,
-    },
-});
+
 

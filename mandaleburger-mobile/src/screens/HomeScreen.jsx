@@ -1,45 +1,209 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, AppState } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuth } from "../hooks/useAuth"; 
-import Button from "../components/Button"; 
+import { COLORS } from "../constants/colors";
+import { Ionicons } from "@expo/vector-icons";
+import CardPlan from "../components/CardPlan";
+import { useCocineroDia } from "../hooks/useCocineroDia";
+import { useEffect, useState } from "react";
+import CocineroModal from "../components/CocineroModal";
+import { usePlanes } from "../hooks/usePlanes";
+import { useSuscripcion } from "../hooks/useSuscripcion";
+import { usePagarPlan } from "../hooks/usePagarPlan";
+import { mostrarToast } from "../utils/mostrarToast";
+import { usePromociones } from "../hooks/usePromociones";
+import CardPromotion from "../components/CardPromotion";
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomeScreen() {
-    const { user, logout } = useAuth(); 
-    
+
+    const navigation = useNavigation();
+
+    const [visible, setVisible] = useState(false);
+    const { cocinero, cargando, error, cargar } = useCocineroDia();
+    const { planes, cargarPlanes } = usePlanes();
+    const { suscripcion, cargarSuscripcionActiva } = useSuscripcion();
+    const { pagarPlan } = usePagarPlan();
+    const { promociones } = usePromociones();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await cargarPlanes();
+            await cargarSuscripcionActiva();
+        };
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        const subscription = AppState.addEventListener("change", (nextAppState) => {
+            if (nextAppState === "active") {
+                cargarSuscripcionActiva();
+            }
+        });
+        return () => subscription.remove();
+    }, []);
+
+
+    const handleVerCocinero = async () => {
+        setVisible(true);
+        await cargar();
+    }
+
+    const handlePagarSuscripcion = async (planId) => {
+        if (suscripcion) {
+            mostrarToast("error", "Atención", "Ya tenes un plan activo");
+            return;
+        }
+        try {
+            await pagarPlan(planId);
+        } catch (error) {
+            console.error(error);
+            mostrarToast("error", "Error", "No se pudo iniciar el pago");
+        }
+    }
+
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>
-                ¡Bienvenido/a, {user?.username || 'Usuario'}!
-            </Text>
-            <Text style={styles.subtitle}>
-                Esta es la pantalla principal.
-            </Text>
+            <ScrollView contentContainerStyle={styles.scrollContent}>
+                <View style={styles.blackBox}>
+                    <View style={styles.headerRow}>
+                        <Ionicons name="notifications-outline" size={26} color="#fff" />
+                    </View>
+                    <TextInput
+                        placeholder="Ingrese la hamburguesa que busca..."
+                        placeholderTextColor="#ccc"
+                        style={styles.input}
+                    />
+                </View>
 
-            <View style={{ marginTop: 50, width: '80%' }}>
-                <Button
-                    title="Cerrar Sesión"
-                    onPress={logout}
-                />
-            </View>
+                <TouchableOpacity style={styles.cocineroBtn} onPress={handleVerCocinero} activeOpacity={0.8}>
+                    <Text style={styles.cocineroBtnText}>Ver cocinero del día</Text>
+                </TouchableOpacity>
+
+                {planes.length > 0 && (
+                    <>
+                        <Text style={{
+                            fontSize: 20,
+                            fontWeight: "700",
+                            marginLeft: 20,
+                            marginBottom: 10,
+                            color: COLORS.GRIS_BOTON_HOVER
+                        }}>
+                            Nuestros planes
+                        </Text>
+
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ paddingLeft: 20, paddingRight: 20, gap: 14 }}
+                        >
+                            {planes.map((plan) => (
+                                <CardPlan
+                                    key={plan.id}
+                                    plan={plan}
+                                    suscripcionActiva={suscripcion?.plan?.id === plan.id}
+                                    onSelect={(id) => handlePagarSuscripcion(id)}
+                                />
+                            ))}
+                        </ScrollView>
+                    </>
+                )}
+
+                {promociones && promociones.length > 0 && (
+                    <>
+                        <Text style={{
+                            fontSize: 20,
+                            fontWeight: "700",
+                            marginLeft: 20,
+                            marginVertical: 10,
+                            color: COLORS.GRIS_BOTON_HOVER
+                        }}>
+                            Promociones
+                        </Text>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ paddingLeft: 20, paddingRight: 20, gap: 14 }}
+                        >
+                            {promociones.map((promo) => (
+                                <CardPromotion
+                                    key={promo.id}
+                                    promo={promo}
+                                    onPress={(p) => navigation.navigate("PromocionDetalle", {promo: p})}
+                                />
+                            ))}
+                        </ScrollView>
+                    </>
+                )}
+
+            </ScrollView>
+
+            <CocineroModal
+                visible={visible}
+                onClose={() => setVisible(false)}
+                cocinero={cocinero}
+                cargando={cargando}
+                error={error}
+            />
         </SafeAreaView>
     );
 }
 
-// ------------------------------------------------------------------
-
 const styles = StyleSheet.create({
     container: {
+        backgroundColor: COLORS.BACKGROUND,
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: '#fff',
     },
+
+    scrollContent: {
+        paddingBottom: 90,
+    },
+
+    blackBox: {
+        width: "100%",
+        backgroundColor: COLORS.GRIS_BOTON,
+        paddingHorizontal: 20,
+        paddingVertical: 20,
+        marginBottom: 20,
+        gap: 20
+    },
+
+    headerRow: {
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        alignItems: "center",
+    },
+
+    input: {
+        backgroundColor: "#000",
+        color: "#fff",
+        padding: 14,
+        borderRadius: 8,
+        fontSize: 16,
+    },
+
+    cocineroBtn: {
+        backgroundColor: COLORS.NARANJA_BOTON_HOVER,
+        padding: 10,
+        borderRadius: 10,
+        alignItems: "center",
+        alignSelf: "flex-end",
+        marginHorizontal: 20,
+        marginBottom: 10,
+    },
+
+    cocineroBtnText: {
+        color: "#fff",
+        fontSize: 12,
+        fontWeight: "600",
+    },
+
     title: {
         fontSize: 28,
         fontWeight: "bold",
         marginBottom: 10,
         color: '#374151',
     },
+
     subtitle: {
         fontSize: 16,
         color: '#6b7280',

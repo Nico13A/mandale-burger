@@ -5,7 +5,6 @@ import { useForgotPassword } from "../hooks/useForgotPassword";
 import CustomInput from "../components/CustomInput";
 import Button from "../components/Button";
 import { COLORS } from "../constants/colors";
-import BackButton from "../components/BackButton";
 
 export default function ForgotPasswordScreen() {
     const navigation = useNavigation();
@@ -13,7 +12,6 @@ export default function ForgotPasswordScreen() {
     const [localError, setLocalError] = useState("");
     const { handleForgotPassword, loading, error, success } = useForgotPassword();
 
-    // Sincronizar error del backend con localError
     useEffect(() => {
         if (error) setLocalError(error);
     }, [error]);
@@ -29,7 +27,6 @@ export default function ForgotPasswordScreen() {
 
     return (
         <View style={styles.container}>
-            <BackButton />
             <View style={styles.content}>
                 <Text style={styles.title}>Recuperar contraseña</Text>
 

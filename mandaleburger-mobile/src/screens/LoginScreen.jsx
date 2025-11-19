@@ -31,7 +31,7 @@ export default function LoginScreen() {
     // Redirigir si el usuario está logueado
     useEffect(() => {
         if (user && !loading) {
-            navigation.replace("HomeScreen");
+            navigation.replace("MainTabs", {screen: "Inicio"});
         }
     }, [user, loading, navigation]);
 

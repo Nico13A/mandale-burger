@@ -7,4 +7,5 @@ export const COLORS = {
 
     BACKGROUND: '#F3F4F6',
 
+    TEXTO_GRIS_CLARITO: '#9B9B9B',
 };

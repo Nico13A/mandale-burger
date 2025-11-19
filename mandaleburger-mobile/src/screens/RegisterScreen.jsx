@@ -5,7 +5,6 @@ import { useRegister } from "../hooks/useRegister";
 import CustomInput from "../components/CustomInput";
 import Button from "../components/Button";
 import { COLORS } from "../constants/colors";
-import BackButton from "../components/BackButton";
 
 export default function RegisterScreen({ navigation }) {
     const { handleRegister, loading } = useRegister();
