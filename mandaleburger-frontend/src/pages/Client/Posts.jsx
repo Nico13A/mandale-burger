@@ -52,9 +52,9 @@ export default function Posts() {
         {postsArray.map((p) => (
           <li
             key={p.id}
-            className="group flex items-center gap-4 rounded-xl border border-gray-300 bg-black
-                px-4 py-4 md:px-5 md:py-3 hover:bg-[#212121] hover:border-gray-400 transition
-                h-32 md:h-36 overflow-hidden"
+            className="group flex flex-col md:flex-row md:items-center gap-4 rounded-xl border border-gray-300 bg-gris-boton
+                p-4 md:px-5 md:py-3 hover:border-gray-400 transition
+                h-auto md:h-36 overflow-hidden"
           >
             {/* Miniatura */}
             <div
@@ -78,22 +78,22 @@ export default function Posts() {
 
 
             {/* Texto */}
-            <div className="min-w-0 basis-0 flex-1">
+            <div className="flex flex-col flex-1 justify-between md:h-20">
               <h3 className="w-full truncate leading-tight text-white font-semibold text-base md:text-lg">
                 {p.title}
               </h3>
               <p className="text-xs md:text-sm text-gray-400">
                 {p.user_display}  {new Date(p.publication_date).toLocaleString("es-AR")}
               </p>
-              {p.description && <p className="mt-2 text-sm text-white line-clamp-1">{p.description}</p>}
+              {p.description && <p className="text-sm text-white line-clamp-1">{p.description}</p>}
             </div>
 
             {/* Acciones derecha */}
-            <div className="ml-3 md:ml-6 h-16 md:h-20 flex items-center gap-3 shrink-0"> {/* <- shrink-0 */}
+            <div className="h-16 md:h-20 flex flex-col items-end md:items-center md:justify-between"> {/* <- shrink-0 */}
               <div className="scale-90 md:scale-100">
                 <Stars value={p.average_score ?? 3} />
               </div>
-              <Link className="text-gray-300 underline hover:no-underline text-sm md:text-base" to={`${base}/posts/${p.id}`}>
+              <Link className="text-orange-400 no-underline hover:underline text-sm md:text-base" to={`${base}/posts/${p.id}`}>
                 Ver burger
               </Link>
             </div>

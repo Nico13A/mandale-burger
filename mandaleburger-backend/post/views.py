@@ -46,7 +46,7 @@ def _enforce_publication_quota(user):
 
     if usados >= limit:
         raise ValidationError({
-            "quota": f"Alcanzaste tu cupo mensual de ({limit}) publicaciones ."
+            "quota": f"Alcanzaste tu cupo mensual de ({limit}) publicaciones."
         })
 
 # ========== PUBLICATIONS ==========

@@ -50,7 +50,7 @@ const HamburguesasSwiper = ({ items, prevRef, nextRef, onClickItem }) => {
 
               <div className="flex justify-between items-center">
                 <p className="font-semibold text-orange-500 text-sm">
-                  &#36;{item.price}
+                  {item.price !== "Ver más ->" ? `$${item.price}` : item.price}
                 </p>
                 <button
                   onClick={() => onClickItem && onClickItem(item.id)}

@@ -100,7 +100,7 @@ const Carrito = () => {
                                     {/* Info */}
                                     <div className="flex-1 flex flex-col justify-between">
                                         <div>
-                                            <h3 className="font-bold text-white text-lg mb-1">{name}</h3>
+                                            <h3 className="font-bold text-white text-lg mb-1 truncate max-w-[200px] md:max-w-[400px]">{name}</h3>
 
                                             {/* Ingredientes si es custom burger */}
                                             {isCustom && item.custom_burger.ingredients?.length > 0 && (

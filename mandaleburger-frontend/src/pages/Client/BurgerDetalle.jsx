@@ -67,8 +67,8 @@ const BurgerDetalle = () => {
       <div className="relative max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-gris-boton rounded-2xl shadow-2xl p-8 md:p-12 border border-gray-700/30">
         <button
           type="button"
-          onClick={() => navigate("/client/misburgers")}
-          className="absolute top-3 right-3 z-30 h-9 w-9 md:h-10 md:w-10 grid place-items-center
+          onClick={() => navigate(-1)}
+          className="cursor-pointer absolute top-3 right-3 z-30 h-9 w-9 md:h-10 md:w-10 grid place-items-center
                     bg-gray-800 hover:bg-gray-700 text-white rounded-full
                     focus:outline-none focus:ring-2 focus:ring-white/60"
           aria-label="Cerrar"
@@ -91,7 +91,7 @@ const BurgerDetalle = () => {
         {/* Detalles */}
         <div className="space-y-4">
           <div>
-            <h1 className="text-xl md:text-3xl font-bold mb-3 text-white leading-tight">
+            <h1 className="text-xl md:text-3xl font-bold mb-3 text-white leading-tight line-clamp-2">
               {burger.name ?? burger.custom_name ?? "(Sin nombre)"}
             </h1>
             <p className="text-gray-300 text-sm leading-relaxed">

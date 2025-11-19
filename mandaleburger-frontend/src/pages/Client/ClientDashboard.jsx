@@ -22,45 +22,45 @@ import { useListaPost } from "../../hooks/useListPost";
 
 const ClientDashboard = () => {
 
-const {
+  const {
     listaPost,
     cargando: cargandoPost,
     error: errorPost,
     handleListarPost,
-} = useListaPost();
+  } = useListaPost();
 
-useEffect(() => {
+  useEffect(() => {
     handleListarPost();
-}, []);
+  }, []);
 
   const [burgers, setBurgers] = useState([]);
 
-useEffect(() => {
-  const postsArray = Array.isArray(listaPost)
-    ? listaPost
-    : listaPost?.results || [];
+  useEffect(() => {
+    const postsArray = Array.isArray(listaPost)
+      ? listaPost
+      : listaPost?.results || [];
 
-  const soloBurgers = postsArray
-    .map((post) => post.burger)
-    .filter(Boolean);
+    const soloBurgers = postsArray
+      .map((post) => post.burger)
+      .filter(Boolean);
 
-  const verMas = {
-    id: "ver-mas",
-    name: "Ver más…",
-    img: "http://localhost:8000/media/ingredients/mas.png",
-    price: "Ver más…  ->",
-    isVerMas: true,
-  };
+    const verMas = {
+      id: "ver-mas",
+      name: "Ver más",
+      img: "http://localhost:8000/media/ingredients/mas.png",
+      price: "Ver más ->",
+      isVerMas: true,
+    };
 
-  const MAX_PREVIEW = 4;
-  let resultado = soloBurgers.slice(0, MAX_PREVIEW);
+    const MAX_PREVIEW = 4;
+    let resultado = soloBurgers.slice(0, MAX_PREVIEW);
 
-  resultado = [...resultado, verMas];
+    resultado = [...resultado, verMas];
 
-  setBurgers(resultado);
-}, [listaPost]);
+    setBurgers(resultado);
+  }, [listaPost]);
 
- const handleClickBurgerPublicada = (id) => {
+  const handleClickBurgerPublicada = (id) => {
     if (id === "ver-mas") {
       navigate("/client/posts");
     } else {
@@ -134,16 +134,15 @@ useEffect(() => {
       <Buscador value={search} onChange={setSearch} />
 
       <div className="flex justify-end items-center gap-3 mb-4 [&>div]:mb-0">
-          <button
-            onClick={() => navigate("/client/armar")}
-            className="px-4 py-2 text-white text-sm md:text-base rounded-2xl
-                          bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer"
-              >
-                Armar mi burger
-            </button>
-      
-              <BotonCocineroDia onClick={handleVerCocinero} />
-        </div>
+        <button
+          onClick={() => navigate("/client/armar")}
+          className="px-4 py-2 text-white text-sm md:text-base rounded-2xl bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer"
+        >
+          Armar mi burger
+        </button>
+
+        <BotonCocineroDia onClick={handleVerCocinero} />
+      </div>
       {promociones.length > 0 && (
         <SwiperSection
           title="Promociones"

@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { createComment } from "../../services/posts";
 import { useParams, useNavigate } from "react-router-dom";
 import { useObtenerPost } from "../../hooks/useObtenerPost";
@@ -12,11 +12,11 @@ export default function PostDetail() {
   const navigate = useNavigate();
   const { post, cargando, error } = useObtenerPost(id);
   const {
-  calificaciones,
-  cargando: cargandoCalificacion,
-  error: errorCalificacion,
-  refetchCalificaciones,
-} = useObtenerCalificacionPost(id);
+    calificaciones,
+    cargando: cargandoCalificacion,
+    error: errorCalificacion,
+    refetchCalificaciones,
+  } = useObtenerCalificacionPost(id);
   const {
     score,
     cargando: ratingCargando,
@@ -28,24 +28,24 @@ export default function PostDetail() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [promedio, setPromedio] = useState(null);
-  const [comentarios,setComentarios]=useState([]);
+  const [comentarios, setComentarios] = useState([]);
 
   useEffect(() => {
-  if (!post) return;  
-  setComentarios(post.comments || []);  
-}, [post]);
+    if (!post) return;
+    setComentarios(post.comments || []);
+  }, [post]);
 
-useEffect(() => {
-  const total = calificaciones?.length || 0;
-  if (total === 0) {
-    setPromedio(null);
-    return;
-  }
-  const suma = calificaciones.reduce((acc, r) => acc + r.score, 0);
-  const promedioCalculado = (suma / total).toFixed(1);
+  useEffect(() => {
+    const total = calificaciones?.length || 0;
+    if (total === 0) {
+      setPromedio(null);
+      return;
+    }
+    const suma = calificaciones.reduce((acc, r) => acc + r.score, 0);
+    const promedioCalculado = (suma / total).toFixed(1);
 
-  setPromedio(promedioCalculado);
-}, [calificaciones]);
+    setPromedio(promedioCalculado);
+  }, [calificaciones]);
 
   const handleRate = async (newScore) => {
     await rate(post.id, newScore);
@@ -69,19 +69,19 @@ useEffect(() => {
   if (cargando) return <Loading />;
   if (!post) return <p className="text-center text-red-500 mt-4">Error: {error}</p>;
   return (
-    <div className="px-4 md:px-5">
-      <div className="max-w-5xl mx-auto">
+    <div className="pb-25 md:pb-0 md:px-6 md:mt-6">
+      <div className="max-w-6xl mx-auto">
         <div className="flex gap-2">
           <button
             onClick={() => navigate(-1)}
-            className="bg-naranja-boton hover:bg-orange-600 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60"
+            className="bg-naranja-boton hover:bg-orange-400 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60 cursor-pointer"
           >
             Volver
           </button>
 
           <button
             onClick={() => navigate(`/client/burger/${post.custom_burger_id}`)}
-            className="bg-naranja-boton hover:bg-orange-600 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60 ml-auto"
+            className="bg-naranja-boton hover:bg-orange-400 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60 ml-auto cursor-pointer"
           >
             Pedir
           </button>
@@ -130,7 +130,7 @@ useEffect(() => {
 
                 {ratingCargando && (
                   <span className="text-xs text-gray-400">
-                   
+
                   </span>
                 )}
                 {ratingError && (
@@ -145,15 +145,15 @@ useEffect(() => {
               <p className="text-sm text-gray-600">
                 Fecha de publicación: {post.user_display}{" "}
                 {/*new Date(post.publication_date).toLocaleString("es-AR")*/}
-                
+
                 {new Intl.DateTimeFormat("es-AR", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "numeric",
-                    hourCycle: "h23",
-                    timeZone: "America/Argentina/Buenos_Aires",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "numeric",
+                  hourCycle: "h23",
+                  timeZone: "America/Argentina/Buenos_Aires",
                 }).format(new Date(post.publication_date))} hs
               </p>
               {post.description && (
@@ -179,7 +179,7 @@ useEffect(() => {
                         minute: "numeric",
                         hourCycle: "h23",
                         timeZone: "America/Argentina/Buenos_Aires",
-                    }).format(new Date(c.comment_date))} hs
+                      }).format(new Date(c.comment_date))} hs
                     </p>
                     <p>{c.comment_text}</p>
                   </li>
@@ -198,7 +198,7 @@ useEffect(() => {
                 rows={3}
               />
               <button
-                className="w-full bg-naranja-boton hover:bg-orange-600 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60"
+                className="w-full bg-naranja-boton hover:bg-orange-400 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60 cursor-pointer"
                 disabled={sending}
               >
                 {sending ? "Comentando..." : "Comentar"}

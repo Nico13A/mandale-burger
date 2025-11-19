@@ -68,7 +68,7 @@ const Pedidos = () => {
                                             Orden #{orden.id}
                                         </h3>
                                         <span
-                                            className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                                            className={`px-2 md:px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
                                                 orden.status
                                             )}`}
                                         >
