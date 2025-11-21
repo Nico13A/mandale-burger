@@ -10,6 +10,8 @@ const Carrito = () => {
     const { cart, eliminarItem, vaciarCarrito, actualizarCantidad, realizarCheckout, loading } = useCarrito();
     const { pagarOrden } = useMercadoPagoOrden();
     const [errorModal, setErrorModal] = useState(null);
+    const [pickupDate, setPickupDate] = useState("");
+    const [pickupTime, setPickupTime] = useState("");
 
     if (loading) return <Loading />;
 
@@ -34,13 +36,19 @@ const Carrito = () => {
         eliminarItem(id);
     };
 
+    const horas = [];
+
+    for (let h = 12; h <= 22; h++) {
+        horas.push(`${h}:00`);
+    }
+
     const handleVaciar = () => {
         vaciarCarrito();
     };
 
     const handleCheckout = async () => {
         try {
-            const data = await realizarCheckout();
+            const data = await realizarCheckout(pickupDate, pickupTime);
             await pagarOrden(data.order_id);
         } catch (err) {
             try {
@@ -73,7 +81,7 @@ const Carrito = () => {
                 {/* Lista de items */}
                 <div className="lg:col-span-2 space-y-4">
                     {cart.items.map((item) => {
-                        const isCustom = !!item.custom_burger; 
+                        const isCustom = !!item.custom_burger;
                         const name = item.promotion?.name || item.custom_burger?.custom_name || "Burger Personalizada";
                         const img = item.promotion?.img || item.custom_burger?.img || "";
                         const price = item.promotion?.price ?? item.total_price;
@@ -199,6 +207,36 @@ const Carrito = () => {
                             </div>
                         </div>
 
+                        <div className="space-y-4 mb-6">
+                            <div className="flex flex-col gap-1">
+                                <p className="text-orange-500 text-sm tracking-wider font-semibold">Fecha de retiro</p>
+                                <input
+                                    type="date"
+                                    value={pickupDate}
+                                    onChange={(e) => setPickupDate(e.target.value)}
+                                    className="w-full bg-gray-800 text-white p-2 rounded-lg"
+                                />
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                                {horas.map((value) => {
+                                    const selected = pickupTime === value;
+                                    return (
+                                        <button
+                                            key={value}
+                                            onClick={() => setPickupTime(value)}
+                                            className={`cursor-pointer py-2 rounded-lg font-semibold transition-all border 
+                                            ${selected
+                                                ? "bg-naranja-boton border-naranja-boton text-white"
+                                                : "bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700"}
+                                            `}
+                                        >
+                                            {value}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
                         <button
                             onClick={handleCheckout}
                             className="cursor-pointer w-full bg-gradient-to-r text-white bg-naranja-boton hover:bg-naranja-boton-hover font-bold py-4 rounded-xl shadow-lg mb-3 flex items-center justify-center gap-2"
@@ -219,7 +257,7 @@ const Carrito = () => {
             <AnimatePresence>
                 {errorModal && (
                     <motion.div
-                        className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
+                        className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-200 p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -246,37 +284,38 @@ const Carrito = () => {
                                 {errorModal.msg}
                             </h2>
 
-                            <p className="text-gray-400 text-center text-sm mb-6">
-                                Los siguientes productos no tienen stock suficiente
-                            </p>
-
                             {errorModal.detalles.length > 0 && (
-                                <div className="bg-black/40 rounded-xl p-4 mb-6 max-h-64 overflow-y-auto custom-scrollbar">
-                                    <ul className="space-y-3">
-                                        {errorModal.detalles.map((d, i) => (
-                                            <motion.li
-                                                key={i}
-                                                initial={{ opacity: 0, x: -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: i * 0.05 }}
-                                                className="flex items-start gap-3 p-3 rounded-lg bg-gray-800/10 border border-gray-700/50 hover:border-naranja-boton/30 transition-colors"
-                                            >
-                                                <div className="mt-2 w-1.5 h-1.5 rounded-full bg-naranja-boton flex-shrink-0" />
-                                                <div className="flex-1 text-sm">
-                                                    <span className="font-semibold text-white block mb-1">
-                                                        {d.promotion}
-                                                    </span>
-                                                    <span className="text-gray-300">
-                                                        Sin stock de <span className="text-naranja-boton font-medium">{d.ingredient.toLowerCase()}</span>
-                                                    </span>
-                                                    <span className="text-gray-500 text-xs block mt-1">
-                                                        {d.faltante === 1 ? "Falta 1 unidad" : `Faltan ${d.faltante} unidades`}
-                                                    </span>
-                                                </div>
-                                            </motion.li>
-                                        ))}
-                                    </ul>
-                                </div>
+                                <>
+                                    <p className="text-gray-400 text-center text-sm mb-6">
+                                        Los siguientes productos no tienen stock suficiente
+                                    </p>
+                                    <div className="bg-black/40 rounded-xl p-4 mb-6 max-h-64 overflow-y-auto custom-scrollbar">
+                                        <ul className="space-y-3">
+                                            {errorModal.detalles.map((d, i) => (
+                                                <motion.li
+                                                    key={i}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ delay: i * 0.05 }}
+                                                    className="flex items-start gap-3 p-3 rounded-lg bg-gray-800/10 border border-gray-700/50 hover:border-naranja-boton/30 transition-colors"
+                                                >
+                                                    <div className="mt-2 w-1.5 h-1.5 rounded-full bg-naranja-boton flex-shrink-0" />
+                                                    <div className="flex-1 text-sm">
+                                                        <span className="font-semibold text-white block mb-1">
+                                                            {d.promotion}
+                                                        </span>
+                                                        <span className="text-gray-300">
+                                                            Sin stock de <span className="text-naranja-boton font-medium">{d.ingredient.toLowerCase()}</span>
+                                                        </span>
+                                                        <span className="text-gray-500 text-xs block mt-1">
+                                                            {d.faltante === 1 ? "Falta 1 unidad" : `Faltan ${d.faltante} unidades`}
+                                                        </span>
+                                                    </div>
+                                                </motion.li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </>
                             )}
 
                             <div className="flex gap-3 justify-end">

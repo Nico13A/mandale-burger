@@ -35,9 +35,12 @@ class OrderViewSet(viewsets.ReadOnlyModelViewSet):
             ).first()
             if cocinero_hoy:
                 return Order.objects.filter(
-                    Q(created_at__date=hoy) | 
-                    Q(status__in=["paid", "in_progress", "ready_for_pickup"])
-                ).exclude(status__in=["cancelled", "pending"]).order_by('created_at')
+                    (
+                        Q(pickup_date=hoy) |       
+                        Q(pickup_date__lt=hoy)     
+                    ),
+                    status__in=["paid", "in_progress", "ready_for_pickup"]
+                ).order_by("pickup_date", "pickup_time", "created_at")
             return Order.objects.none()
 
         # AppAdmin: ve todo

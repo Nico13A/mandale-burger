@@ -78,9 +78,12 @@ export const clearCart = async () => {
 };
 
 // ------------------ CHECKOUT (VACÍAR CARRITO) ------------------
-export const checkoutCart = async () => {
+export const checkoutCart = async ({pickup_date, pickup_time}) => {
   try {
-    const res = await api.post(ENDPOINTS.CHECKOUT);
+    const res = await api.post(ENDPOINTS.CHECKOUT, {
+      pickup_date,
+      pickup_time
+    });
     return res.data;
   } catch (err) {
     const msg = err.response?.data?.error || "No se pudo vaciar el carrito.";

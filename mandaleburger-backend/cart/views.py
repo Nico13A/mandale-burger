@@ -7,10 +7,13 @@ from promotion.models import PromotionBurger
 from .serializers import CartSerializer
 from .permissions import IsClientUser
 from order.models import Order, OrderItem, OrderStatusHistory
+from order.utils import validate_pickup_slot, validate_pickup_time_anticipation, validate_pickup_time_format
 from django.db import transaction
 from core.models import Ingredient
 from django.utils import timezone
 from customerBurger.models import CustomBurger
+from datetime import datetime
+
 
 
 class CartViewSet(viewsets.ViewSet):
@@ -186,13 +189,58 @@ class CartViewSet(viewsets.ViewSet):
                     "error": "No hay stock disponible",
                     "detalles": missing_ingredients
                 }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Todo lo de aca tiene que ver con la funcionalidad programar entrega
+            pickup_date = request.data.get("pickup_date")
+            pickup_time = request.data.get("pickup_time")
+
+            if not pickup_date or not pickup_time:
+                return Response({"error": "Debe seleccionar fecha y hora de retiro"}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                pickup_date = datetime.strptime(pickup_date, "%Y-%m-%d").date()
+                pickup_time = datetime.strptime(pickup_time, "%H:%M").time()
+            except (ValueError, TypeError):
+                return Response(
+                    {"error": "Formato de fecha u hora inválido."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            today = timezone.localdate()
+            now_time = timezone.localtime().time()
+
+            if pickup_date < today:
+                return Response({"error": "La fecha de retiro no puede ser del pasado."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if pickup_date == today and pickup_time <= now_time:
+                return Response(
+                    {"error": "La hora de retiro debe ser mayor a la hora actual."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if not validate_pickup_slot(pickup_date, pickup_time):
+                return Response({"error": "Ese horario ya alcanzó el límite de pedidos disponibles."}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not validate_pickup_time_format(pickup_time):
+                return Response(
+                    {"error": "Horario inválido. Debe ser entre las 12:00 hs y 22:00 hs, en horas exactas."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if not validate_pickup_time_anticipation(pickup_time):
+                return Response(
+                    {"error": "Debes pedir con al menos 30 minutos de anticipación."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             # 4️⃣ Crear la orden principal
             order = Order.objects.create(
                 user=request.user,
                 status='pending',
                 total_price=cart.total_price(),
-                expiration_time=timezone.now() + timezone.timedelta(minutes=5)
+                expiration_time=timezone.now() + timezone.timedelta(minutes=5),
+                pickup_date=pickup_date,
+                pickup_time=pickup_time
             )
 
             OrderStatusHistory.objects.create(

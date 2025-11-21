@@ -117,10 +117,10 @@ export const useCarrito = () => {
   };
 
   // Checkout: crear orden y vaciar carrito
-  const realizarCheckout = async () => {
+  const realizarCheckout = async (pickup_date, pickup_time) => {
     setLoading(true);
     try {
-      const data = await checkoutCart();
+      const data = await checkoutCart({pickup_date, pickup_time});
       setCart({ ...cart, items: [], total_price: 0 });
       return data;
     } catch (err) {
