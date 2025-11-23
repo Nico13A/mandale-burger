@@ -6,17 +6,24 @@ import { usePublicationRating } from "../../hooks/useCalificar";
 import { useObtenerCalificacionPost } from "../../hooks/useObtenerCalificacion";
 import StarRating from "../../components/StarRating/StarRating";
 import Loading from "../../components/Loading/Loading";
+import { useCarrito } from "../../context/CarritoContext";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Spinner from "../../components/Spinner/Spinner";
+import { useObtenerBurger } from "../../hooks/useObtenerBurger";
 
 export default function PostDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { post, cargando, error } = useObtenerPost(id);
+
   const {
     calificaciones,
     cargando: cargandoCalificacion,
     error: errorCalificacion,
     refetchCalificaciones,
   } = useObtenerCalificacionPost(id);
+
   const {
     score,
     cargando: ratingCargando,
@@ -24,11 +31,18 @@ export default function PostDetail() {
     rate,
   } = usePublicationRating(post?.user_score || 0);
 
-
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [promedio, setPromedio] = useState(null);
   const [comentarios, setComentarios] = useState([]);
+
+  const { agregarItem, loading } = useCarrito();
+
+  const {
+    burger,
+    cargando: cargandoBurger,
+    error: errorBurger,
+  } = useObtenerBurger(post?.custom_burger_id);
 
   useEffect(() => {
     if (!post) return;
@@ -43,7 +57,6 @@ export default function PostDetail() {
     }
     const suma = calificaciones.reduce((acc, r) => acc + r.score, 0);
     const promedioCalculado = (suma / total).toFixed(1);
-
     setPromedio(promedioCalculado);
   }, [calificaciones]);
 
@@ -66,28 +79,44 @@ export default function PostDetail() {
     }
   }
 
+  const handleAgregarAlCarrito = async () => {
+    if (!post) return;
+    try {
+      await agregarItem({
+        customBurgerId: post.custom_burger_id,
+        quantity: 1,
+      });
+      toast.success(`${post.title} agregado al carrito!`);
+    } catch (err) {
+      console.error(err);
+      toast.error("No se pudo agregar al carrito");
+    }
+  };
+
   if (cargando) return <Loading />;
   if (!post) return <p className="text-center text-red-500 mt-4">Error: {error}</p>;
+
   return (
     <div className="pb-25 md:pb-0 md:px-6 md:mt-6">
+      <ToastContainer autoClose={2000} />
       <div className="max-w-6xl mx-auto">
-        <div className="flex gap-2">
+        <div className="flex justify-between">
           <button
             onClick={() => navigate(-1)}
-            className="bg-naranja-boton hover:bg-orange-400 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60 cursor-pointer"
+            className="w-[80px] bg-naranja-boton hover:bg-orange-400 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60 cursor-pointer flex justify-center"
           >
-            Volver
+            <span>Volver</span>
           </button>
-
           <button
-            onClick={() => navigate(`/client/burger/${post.custom_burger_id}`)}
-            className="bg-naranja-boton hover:bg-orange-400 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60 ml-auto cursor-pointer"
+            onClick={handleAgregarAlCarrito}
+            className="w-[80px] bg-naranja-boton hover:bg-orange-400 focus:ring-orange-500 text-white py-2 rounded disabled:opacity-60 cursor-pointer flex justify-center"
+            disabled={loading}
           >
-            Pedir
+            <span>{loading ? <Spinner /> : "Pedir"}</span>
           </button>
         </div>
 
-        {/* CONTENEDOR: IMAGEN A LA IZQUIERDA, TEXTO A LA DERECHA */}
+        {/* CONTENEDOR: IMAGEN + INFO */}
         <div className="mt-4 flex flex-col md:flex-row md:items-stretch gap-8">
 
           {/* Imagen */}
@@ -108,9 +137,10 @@ export default function PostDetail() {
             </div>
           </figure>
 
-          {/* TODO LO MARCADO: A LA DERECHA */}
+          {/* INFO DERECHA */}
           <div className="w-full md:w-1/2 border-2 border-[#FA9A34] rounded-lg p-3 flex flex-col">
-            {/* Calificación */}
+
+            {/* CALIFICACIÓN */}
             <div className="mt-3 flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2 text-sm text-black">
                 <span className="font-medium">Calificación promedio:</span>
@@ -119,53 +149,66 @@ export default function PostDetail() {
                     {promedio} / 5
                   </span>
                 ) : (
-                  <span className="text-gray-400">
-                    Aún no hay calificaciones.
-                  </span>
+                  <span className="text-gray-400">Aún no hay calificaciones.</span>
                 )}
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 <StarRating value={score} onChange={handleRate} />
-
-                {ratingCargando && (
-                  <span className="text-xs text-gray-400">
-
-                  </span>
-                )}
-                {ratingError && (
-                  <span className="text-xs text-red-400">{ratingError}</span>
-                )}
+                {ratingError && <span className="text-xs text-red-400">{ratingError}</span>}
               </div>
             </div>
 
-            {/* Título y descripción */}
-            <figcaption className="mt-4">
-              <h1 className="text-2xl font-bold">{post.title}</h1>
-              <p className="text-sm text-gray-600">
-                Fecha de publicación: {post.user_display}{" "}
-                {/*new Date(post.publication_date).toLocaleString("es-AR")*/}
+            {/* TITULO + DESCRIPCIÓN */}
+            <figcaption className="mt-5">
+              <h1 className="text-3xl font-bold">{post.title}</h1>
 
-                {new Intl.DateTimeFormat("es-AR", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "numeric",
-                  minute: "numeric",
-                  hourCycle: "h23",
-                  timeZone: "America/Argentina/Buenos_Aires",
-                }).format(new Date(post.publication_date))} hs
+              <p className="text-gris-boton mt-2 font-semibold">
+                Fecha de publicación:
+                <span className="font-normal text-gray-700">
+                  {" "}
+                  {new Intl.DateTimeFormat("es-AR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                    hourCycle: "h23",
+                    timeZone: "America/Argentina/Buenos_Aires",
+                  }).format(new Date(post.publication_date))}{" "}
+                  hs.
+                </span>
               </p>
+
               {post.description && (
-                <p className="mt-2 text-gray-800 whitespace-pre-line">
-                  Descripción: {post.description}
+                <p className="mt-2 text-gris-boton whitespace-pre-line font-semibold">
+                  Descripción: <span className="font-normal text-gray-700">{post.description}</span>
                 </p>
               )}
             </figcaption>
 
-            {/* Comentarios */}
-            <h3 className="font-semibold mt-6">Comentarios</h3>
-            <div className="mt-2 max-h-30 md:max-h-70 overflow-y-auto pr-1">
+            {/* INGREDIENTES */}
+            {cargandoBurger && <Spinner />}
+            {errorBurger && <p className="mt-4 text-red-500">{errorBurger}</p>}
+            {burger?.ingredients?.length > 0 && (
+              <div className="mt-2">
+                <h3 className="font-semibold mb-1">Ingredientes:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {burger.ingredients.map((ing) => (
+                    <span
+                      key={ing.id}
+                      className="px-3 py-1 bg-gris-boton text-gray-100 rounded-full text-sm font-medium shadow-sm"
+                    >
+                      {ing.ingredient}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* COMENTARIOS */}
+            <h3 className="font-semibold mt-5">Comentarios:</h3>
+            <div className="mt-1 max-h-30 md:max-h-70 overflow-y-auto pr-1">
               <ul className="grid gap-2">
                 {comentarios?.map((c) => (
                   <li key={c.id} className="border rounded p-2 bg-white">
@@ -179,7 +222,8 @@ export default function PostDetail() {
                         minute: "numeric",
                         hourCycle: "h23",
                         timeZone: "America/Argentina/Buenos_Aires",
-                      }).format(new Date(c.comment_date))} hs
+                      }).format(new Date(c.comment_date))}{" "}
+                      hs
                     </p>
                     <p>{c.comment_text}</p>
                   </li>
@@ -187,10 +231,10 @@ export default function PostDetail() {
               </ul>
             </div>
 
-            {/* Nuevo comentario */}
-            <form onSubmit={onComment} className="grid gap-2 mt-auto">
+            {/* NUEVO COMENTARIO */}
+            <form onSubmit={onComment} className="grid gap-2 mt-5">
               <textarea
-                className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2 focus:ring-brack"
+                className="w-full border border-gray-300 p-3 rounded focus:outline-none focus:ring-2"
                 placeholder="Escribí tu comentario…"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -198,7 +242,7 @@ export default function PostDetail() {
                 rows={3}
               />
               <button
-                className="w-full bg-naranja-boton hover:bg-orange-400 focus:ring-orange-500 text-white px-4 py-2 rounded disabled:opacity-60 cursor-pointer"
+                className="w-full bg-naranja-boton hover:bg-naranja-boton-hover text-white px-4 py-2 rounded cursor-pointer"
                 disabled={sending}
               >
                 {sending ? "Comentando..." : "Comentar"}
@@ -210,3 +254,4 @@ export default function PostDetail() {
     </div>
   );
 }
+

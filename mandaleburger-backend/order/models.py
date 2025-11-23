@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from promotion.models import PromotionBurger
 from django.utils import timezone
 from customerBurger.models import CustomBurger
+from menuburger.models import MenuBurger
 
 # -------------------------
 # Modelo principal de Orden
@@ -131,6 +132,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     promotion = models.ForeignKey(PromotionBurger, on_delete=models.CASCADE, null=True, blank=True)
     custom_burger = models.ForeignKey(CustomBurger, on_delete=models.CASCADE, null=True, blank=True)
+    menu_burger = models.ForeignKey(MenuBurger, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
 
     def total_price(self):
@@ -139,13 +141,14 @@ class OrderItem(models.Model):
             price = self.promotion.price
         elif self.custom_burger:
             price = self.custom_burger.total_price
+        elif self.menu_burger:
+            price = self.menu_burger.price
         return price * self.quantity
     
     def save(self, *args, **kwargs):
-        if not self.promotion and not self.custom_burger:
-            raise ValueError("Debe especificarse una promoción o una hamburguesa personalizada.")
-        if self.promotion and self.custom_burger:
-            raise ValueError("Solo puede asociarse una promoción o una hamburguesa personalizada, no ambas.")
+        tipos = [self.promotion, self.custom_burger, self.menu_burger]
+        if tipos.count(None) != 2: 
+            raise ValueError("Debe especificarse exactamente un tipo de ítem: promoción, hamburguesa personalizada o hamburguesa de la carta.")
         super().save(*args, **kwargs)
 
     def get_item_type(self):
@@ -153,6 +156,8 @@ class OrderItem(models.Model):
             return "promotion"
         elif self.custom_burger:
             return "custom_burger"
+        elif self.menu_burger:
+            return "menu_burger"
         return "unknown"
 
     def __str__(self):
@@ -160,4 +165,6 @@ class OrderItem(models.Model):
             return f"{self.quantity} x {self.promotion.name}"
         if self.custom_burger:
             return f"{self.quantity} x {self.custom_burger.custom_name}"
+        if self.menu_burger:
+            return f"{self.quantity} x {self.menu_burger.name}"
         return f"{self.quantity} x (item sin definir)"

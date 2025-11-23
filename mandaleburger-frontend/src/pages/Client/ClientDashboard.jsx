@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
-import Buscador from "../../components/Buscador/Buscador";
-import BotonesFiltros from "../../components/BotonesFiltros/BotonesFiltros";
 import BotonCocineroDia from "../../components/BotonCocineroDia/BotonCocineroDia";
 import SwiperSection from "../../components/SwiperSection/SwiperSection";
 import ModalCocinero from "../../components/ModalCocinero/ModalCocinero";
@@ -21,7 +19,6 @@ import { useListarPromos } from "../../hooks/useListarPromos";
 import { useListaPost } from "../../hooks/useListPost";
 
 const ClientDashboard = () => {
-
   const {
     listaPost,
     cargando: cargandoPost,
@@ -41,7 +38,13 @@ const ClientDashboard = () => {
       : listaPost?.results || [];
 
     const soloBurgers = postsArray
-      .map((post) => post.burger)
+      .map((post) => {
+        if (!post.burger) return null;
+        return {
+          ...post.burger,
+          postId: post.id,
+        };
+      })
       .filter(Boolean);
 
     const verMas = {
@@ -63,20 +66,23 @@ const ClientDashboard = () => {
   const handleClickBurgerPublicada = (id) => {
     if (id === "ver-mas") {
       navigate("/client/posts");
-    } else {
-      navigate(`/client/burger/${id}`);
+      return;
     }
+    const item = burgers.find((b) => b.id === id);
+    if (!item) {
+      toast.error("No se encontró la publicación.");
+      return;
+    }
+    navigate(`/client/posts/${item.postId}`);   
   };
+
 
   const {
     suscripcionActual,
-    setSuscripcionActual,
   } = useOutletContext();
 
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState(null);
   const [modalAbierto, setModalAbierto] = useState(false);
 
   const { cocineroActual } = useCocineroDelDia();
@@ -93,14 +99,6 @@ const ClientDashboard = () => {
 
   const { isBeginning: isBeginningPromos, isEnd: isEndPromos, onSwiperInit: onSwiperPromos } = useSwiperControls();
   const { isBeginning: isBeginningTop, isEnd: isEndTop, onSwiperInit: onSwiperTop } = useSwiperControls();
-
-  const hamburguesas = [
-    { id: 1, nombre: "Hamburguesa Vegana" },
-    { id: 2, nombre: "Hamburguesa Clásica" },
-    { id: 3, nombre: "Hamburguesa Sin TACC" },
-    { id: 4, nombre: "Hamburguesa con Queso" },
-    { id: 5, nombre: "Hamburguesa BBQ" },
-  ];
 
   const handleVerCocinero = () => {
     setModalAbierto(true);
@@ -131,12 +129,10 @@ const ClientDashboard = () => {
     <div className="pb-25 mx-auto md:pb-0 md:min-w-3xl md:max-w-3xl lg:min-w-4xl xl:min-w-6xl xl:max-w-6xl">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
 
-      <Buscador value={search} onChange={setSearch} />
-
       <div className="flex justify-end items-center gap-3 mb-4 [&>div]:mb-0">
         <button
           onClick={() => navigate("/client/armar")}
-          className="px-4 py-2 text-white text-sm md:text-base rounded-2xl bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer"
+          className="px-4 py-2 text-white text-sm md:text-base rounded-full bg-naranja-boton hover:bg-naranja-boton-hover cursor-pointer"
         >
           Armar mi burger
         </button>
@@ -156,16 +152,18 @@ const ClientDashboard = () => {
         />
       )}
 
-      <SwiperSection
-        title="Burgers publicadas"
-        items={burgers}
-        prevRef={prevRefTop}
-        nextRef={nextRefTop}
-        isBeginning={isBeginningTop}
-        isEnd={isEndTop}
-        onSwiper={onSwiperTop}
-        onClickItem={handleClickBurgerPublicada}
-      />
+      {burgers.length > 0 && (
+        <SwiperSection
+          title="Hamburguesas publicadas"
+          items={burgers}
+          prevRef={prevRefTop}
+          nextRef={nextRefTop}
+          isBeginning={isBeginningTop}
+          isEnd={isEndTop}
+          onSwiper={onSwiperTop}
+          onClickItem={handleClickBurgerPublicada}
+        />
+      )}
 
       <section className="mt-6">
         <h2 className="text-2xl font-bold mb-3">Planes de suscripción</h2>

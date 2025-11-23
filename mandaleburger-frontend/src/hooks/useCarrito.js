@@ -31,10 +31,10 @@ export const useCarrito = () => {
   }, []);
 
   // Agregar ítem
-  const agregarItem = async ({ promotionId = null, customBurgerId = null, quantity = 1 }) => {
+  const agregarItem = async ({ promotionId = null, customBurgerId = null, menuBurgerId = null, quantity = 1 }) => {
     setLoading(true);
     try {
-      const data = await addItemToCart({ promotionId, customBurgerId, quantity });
+      const data = await addItemToCart({ promotionId, customBurgerId, menuBurgerId, quantity });
       setCart(data);
     } catch (err) {
       setError(err.message);
@@ -77,7 +77,7 @@ export const useCarrito = () => {
             ...item,
             quantity: nuevaCantidad,
             total_price: nuevaCantidad * parseFloat(
-              item.promotion?.price ?? item.custom_burger?.total_price ?? 0
+              item.promotion?.price ?? item.custom_burger?.total_price ?? item.menu_burger?.price ?? 0
             ),
           }
           : item

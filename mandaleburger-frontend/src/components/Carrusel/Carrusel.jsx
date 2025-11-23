@@ -170,7 +170,7 @@ const Carrusel = forwardRef(function Carrusel({
           </button>
 
           <div className="font-semibold text-center">
-            {medallones[iCarne]?.name ? `Medallón ${medallones[iCarne].name}` : "Sin medallones"}
+            {medallones[iCarne]?.name ? `${medallones[iCarne].name}` : "Sin medallones"}
           </div>
 
           <button

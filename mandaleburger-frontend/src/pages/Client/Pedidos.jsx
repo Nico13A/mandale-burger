@@ -30,6 +30,27 @@ const Pedidos = () => {
         cancelled: "Cancelado",
     };
 
+    const getItemName = (item) => {
+        if (!item) return "Producto";
+        if (item.item_type === "promotion" && item.promotion)
+            return item.promotion.name;
+        if (item.item_type === "custom_burger" && item.custom_burger)
+            return item.custom_burger.custom_name;
+        if (item.item_type === "menu_burger" && item.menu_burger)
+            return item.menu_burger.name;
+        return "Producto";
+    };
+
+    const formatLocalDate = (dateString) => {
+        const [year, month, day] = dateString.split("-").map(Number);
+        const date = new Date(year, month - 1, day);
+        return new Intl.DateTimeFormat("es-AR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        }).format(date);
+    };
+
     if (cargando) return <Loading />;
     if (error) return <p className="text-center text-red-500 mt-4">Error: {error}</p>;
 
@@ -75,7 +96,7 @@ const Pedidos = () => {
                                             {statusText[orden.status.toLowerCase()] || orden.status}
                                         </span>
                                     </div>
-                                    <p className="text-sm text-gray-400 flex items-center gap-1">
+                                    <p className="text-sm text-gray-400 flex items-center gap-1 transition-all duration-200 hover:text-gray-300">
                                         <svg
                                             className="w-4 h-4"
                                             fill="none"
@@ -85,20 +106,14 @@ const Pedidos = () => {
                                             <path
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                strokeWidth={1.5}
+                                                d="M6 7h12l1 12H5L6 7zm3-3a3 3 0 016 0v3H9V4z"
                                             />
                                         </svg>
-                                        {new Intl.DateTimeFormat("es-AR", {
-                                            year: "numeric",
-                                            month: "long",
-                                            day: "numeric",
-                                            hour: "numeric",
-                                            minute: "numeric",
-                                            hourCycle: "h23",
-                                            timeZone: "America/Argentina/Buenos_Aires",
-                                        }).format(new Date(orden.created_at))} hs
+                                        <span className="font-medium text-gray-300">Retirar:</span>
+                                        {formatLocalDate(orden.pickup_date)} a las {orden.pickup_time.slice(0, 5)} hs
                                     </p>
+
                                 </div>
                                 <div className="text-right">
                                     <p className="text-sm text-gray-200 mb-1">Total</p>
@@ -121,11 +136,7 @@ const Pedidos = () => {
                                                     <span className="border border-gray-800 rounded-md px-2 py-1 text-sm font-medium text-gray-500 min-w-10 flex justify-center">
                                                         {item.quantity}×
                                                     </span>
-                                                    <span className="text-gray-500">
-                                                        {item.item_type === "promotion"
-                                                            ? item.promotion.name
-                                                            : item.custom_burger.custom_name}
-                                                    </span>
+                                                    <span className="text-gray-500">{getItemName(item)}</span>
                                                 </div>
                                                 <span className="font-semibold text-gray-500">
                                                     ${item.total_price}

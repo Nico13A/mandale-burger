@@ -94,9 +94,9 @@ export const CocineroPedidos = () => {
                           {item.quantity}×
                         </span>
                         <span className="font-medium">
-                          {item.item_type === "promotion"
-                            ? item.promotion.name
-                            : item.custom_burger.custom_name}
+                          {item.item_type === "promotion" && item.promotion?.name}
+                          {item.item_type === "custom_burger" && item.custom_burger?.custom_name}
+                          {item.item_type === "menu_burger" && item.menu_burger?.name}
                         </span>
                       </div>
                       <span className="font-bold">

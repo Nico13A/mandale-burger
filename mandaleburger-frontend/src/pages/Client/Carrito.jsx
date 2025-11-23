@@ -81,10 +81,9 @@ const Carrito = () => {
                 {/* Lista de items */}
                 <div className="lg:col-span-2 space-y-4">
                     {cart.items.map((item) => {
-                        const isCustom = !!item.custom_burger;
-                        const name = item.promotion?.name || item.custom_burger?.custom_name || "Burger Personalizada";
-                        const img = item.promotion?.img || item.custom_burger?.img || "";
-                        const price = item.promotion?.price ?? item.total_price;
+                        const name = item.promotion?.name || item.custom_burger?.custom_name || item.menu_burger?.name || "Burger Personalizada";
+                        const img = item.promotion?.img || item.custom_burger?.img || item.menu_burger?.img || "";
+                        const price = item.promotion?.price ?? item.custom_burger?.total_price ?? item.menu_burger?.price ?? item.total_price;
 
                         return (
                             <div
@@ -109,16 +108,6 @@ const Carrito = () => {
                                     <div className="flex-1 flex flex-col justify-between">
                                         <div>
                                             <h3 className="font-bold text-white text-lg mb-1 truncate max-w-[200px] md:max-w-[400px]">{name}</h3>
-
-                                            {/* Ingredientes si es custom burger */}
-                                            {isCustom && item.custom_burger.ingredients?.length > 0 && (
-                                                <ul className="text-gray-400 text-sm">
-                                                    {item.custom_burger.ingredients.map((ing, idx) => (
-                                                        <li key={idx}>{ing.name || ing.ingredient_name}</li>
-                                                    ))}
-                                                </ul>
-                                            )}
-
                                             <p className="text-gray-400 text-sm flex items-center gap-2 mt-2">
                                                 <span className="text-xs bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
                                                     Precio unitario

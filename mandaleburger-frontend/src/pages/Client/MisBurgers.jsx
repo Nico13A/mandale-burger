@@ -9,7 +9,7 @@ export default function MisBurgers() {
   const { listaBurger, cargando, error, handleListarBurger } = useListaBurger();
 
   const handleVerDetalleBurger = (id) => {
-    navigate(`/client/burger/${id}`);
+    navigate(`/client/misburgers/${id}`);
   };
 
   useEffect(() => {

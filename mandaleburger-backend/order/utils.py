@@ -27,15 +27,12 @@ def validate_pickup_time_format(time):
     return True
 
 
-def validate_pickup_time_anticipation(time):
+def validate_pickup_time_anticipation(date, time):
     now = datetime.now()
-    selected_datetime = now.replace(
-        hour=time.hour, 
-        minute=0, 
-        second=0, 
-        microsecond=0
-    )
+    selected_datetime = datetime.combine(date, dtime(time.hour, time.minute))
+
+    if selected_datetime.date() != now.date():
+        return True
 
     min_time = now + timedelta(minutes=30)
-
     return selected_datetime >= min_time

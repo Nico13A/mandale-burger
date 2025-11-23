@@ -22,12 +22,13 @@ export const getCart = async () => {
 };
 
 // ------------------ AGREGAR ÍTEM ------------------
-export const addItemToCart = async ({ promotionId = null, customBurgerId = null, quantity = 1 }) => {
+export const addItemToCart = async ({ promotionId = null, customBurgerId = null, menuBurgerId = null, quantity = 1 }) => {
   try {
     const body = {
       quantity,
       ...(promotionId ? { promotion_id: promotionId } : {}),
       ...(customBurgerId ? { custom_burger_id: customBurgerId } : {}),
+      ...(menuBurgerId ? { menu_burger_id: menuBurgerId } : {}),
     };
     const res = await api.post(ENDPOINTS.ADD_ITEM, body);
     return res.data;
@@ -78,7 +79,7 @@ export const clearCart = async () => {
 };
 
 // ------------------ CHECKOUT (VACÍAR CARRITO) ------------------
-export const checkoutCart = async ({pickup_date, pickup_time}) => {
+export const checkoutCart = async ({ pickup_date, pickup_time }) => {
   try {
     const res = await api.post(ENDPOINTS.CHECKOUT, {
       pickup_date,

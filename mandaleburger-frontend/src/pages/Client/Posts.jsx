@@ -45,7 +45,7 @@ export default function Posts() {
   return (
     <div className="pb-25 mx-auto md:pb-0 md:min-w-3xl md:max-w-3xl lg:min-w-4xl xl:min-w-6xl xl:max-w-6xl">
       <h1 className="text-xl md:text-3xl font-semibold mt-6 mb-4">
-        Burgers publicadas
+        Hamburguesas publicadas
       </h1>
 
       <ul className="flex flex-col gap-3 w-full">
@@ -78,18 +78,35 @@ export default function Posts() {
 
 
             {/* Texto */}
-            <div className="flex flex-col flex-1 justify-between md:h-20">
+            <div className="flex flex-col flex-1 space-y-2 justify-between">
               <h3 className="w-full truncate leading-tight text-white font-semibold text-base md:text-lg">
                 {p.title}
               </h3>
-              <p className="text-xs md:text-sm text-gray-400">
-                {p.user_display}  {new Date(p.publication_date).toLocaleString("es-AR")}
+              <p className="text-xs md:text-sm text-orange-200 font-medium">
+                Autor: 
+                {" "}
+                <span className="text-gray-400 font-normal">{p.username}</span>
+              </p>
+              <p className="text-xs md:text-sm text-orange-200 font-medium">
+                Fecha de publicación:
+                <span className="text-gray-400 font-normal">
+                  {" "} 
+                  {new Intl.DateTimeFormat("es-AR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                    hourCycle: "h23",
+                    timeZone: "America/Argentina/Buenos_Aires",
+                  }).format(new Date(p.publication_date))} hs
+                </span>
               </p>
               {p.description && <p className="text-sm text-white line-clamp-1">{p.description}</p>}
             </div>
 
             {/* Acciones derecha */}
-            <div className="h-16 md:h-20 flex flex-col items-end md:items-center md:justify-between"> {/* <- shrink-0 */}
+            <div className="flex flex-col items-end md:items-center md:justify-between h-9/12"> {/* <- shrink-0 */}
               <div className="scale-90 md:scale-100">
                 <Stars value={p.average_score ?? 3} />
               </div>

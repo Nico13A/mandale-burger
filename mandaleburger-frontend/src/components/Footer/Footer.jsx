@@ -22,7 +22,7 @@ const Footer = ({ role = "Client" }) => {
   }
 
   return (
-    <footer className="hidden md:flex w-full bg-gris-boton text-white p-12 mt-17 flex-col items-center">
+    <footer className="hidden md:flex w-full bg-gris-boton text-white p-12 mt-10 flex-col items-center">
       <div className="w-full max-w-6xl flex flex-col md:flex-row items-center justify-between gap-8">
         <div
           className="cursor-pointer flex flex-col items-center md:items-start"

@@ -31,5 +31,5 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stdout.write(self.style.ERROR(f"No se pudo cancelar la orden #{orden.id}: {e}"))
 
-        self.stdout.write(self.style.SUCCESS(f"✅ {expiradas.count()} órdenes canceladas correctamente."))
+        self.stdout.write(self.style.SUCCESS(f"{expiradas.count()} órdenes canceladas correctamente."))
 

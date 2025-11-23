@@ -6,6 +6,7 @@ import { getMenuItems } from "./menu.config.js";
 const NavbarMobile = ({ role = "Client", cartCount = 0 }) => {
   const navigate = useNavigate();
   const items = getMenuItems(role);
+
   return (
     <nav
       role="navigation"
@@ -27,6 +28,12 @@ const NavbarMobile = ({ role = "Client", cartCount = 0 }) => {
                 if (role === "AppAdmin") navigate("/admin");
                 else if (role === "Cook") navigate("/cook");
                 else navigate("/client");
+                return;
+              }
+              if (key === "Perfil") {
+                if (role === "AppAdmin") navigate("/admin/profile");
+                else if (role === "Cook") navigate("/cook/profile");
+                else navigate("/client/profile");
                 return;
               }
               if (role === "AppAdmin") navigate(`/admin/${key.toLowerCase()}`);

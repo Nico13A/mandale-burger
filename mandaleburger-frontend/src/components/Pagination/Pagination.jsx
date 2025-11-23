@@ -25,7 +25,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             : "bg-gris-boton text-white hover:bg-gris-boton-hover cursor-pointer"
         }`}
       >
-        Prev
+        Anterior
       </button>
 
       {pages.map((page) => (
@@ -51,7 +51,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
             : "bg-gris-boton text-white hover:bg-gris-boton-hover cursor-pointer"
         }`}
       >
-        Next
+        Siguiente
       </button>
     </div>
   );

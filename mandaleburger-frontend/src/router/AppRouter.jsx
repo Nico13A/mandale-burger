@@ -29,8 +29,11 @@ import PostDetail from "../pages/Client/PostDetail";
 import PromoDetalle from "../pages/Client/PromoDetalle";
 import Pedidos from "../pages/Client/Pedidos";
 import ClientArmarBurger from "../pages/Client/ClientArmarBurger";
-import MisBurgers from "../pages/Client/misBurgers";
+import MisBurgers from "../pages/Client/MisBurgers";
 import BurgerDetalle from "../pages/Client/BurgerDetalle";
+import MenuBurgers from "../pages/Client/MenuBurgers";
+import MenuBurgerDetalle from "../pages/Client/MenuBurgerDetalle";
+import Carrito from "../pages/Client/Carrito";
 
 
 // PUBLIC
@@ -40,7 +43,7 @@ import ForgotPassword from "../pages/ForgotPassword";
 import ResetPasswordConfirm from "../pages/ResetPasswordConfirm";
 import Profile from "../pages/Profile";
 import ChangePassword from "../pages/ChangePassword";
-import Carrito from "../pages/Client/Carrito";
+
 
 const AppRouter = () => {
   return (
@@ -86,6 +89,7 @@ const AppRouter = () => {
       <Route element={<PrivateRoutes allowedRoles={['Cook']} />}>
         <Route element={<CocineroLayout />}>
           <Route path="/cook" element={<CookDashboard />} />
+          <Route path="/cook/profile" element={<Profile />} />
           <Route path="/cook/pedidos" element={<CocineroPedidos />} />
           <Route path="/cook/cocina" element={<Cocina />} />
         </Route>
@@ -96,14 +100,15 @@ const AppRouter = () => {
       <Route element={<PrivateRoutes allowedRoles={['Client']} />}>
         <Route element={<ClientLayout />}>
           <Route path="/client" element={<ClientDashboard />} />
-          <Route path="/client/promociones/:id" element={<PromoDetalle />} />
+          <Route path="/client/profile" element={<Profile />} />
           <Route path="/client/carrito" element={<Carrito />} />
           <Route path="/client/pedidos" element={<Pedidos />} />
           <Route path="/client/armar" element={<ClientArmarBurger />} />
-          <Route path="client/misBurgers" element={<MisBurgers/>} />
-          <Route path="client/Burger/:id" element={<BurgerDetalle/>}/>
-          <Route path="/client/profile" element={<Profile />} />
-
+          <Route path="/client/misburgers" element={<MisBurgers/>} />
+          <Route path="/client/misburgers/:id" element={<BurgerDetalle/>}/>
+          <Route path="/client/menuburgers" element={<MenuBurgers />} />
+          <Route path="/client/menuburgers/:id" element={<MenuBurgerDetalle />} />
+          <Route path="/client/promociones/:id" element={<PromoDetalle />} />
 
 
           <Route path="/client/posts" element={<Posts />} />

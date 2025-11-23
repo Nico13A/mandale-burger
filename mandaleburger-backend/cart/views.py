@@ -13,7 +13,7 @@ from core.models import Ingredient
 from django.utils import timezone
 from customerBurger.models import CustomBurger
 from datetime import datetime
-
+from menuburger.models import MenuBurger
 
 
 class CartViewSet(viewsets.ViewSet):
@@ -49,26 +49,30 @@ class CartViewSet(viewsets.ViewSet):
         """
         promotion_id = request.data.get('promotion_id')
         custom_burger_id = request.data.get('custom_burger_id')
+        menu_burger_id = request.data.get('menu_burger_id')
         quantity = int(request.data.get('quantity', 1))
 
-        if not promotion_id and not custom_burger_id:
-            return Response({"error": "Debe indicar promotion_id o custom_burger_id"}, status=status.HTTP_400_BAD_REQUEST)
+        if not promotion_id and not custom_burger_id and not menu_burger_id:
+            return Response({"error": "Debe indicar promotion_id, custom_burger_id o menu_burger_id"}, status=status.HTTP_400_BAD_REQUEST)
 
         cart, _ = Cart.objects.get_or_create(user=request.user)
 
         if promotion_id:
             promotion = get_object_or_404(PromotionBurger, id=promotion_id)
             item, created = CartItem.objects.get_or_create(cart=cart, promotion=promotion)
-        else:
+        elif custom_burger_id:
             custom_burger = get_object_or_404(
                 CustomBurger,
-                id=custom_burger_id,
-                
+                id=custom_burger_id,    
             )
             item, created = CartItem.objects.get_or_create(
                 cart=cart,
                 custom_burger=custom_burger
             )
+        elif menu_burger_id:
+            menu_burger = get_object_or_404(MenuBurger, id=menu_burger_id)
+            item, created = CartItem.objects.get_or_create(cart=cart, menu_burger=menu_burger)
+
         if not created:
             item.quantity += quantity
         else:
@@ -151,6 +155,9 @@ class CartViewSet(viewsets.ViewSet):
                 elif item.custom_burger:
                     for ci in item.custom_burger.ingredients.all():
                         ingredient_ids.append(ci.ingredient.id)
+                elif item.menu_burger:  
+                    for mbi in item.menu_burger.ingredients.all():
+                        ingredient_ids.append(mbi.ingredient.id)
 
             # Evitar duplicados
             ingredient_ids = list(set(ingredient_ids))
@@ -180,6 +187,16 @@ class CartViewSet(viewsets.ViewSet):
                         if ingredient.stock < required_qty:
                             missing_ingredients.append({
                                 "producto": item.custom_burger.custom_name,
+                                "ingredient": ingredient.name,
+                                "faltante": required_qty - ingredient.stock
+                            })
+                elif item.menu_burger:  
+                    for mbi in item.menu_burger.ingredients.all():
+                        ingredient = ingredients_map[mbi.ingredient.id]
+                        required_qty = mbi.quantity * item.quantity
+                        if ingredient.stock < required_qty:
+                            missing_ingredients.append({
+                                "producto": item.menu_burger.name,
                                 "ingredient": ingredient.name,
                                 "faltante": required_qty - ingredient.stock
                             })
@@ -227,7 +244,7 @@ class CartViewSet(viewsets.ViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if not validate_pickup_time_anticipation(pickup_time):
+            if not validate_pickup_time_anticipation(pickup_date, pickup_time):
                 return Response(
                     {"error": "Debes pedir con al menos 30 minutos de anticipación."},
                     status=status.HTTP_400_BAD_REQUEST
@@ -256,9 +273,9 @@ class CartViewSet(viewsets.ViewSet):
                     order=order,
                     promotion=item.promotion if item.promotion_id else None,
                     custom_burger=item.custom_burger if item.custom_burger_id else None,
+                    menu_burger=item.menu_burger if item.menu_burger_id else None,
                     quantity=item.quantity
                 )
-
                 if item.promotion:
                     for promo_ing in item.promotion.ingredients.all():
                         ingredient = ingredients_map[promo_ing.ingredient.id]
@@ -268,6 +285,11 @@ class CartViewSet(viewsets.ViewSet):
                     for ci in item.custom_burger.ingredients.all():
                         ingredient = ingredients_map[ci.ingredient.id]
                         ingredient.stock -= ci.quantity * item.quantity
+                        ingredient.save()
+                elif item.menu_burger:
+                    for mbi in item.menu_burger.ingredients.all():
+                        ingredient = ingredients_map[mbi.ingredient.id]
+                        ingredient.stock -= mbi.quantity * item.quantity
                         ingredient.save()
 
             # 6️⃣ Vaciar carrito

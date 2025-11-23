@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 import { usePromocionDetalle } from "../../hooks/usePromocionDetalle";
-//import { useCarrito } from "../../hooks/useCarrito";
 import { useCarrito } from "../../context/CarritoContext";
 import Loading from "../../components/Loading/Loading";
 import { ToastContainer, toast } from "react-toastify";

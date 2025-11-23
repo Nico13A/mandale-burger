@@ -24,9 +24,6 @@ const BurgerDetalle = () => {
     try {
       await agregarItem({ customBurgerId: burger.id, quantity: 1 });
       toast.success(`${burger.custom_name} agregada al carrito!`);
-      setTimeout(() => {
-      navigate("/client/carrito");
-    }, 3500);
     } catch (err) {
       console.error(err);
       toast.error("No se pudo agregar al carrito");

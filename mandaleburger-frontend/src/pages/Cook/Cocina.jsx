@@ -5,7 +5,7 @@ import { useCocinaOrders } from "../../hooks/useCocinaOrders";
 
 const Cocina = () => {
     const { ordenes, cargando, error, cargarOrdenesCocina } = useCocinaOrders();
-    
+
     useEffect(() => {
         cargarOrdenesCocina();
     }, []);
@@ -18,8 +18,34 @@ const Cocina = () => {
             </div>
         );
 
-    // Filtramos las órdenes en preparación
     const enPreparacion = ordenes.filter(o => o.status === "in_progress");
+
+    const getItemName = (item) => {
+        switch (item.item_type) {
+            case "promotion":
+                return item.promotion?.name;
+            case "custom_burger":
+                return item.custom_burger?.custom_name;
+            case "menu_burger":
+                return item.menu_burger?.name;
+            default:
+                return "Item desconocido";
+        }
+    };
+
+    const getItemIngredients = (item) => {
+        switch (item.item_type) {
+            case "promotion":
+                return item.promotion?.ingredients || [];
+            case "custom_burger":
+                return item.custom_burger?.ingredients || [];
+            case "menu_burger":
+                return item.menu_burger?.ingredients || [];
+            default:
+                return [];
+        }
+    };
+
 
     return (
         <div className="max-w-6xl mx-auto min-h-[60vh] pb-25 md:p-0">
@@ -61,26 +87,28 @@ const Cocina = () => {
                                         <div className="flex items-center gap-2">
                                             <UtensilsCrossed className="text-naranja-boton w-5 h-5" />
                                             <h3 className="font-semibold text-naranja-boton">
-                                                {item.quantity}× {item.item_type === "promotion" ? item.promotion.name : item.custom_burger.custom_name}
+                                                {item.quantity}× {getItemName(item)}
                                             </h3>
                                         </div>
                                     </div>
-
                                     {/* Ingredientes */}
-                                    {(item.item_type === "promotion" ? item.promotion.ingredients : item.custom_burger.ingredients)?.length > 0 ? (
-                                        <ul className="text-sm text-gray-300 pl-6 list-disc">
-                                            {(item.item_type === "promotion" ? item.promotion.ingredients : item.custom_burger.ingredients).map((ing) => (
-                                                <li key={ing.id} className="flex items-center gap-2">
-                                                    <Circle className="w-3 h-3 text-green-500" />
-                                                    {ing.quantity}× {ing.name}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p className="text-gray-300 text-sm italic pl-6">
-                                            (Sin detalles de ingredientes)
-                                        </p>
-                                    )}
+                                    {(() => {
+                                        const ingredientes = getItemIngredients(item);
+                                        return ingredientes.length > 0 ? (
+                                            <ul className="text-sm text-gray-300 pl-6 list-disc">
+                                                {ingredientes.map((ing) => (
+                                                    <li key={ing.id} className="flex items-center gap-2">
+                                                        <Circle className="w-3 h-3 text-green-500" />
+                                                        {ing.quantity}× {ing.name}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p className="text-gray-300 text-sm italic pl-6">
+                                                (Sin detalles de ingredientes)
+                                            </p>
+                                        );
+                                    })()}
                                 </div>
                             ))}
                         </div>
