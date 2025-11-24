@@ -109,7 +109,7 @@ export const setPublicationRating = async (publicationId, score) => {
 export const listRatingsByPublication = async (publicationId) => {
   try {
     const res = await api.get(ENDPOINTS.RATINGS_BY_POST(publicationId));
-    return res.data; // array de ratings de ese post
+    return res.data; 
   } catch (err) {
     const msg =
       err.response?.data?.detail ||

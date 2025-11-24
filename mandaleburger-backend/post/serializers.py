@@ -3,6 +3,7 @@ from django.utils import timezone
 from .models import Publication, Comment, Rating
 from customerBurger.models import CustomBurger
 from rest_framework.exceptions import ValidationError
+from django.db.models import Avg
 
 
 class CustomBurgerMiniSerializer(serializers.ModelSerializer):
@@ -139,9 +140,12 @@ class PublicationListSerializer(PublicationSerializer):
 class PublicationDetailSerializer(PublicationSerializer):
     comments = CommentSerializer(many=True, read_only=True)
     user_score = serializers.SerializerMethodField()
+    average_score = serializers.SerializerMethodField()
+    ratings_count = serializers.SerializerMethodField()
 
     class Meta(PublicationSerializer.Meta):
-        fields = PublicationSerializer.Meta.fields + ['comments', 'user_score']
+        fields = PublicationSerializer.Meta.fields + ['comments', 'user_score','average_score',
+            'ratings_count',]
 
     def get_user_score(self, obj):
         request = self.context.get('request')
@@ -156,6 +160,12 @@ class PublicationDetailSerializer(PublicationSerializer):
         )
 
         return rating.score if rating else None
+    def get_average_score(self, obj):
+        data = Rating.objects.filter(publication=obj).aggregate(avg=Avg('score'))
+        return data['avg'] or 0  
+
+    def get_ratings_count(self, obj):
+        return Rating.objects.filter(publication=obj).count()
 
 # =======================
 # calificacion
@@ -197,3 +207,4 @@ class RatingSerializer(serializers.ModelSerializer):
             defaults={'score': score}
         )
         return rating
+
