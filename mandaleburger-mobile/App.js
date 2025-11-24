@@ -20,6 +20,9 @@ import { StatusBar } from 'expo-status-bar';
 import { COLORS } from './src/constants/colors';
 import { CarritoProvider } from './src/context/CarritoContext';
 
+import DetailPostScreen from './src/screens/DetailPostScreen';
+import Posts from './src/screens/Posts';
+
 const Stack = createStackNavigator();
 
 function MyStack() {
@@ -54,6 +57,28 @@ function MyStack() {
               headerTitleStyle: {
                 fontSize: 18,
               }
+            }}
+          />
+          <Stack.Screen
+            name="PostDetail"         
+            component={DetailPostScreen}
+            options={{
+              headerShown: true,
+              title: "Detalle de publicación",
+              headerStyle: { backgroundColor: COLORS.GRIS_BOTON },
+              headerTintColor: "#fff",
+              headerTitleStyle: { fontSize: 18 },
+            }}
+          />
+          <Stack.Screen
+            name="Posts"
+            component={Posts}
+            options={{
+              headerShown: true,
+              title: "Publicaciones",
+              headerStyle: { backgroundColor: COLORS.GRIS_BOTON },
+              headerTintColor: "#fff",
+              headerTitleStyle: { fontSize: 18 },
             }}
           />
         </>

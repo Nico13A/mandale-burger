@@ -13,6 +13,8 @@ import { mostrarToast } from "../utils/mostrarToast";
 import { usePromociones } from "../hooks/usePromociones";
 import CardPromotion from "../components/CardPromotion";
 import { useNavigation } from "@react-navigation/native";
+import { useListPosts } from "../hooks/useListPosts";
+import CardPost from "../components/CardPost";
 
 export default function HomeScreen() {
 
@@ -24,6 +26,9 @@ export default function HomeScreen() {
     const { suscripcion, cargarSuscripcionActiva } = useSuscripcion();
     const { pagarPlan } = usePagarPlan();
     const { promociones } = usePromociones();
+    const { posts, cargando:cargandoPost, error:errorPost } = useListPosts();
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -134,6 +139,31 @@ export default function HomeScreen() {
                         </ScrollView>
                     </>
                 )}
+                {posts && posts.length > 0 && !cargandoPost && !errorPost && (
+                <>
+                    <View style={styles.publicadasHeader}>
+                    <Text style={styles.publicada}>Burgers publicadas</Text>
+
+                    <TouchableOpacity onPress={() => navigation.navigate("Posts")}>
+                        <Text style={styles.link}>Ver más</Text>
+                    </TouchableOpacity>
+                    </View>
+                    <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingLeft: 20, paddingRight: 20, gap: 14 }}
+                    >
+                    {posts.slice(0, 5).map((post) => (
+                        <CardPost
+                        key={post.id}
+                        post={post}
+                        onPress={() => navigation.navigate("PostDetail", { id: post.id })}
+                        />
+                    ))}
+                    </ScrollView>
+                </>
+                )}
+
 
             </ScrollView>
 
@@ -153,7 +183,26 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.BACKGROUND,
         flex: 1,
     },
+    publicadasHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: 20,
+    marginVertical: 10,
+    },
 
+    publicada: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: COLORS.GRIS_BOTON_HOVER,
+    },
+
+    link: {
+    fontSize: 14,
+    color: COLORS.NARANJA_BOTON,
+    textDecorationLine: "underline",
+    fontWeight: "500",
+    },
     scrollContent: {
         paddingBottom: 90,
     },
