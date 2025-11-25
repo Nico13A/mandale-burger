@@ -20,7 +20,7 @@ export default function Posts() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Burgers pubicadas</Text>
+      <Text style={styles.title}>Burgers publicadas</Text>
 
       {/* LOADING */}
       {cargando && <Text style={styles.info}>Cargando publicaciones...</Text>}

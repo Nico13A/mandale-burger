@@ -23,6 +23,8 @@ import { CarritoProvider } from './src/context/CarritoContext';
 import DetailPostScreen from './src/screens/DetailPostScreen';
 import Posts from './src/screens/Posts';
 
+import DetalleBurgerScreen from './src/screens/DetalleBurgerScreen';
+
 const Stack = createStackNavigator();
 
 function MyStack() {
@@ -76,6 +78,17 @@ function MyStack() {
             options={{
               headerShown: true,
               title: "Publicaciones",
+              headerStyle: { backgroundColor: COLORS.GRIS_BOTON },
+              headerTintColor: "#fff",
+              headerTitleStyle: { fontSize: 18 },
+            }}
+          />
+          <Stack.Screen
+            name="DetalleBurger"
+            component={DetalleBurgerScreen}
+            options={{
+              headerShown: true,
+              title: "Detalle de la hamburguesa",
               headerStyle: { backgroundColor: COLORS.GRIS_BOTON },
               headerTintColor: "#fff",
               headerTitleStyle: { fontSize: 18 },

@@ -159,8 +159,10 @@ export default function PedidosScreen() {
 
                             <Text style={styles.itemName}>
                               {p.item_type === "promotion"
-                                ? p.promotion.name
-                                : p.custom_burger.custom_name}
+                                ? p.promotion?.name || "Promoción"
+                                : p.item_type === "custom_burger"
+                                ? p.custom_burger?.custom_name || "Hamburguesa personalizada"
+                                : p.menu_burger?.name || "Hamburguesa del menú"}
                             </Text>
                           </View>
 

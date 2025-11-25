@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   getCart,
   addItemToCart,
@@ -27,10 +27,10 @@ export const useCarrito = () => {
   };
 
   // Agregar ítem
-  const agregarItem = async ({ promotionId = null, customBurgerId = null, quantity = 1 }) => {
+  const agregarItem = async ({ promotionId = null, customBurgerId = null, menuBurgerId = null, quantity = 1 }) => {
     setLoading(true);
     try {
-      const data = await addItemToCart({ promotionId, customBurgerId, quantity });
+      const data = await addItemToCart({ promotionId, customBurgerId, menuBurgerId, quantity });
       setCart(data);
     } catch (err) {
       setError(err.message);
@@ -73,7 +73,7 @@ export const useCarrito = () => {
             ...item,
             quantity: nuevaCantidad,
             total_price: nuevaCantidad * parseFloat(
-              item.promotion?.price ?? item.custom_burger?.total_price ?? 0
+              item.promotion?.price ?? item.custom_burger?.total_price ?? item.menu_burger?.price ?? 0
             ),
           }
           : item
@@ -113,10 +113,10 @@ export const useCarrito = () => {
   };
 
   // Checkout: crear orden y vaciar carrito
-  const realizarCheckout = async () => {
+  const realizarCheckout = async (pickup_date, pickup_time) => {
     setLoading(true);
     try {
-      const data = await checkoutCart();
+      const data = await checkoutCart({ pickup_date, pickup_time });
       setCart({ ...cart, items: [], total_price: 0 });
       return data;
     } catch (err) {

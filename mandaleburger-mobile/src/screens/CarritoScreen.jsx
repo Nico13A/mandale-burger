@@ -65,16 +65,16 @@ const CarritoScreen = () => {
                         <View key={item.id} style={styles.card}>
                             <View style={styles.row}>
                                 {/* Imagen del producto */}
-                                {item.promotion?.img || item.custom_burger?.img ? (
+                                {item.promotion?.img || item.custom_burger?.img || item.menu_burger?.img ?  (
                                     <Image
-                                        source={{ uri: `${API_URL}${item.promotion?.img ?? item.custom_burger?.img}` }}
+                                        source={{ uri: `${API_URL}${item.promotion?.img ?? item.custom_burger?.img ?? item.menu_burger?.img }` }}
                                         style={styles.itemImage}
                                     />
                                 ) : null}
 
                                 <View>
                                     <Text style={styles.itemName} numberOfLines={2} ellipsizeMode="tail" adjustsFontSizeToFit minimumFontScale={0.8}>
-                                        {item.promotion?.name ?? item.custom_burger?.custom_name ?? "Producto"}
+                                        {item.promotion?.name ?? item.custom_burger?.custom_name ?? item.menu_burger?.name ?? "Producto"}
                                     </Text>
                                     <Text style={styles.itemPrice}>${item.total_price}</Text>
                                 </View>
