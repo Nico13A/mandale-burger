@@ -6,6 +6,7 @@ import { useCarrito } from "../context/CarritoContext";
 import { API_URL } from "../config";
 import { usePagarPedido } from "../hooks/usePagarPedido";
 import { useState } from "react";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CarritoScreen = () => {
     const { cart, loading, eliminarItem, actualizarCantidad, vaciarCarrito, realizarCheckout } = useCarrito();
@@ -13,6 +14,15 @@ const CarritoScreen = () => {
     const [errorModal, setErrorModal] = useState(null);
 
     const estaVacio = !cart || cart.items.length === 0;
+
+    const [pickupDate, setPickupDate] = useState(null);
+    const [pickupTime, setPickupTime] = useState(null);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const horas = [];
+    for (let h = 12; h <= 22; h++) {
+        horas.push(`${h}:00`);
+    }
 
     const handleIncrementar = (id, cantidad) => {
         actualizarCantidad(id, cantidad + 1);
@@ -23,8 +33,15 @@ const CarritoScreen = () => {
     }
 
     const handlePagar = async () => {
+        if (!pickupDate || !pickupTime) {
+            setErrorModal({
+                msg: "Seleccioná fecha y horario de retiro",
+                detalles: [],
+            });
+            return;
+        }
         try {
-            const order = await realizarCheckout();
+            const order = await realizarCheckout(pickupDate, pickupTime);
             await pagarPedido(order.order_id);
         } catch (error) {
             try {
@@ -38,6 +55,7 @@ const CarritoScreen = () => {
             }
         }
     };
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -65,9 +83,9 @@ const CarritoScreen = () => {
                         <View key={item.id} style={styles.card}>
                             <View style={styles.row}>
                                 {/* Imagen del producto */}
-                                {item.promotion?.img || item.custom_burger?.img || item.menu_burger?.img ?  (
+                                {item.promotion?.img || item.custom_burger?.img || item.menu_burger?.img ? (
                                     <Image
-                                        source={{ uri: `${API_URL}${item.promotion?.img ?? item.custom_burger?.img ?? item.menu_burger?.img }` }}
+                                        source={{ uri: `${API_URL}${item.promotion?.img ?? item.custom_burger?.img ?? item.menu_burger?.img}` }}
                                         style={styles.itemImage}
                                     />
                                 ) : null}
@@ -123,6 +141,58 @@ const CarritoScreen = () => {
                         <Text style={styles.resumenAviso}>
                             Se le notificará cuando su pedido esté listo.
                         </Text>
+
+                        {/* FECHA DE RETIRO */}
+                        <Text style={styles.subtitulo}>Seleccionar fecha de retiro</Text>
+
+                        <TouchableOpacity
+                            style={styles.fechaBtn}
+                            onPress={() => setShowDatePicker(true)}
+                        >
+                            <Text style={styles.fechaBtnText}>
+                                {pickupDate ? pickupDate : "Elegir fecha"}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {showDatePicker && (
+                            <DateTimePicker
+                                value={pickupDate ? new Date(pickupDate) : new Date()}
+                                mode="date"
+                                display="spinner"
+                                minimumDate={new Date()}
+                                onChange={(event, selectedDate) => {
+                                    setShowDatePicker(false);
+                                    if (event.type === "set" && selectedDate) {
+                                        const iso = selectedDate.toISOString().split("T")[0];
+                                        setPickupDate(iso);
+                                    }
+                                }}
+                            />
+                        )}
+
+                        <Text style={styles.subtitulo}>Seleccionar horario</Text>
+
+                        <View style={styles.horasContainer}>
+                            {horas.map((h) => (
+                                <TouchableOpacity
+                                    key={h}
+                                    style={[
+                                        styles.horaItem,
+                                        pickupTime === h && styles.horaItemActiva
+                                    ]}
+                                    onPress={() => setPickupTime(h)}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.horaText,
+                                            pickupTime === h && styles.horaTextActivo
+                                        ]}
+                                    >
+                                        {h}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
 
                         <View style={styles.resumenTotalRow}>
                             <Text style={styles.resumenTotalText}>Total</Text>
@@ -442,6 +512,58 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
         fontWeight: "700",
+    },
+    subtitulo: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "500",
+        paddingTop: 12,
+    },
+    fechaBtn: {
+        backgroundColor: "#2D2D2D",
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 30,
+        borderWidth: 1,
+        borderColor: "#555",
+    },
+    fechaBtnText: {
+        color: "#fff",
+        fontSize: 16,
+    },
+    horasContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 10,
+    },
+    horaItem: {
+        minWidth: 80,
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+        borderRadius: 30,
+        backgroundColor: "#2D2D2D",
+        borderWidth: 1,
+        borderColor: "#555",
+        alignItems: "center",
+        justifyContent: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    horaItemActiva: {
+        backgroundColor: COLORS.NARANJA_BOTON,
+        borderColor: COLORS.NARANJA_BOTON_HOVER,
+    },
+    horaText: {
+        color: "#fff",
+        fontSize: 14,
+        fontWeight: "500",
+    },
+    horaTextActivo: {
+        color: "#000",
+        fontWeight: "600",
     },
 });
 

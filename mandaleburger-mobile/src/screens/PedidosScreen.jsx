@@ -52,8 +52,6 @@ export default function PedidosScreen() {
       year: "numeric",
       month: "long",
       day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
     }).format(date);
   };
 
@@ -136,7 +134,7 @@ export default function PedidosScreen() {
                     </View>
 
                     <Text style={styles.dateText}>
-                      {formatDate(item.created_at)} hs
+                      Retirar: {formatDate(item.pickup_date)} a las {item.pickup_time?.slice(0, 5)} hs
                     </Text>
                   </View>
 
