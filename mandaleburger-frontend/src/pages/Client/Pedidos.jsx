@@ -31,14 +31,16 @@ const Pedidos = () => {
     };
 
     const getItemName = (item) => {
-        if (!item) return "Producto";
-        if (item.item_type === "promotion" && item.promotion)
-            return item.promotion.name;
-        if (item.item_type === "custom_burger" && item.custom_burger)
-            return item.custom_burger.custom_name;
-        if (item.item_type === "menu_burger" && item.menu_burger)
-            return item.menu_burger.name;
-        return "Producto";
+        switch (item.item_type) {
+            case "promotion":
+                return item.promotion?.name || "Promoción";
+            case "custom_burger":
+                return item.custom_burger?.custom_name || "Hamburguesa personalizada";
+            case "menu_burger":
+                return item.menu_burger?.name || "Hamburguesa del menú";
+            default:
+                return "Producto";
+        }
     };
 
     const formatLocalDate = (dateString) => {
