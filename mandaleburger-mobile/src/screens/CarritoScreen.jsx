@@ -44,6 +44,8 @@ const CarritoScreen = () => {
             const order = await realizarCheckout(pickupDate, pickupTime);
             await pagarPedido(order.order_id);
         } catch (error) {
+            console.log(error);
+            
             try {
                 const parsed = JSON.parse(error.message);
                 setErrorModal(parsed);
@@ -55,7 +57,6 @@ const CarritoScreen = () => {
             }
         }
     };
-
 
     return (
         <SafeAreaView style={styles.container}>

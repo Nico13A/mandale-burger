@@ -13,10 +13,12 @@ import { useMenuBurgers } from "../hooks/useMenuBurgers";
 import { useEffect, useState } from "react";
 import { COLORS } from "../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation, useRoute } from "@react-navigation/native";
 
 export default function MisBurgersScreen() {
+    const isFocused = useIsFocused();
     const navigation = useNavigation();
+    const route = useRoute();
     const {
         burgers,
         cargando,
@@ -24,16 +26,31 @@ export default function MisBurgersScreen() {
         paginacion,
         obtenerBurgers,
         irAPagina,
+        buscarLocal,
     } = useMenuBurgers();
 
     const fadeAnim = useState(new Animated.Value(0))[0];
     const translateY = useState(new Animated.Value(20))[0];
 
     useEffect(() => {
-        obtenerBurgers();
-    }, []);
+        if (!isFocused) {
+            navigation.setParams({ busqueda: null });
+        }
+    }, [isFocused]);
 
     useEffect(() => {
+        if (!isFocused) return;
+        const texto = route.params?.busqueda;
+        if (!texto || texto.trim() === "") {
+            obtenerBurgers();
+            return;
+        }
+        buscarLocal(texto);
+    }, [isFocused, route.params?.busqueda]);
+
+    useEffect(() => {
+        fadeAnim.setValue(0);
+        translateY.setValue(20);
         if (!cargando && burgers.length > 0) {
             Animated.parallel([
                 Animated.timing(fadeAnim, {
@@ -52,7 +69,9 @@ export default function MisBurgersScreen() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>Burgers de la carta</Text>
+            <Text style={styles.title}>
+                {route.params?.busqueda ? "Resultados de búsqueda" : "Burgers de la carta"}
+            </Text>
 
             {cargando ? (
                 <View style={styles.center}>
@@ -114,29 +133,31 @@ export default function MisBurgersScreen() {
                         </View>
 
                         {/* PAGINACIÓN */}
-                        <View style={styles.paginationContainer}>
-                            <TouchableOpacity
-                                style={[styles.pageButton, !paginacion.previous && { opacity: 0.4 }]}
-                                disabled={!paginacion.previous}
-                                onPress={() => irAPagina(paginacion.previous)}
-                                activeOpacity={0.8}
-                            >
-                                <Text style={styles.pageButtonText}>Anterior</Text>
-                            </TouchableOpacity>
+                        {!route.params?.busqueda && (
+                            <View style={styles.paginationContainer}>
+                                <TouchableOpacity
+                                    style={[styles.pageButton, !paginacion.previous && { opacity: 0.4 }]}
+                                    disabled={!paginacion.previous}
+                                    onPress={() => irAPagina(paginacion.previous)}
+                                    activeOpacity={0.8}
+                                >
+                                    <Text style={styles.pageButtonText}>Anterior</Text>
+                                </TouchableOpacity>
 
-                            <Text style={styles.pageNumberText}>
-                                Página {paginacion.currentPage || 1} de {Math.ceil(paginacion.count / 10)}
-                            </Text>
+                                <Text style={styles.pageNumberText}>
+                                    Página {paginacion.currentPage || 1} de {Math.ceil(paginacion.count / 10)}
+                                </Text>
 
-                            <TouchableOpacity
-                                style={[styles.pageButton, !paginacion.next && { opacity: 0.4 }]}
-                                disabled={!paginacion.next}
-                                onPress={() => irAPagina(paginacion.next)}
-                                activeOpacity={0.8}
-                            >
-                                <Text style={styles.pageButtonText}>Siguiente</Text>
-                            </TouchableOpacity>
-                        </View>
+                                <TouchableOpacity
+                                    style={[styles.pageButton, !paginacion.next && { opacity: 0.4 }]}
+                                    disabled={!paginacion.next}
+                                    onPress={() => irAPagina(paginacion.next)}
+                                    activeOpacity={0.8}
+                                >
+                                    <Text style={styles.pageButtonText}>Siguiente</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
                     </ScrollView>
                 </Animated.View>
             )}
@@ -229,7 +250,6 @@ const styles = StyleSheet.create({
     image: {
         width: "60%",
         height: 200,
-        objectFit: "cover",
         marginHorizontal: "auto",
         borderRadius: 10,
         marginBottom: 10,

@@ -15,6 +15,7 @@ import CardPromotion from "../components/CardPromotion";
 import { useNavigation } from "@react-navigation/native";
 import { useListPosts } from "../hooks/useListPosts";
 import CardPost from "../components/CardPost";
+import Campanita from "../components/Campanita";
 
 export default function HomeScreen() {
 
@@ -26,8 +27,8 @@ export default function HomeScreen() {
     const { suscripcion, cargarSuscripcionActiva } = useSuscripcion();
     const { pagarPlan } = usePagarPlan();
     const { promociones } = usePromociones();
-    const { posts, cargando:cargandoPost, error:errorPost } = useListPosts();
-
+    const { posts, cargando: cargandoPost, error: errorPost } = useListPosts();
+    const [busqueda, setBusqueda] = useState("");
 
 
     useEffect(() => {
@@ -66,17 +67,27 @@ export default function HomeScreen() {
         }
     }
 
+    const handleBuscar = () => {
+        const texto = busqueda.trim();
+        if (!texto) return;
+        navigation.navigate("Burgers", { busqueda: texto });
+        setBusqueda(""); 
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.blackBox}>
                     <View style={styles.headerRow}>
-                        <Ionicons name="notifications-outline" size={26} color="#fff" />
+                        <Campanita />
                     </View>
                     <TextInput
                         placeholder="Ingrese la hamburguesa que busca..."
                         placeholderTextColor="#ccc"
                         style={styles.input}
+                        value={busqueda}
+                        onChangeText={setBusqueda}
+                        onSubmitEditing={handleBuscar}
                     />
                 </View>
 
@@ -133,35 +144,35 @@ export default function HomeScreen() {
                                 <CardPromotion
                                     key={promo.id}
                                     promo={promo}
-                                    onPress={(p) => navigation.navigate("PromocionDetalle", {promo: p})}
+                                    onPress={(p) => navigation.navigate("PromocionDetalle", { promo: p })}
                                 />
                             ))}
                         </ScrollView>
                     </>
                 )}
                 {posts && posts.length > 0 && !cargandoPost && !errorPost && (
-                <>
-                    <View style={styles.publicadasHeader}>
-                    <Text style={styles.publicada}>Burgers publicadas</Text>
+                    <>
+                        <View style={styles.publicadasHeader}>
+                            <Text style={styles.publicada}>Burgers publicadas</Text>
 
-                    <TouchableOpacity onPress={() => navigation.navigate("Posts")}>
-                        <Text style={styles.link}>Ver más</Text>
-                    </TouchableOpacity>
-                    </View>
-                    <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingLeft: 20, paddingRight: 20, gap: 14 }}
-                    >
-                    {posts.slice(0, 5).map((post) => (
-                        <CardPost
-                        key={post.id}
-                        post={post}
-                        onPress={() => navigation.navigate("PostDetail", { id: post.id })}
-                        />
-                    ))}
-                    </ScrollView>
-                </>
+                            <TouchableOpacity onPress={() => navigation.navigate("Posts")}>
+                                <Text style={styles.link}>Ver más</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ paddingLeft: 20, paddingRight: 20, gap: 14 }}
+                        >
+                            {posts.slice(0, 5).map((post) => (
+                                <CardPost
+                                    key={post.id}
+                                    post={post}
+                                    onPress={() => navigation.navigate("PostDetail", { id: post.id })}
+                                />
+                            ))}
+                        </ScrollView>
+                    </>
                 )}
 
 
@@ -184,24 +195,24 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     publicadasHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginHorizontal: 20,
-    marginVertical: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginHorizontal: 20,
+        marginVertical: 10,
     },
 
     publicada: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: COLORS.GRIS_BOTON_HOVER,
+        fontSize: 20,
+        fontWeight: "700",
+        color: COLORS.GRIS_BOTON_HOVER,
     },
 
     link: {
-    fontSize: 14,
-    color: COLORS.NARANJA_BOTON,
-    textDecorationLine: "underline",
-    fontWeight: "500",
+        fontSize: 14,
+        color: COLORS.NARANJA_BOTON,
+        textDecorationLine: "underline",
+        fontWeight: "500",
     },
     scrollContent: {
         paddingBottom: 90,
